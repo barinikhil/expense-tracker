@@ -1,0 +1,19 @@
+.container {
+  font-family: Arial, sans-serif;
+  max-width: 600px;
+  margin: 4rem auto;
+  padding: 2rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.status {
+  color: #0d47a1;
+  font-weight: 600;
+}
+
+.message {
+  color: #1b5e20;
+  margin-top: 1rem;
+}
