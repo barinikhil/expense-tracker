@@ -25,6 +25,17 @@ export interface SubCategory {
   categoryName: string;
 }
 
+export interface Expense {
+  id: number;
+  amount: number;
+  description: string;
+  expenseDate: string;
+  categoryId: number;
+  categoryName: string;
+  subCategoryId: number;
+  subCategoryName: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -63,5 +74,19 @@ export class BackendService {
 
   updateSubCategory(id: number, payload: { name: string; categoryId: number }): Observable<SubCategory> {
     return this.http.put<SubCategory>(`${this.apiBaseUrl}/sub-categories/${id}`, payload);
+  }
+
+  listExpenses(): Observable<Expense[]> {
+    return this.http.get<Expense[]>(`${this.apiBaseUrl}/expenses`);
+  }
+
+  addExpense(payload: {
+    amount: number;
+    description: string;
+    expenseDate: string;
+    categoryId: number;
+    subCategoryId: number;
+  }): Observable<Expense> {
+    return this.http.post<Expense>(`${this.apiBaseUrl}/expenses`, payload);
   }
 }

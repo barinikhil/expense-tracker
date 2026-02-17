@@ -48,6 +48,18 @@
           <a
             mat-list-item
             class="menu-child"
+            routerLink="/expenses"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            [matTooltip]="isSidebarCollapsed ? 'Expenses' : ''"
+            matTooltipPosition="right"
+          >
+            <mat-icon>receipt_long</mat-icon>
+            <span>Expenses</span>
+          </a>
+          <a
+            mat-list-item
+            class="menu-child"
             routerLink="/categories"
             routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: true }"
