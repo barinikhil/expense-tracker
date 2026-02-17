@@ -34,4 +34,13 @@
   .expense-form-horizontal {
     grid-template-columns: 1fr;
   }
+
+  .expense-form-actions {
+    flex-direction: column;
+  }
+
+  .expense-form-actions button {
+    width: 100%;
+    height: 3rem;
+  }
 }

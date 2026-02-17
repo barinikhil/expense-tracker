@@ -1,5 +1,5 @@
 .login-shell {
-  min-height: calc(100vh - 74px - 3.2rem);
+  min-height: calc(100vh - 4.625rem - 3.2rem);
   display: grid;
   place-items: center;
 }
@@ -26,5 +26,16 @@
 }
 
 .login-form button {
-  height: 48px;
+  height: 3rem;
+}
+
+@media (max-width: 700px) {
+  .login-shell {
+    min-height: calc(100vh - 4rem - 2rem);
+    padding: 0.35rem;
+  }
+
+  .login-card {
+    border-radius: 16px;
+  }
 }

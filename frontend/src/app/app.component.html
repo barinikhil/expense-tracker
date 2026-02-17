@@ -11,9 +11,9 @@
     mat-icon-button
     class="sidebar-toggle"
     (click)="toggleSidebar()"
-    [matTooltip]="isSidebarCollapsed ? 'Expand menu' : 'Collapse menu'"
+    [matTooltip]="isMobileView ? (isSidebarCollapsed ? 'Close menu' : 'Open menu') : (isSidebarCollapsed ? 'Expand menu' : 'Collapse menu')"
   >
-    <mat-icon>{{ isSidebarCollapsed ? 'menu_open' : 'menu' }}</mat-icon>
+    <mat-icon>{{ isMobileView ? (isSidebarCollapsed ? 'close' : 'menu') : (isSidebarCollapsed ? 'menu_open' : 'menu') }}</mat-icon>
   </button>
   <span class="spacer"></span>
   <div class="status-pill">
@@ -41,6 +41,7 @@
         [routerLinkActiveOptions]="{ exact: true }"
         [matTooltip]="isSidebarCollapsed ? 'Expenses' : ''"
         matTooltipPosition="right"
+        (click)="onNavItemClick()"
       >
         <mat-icon>receipt_long</mat-icon>
         <span>Expenses</span>
@@ -58,7 +59,7 @@
         <mat-icon class="menu-expand-icon">{{ isClassificationExpanded ? 'expand_more' : 'chevron_right' }}</mat-icon>
       </button>
 
-      <div class="menu-subgroup" *ngIf="isClassificationExpanded && !isSidebarCollapsed">
+      <div class="menu-subgroup" *ngIf="isClassificationExpanded && (!isSidebarCollapsed || isMobileView)">
         <a
           mat-list-item
           class="menu-child menu-nested-child"
@@ -66,6 +67,7 @@
           routerLinkActive="active"
           [routerLinkActiveOptions]="{ exact: true }"
           matTooltipPosition="right"
+          (click)="onNavItemClick()"
         >
           <mat-icon>category</mat-icon>
           <span>Category</span>
@@ -76,6 +78,7 @@
           routerLink="/sub-categories"
           routerLinkActive="active"
           matTooltipPosition="right"
+          (click)="onNavItemClick()"
         >
           <mat-icon>account_tree</mat-icon>
           <span>Sub-category</span>
@@ -99,6 +102,13 @@
     <router-outlet></router-outlet>
   </section>
 </main>
+
+<div
+  *ngIf="isAuthenticated"
+  class="mobile-backdrop"
+  [class.visible]="isMobileView && isSidebarCollapsed"
+  (click)="closeMobileSidebar()"
+></div>
 
 <div *ngIf="!isBackendUp" class="backend-overlay">
   <p>

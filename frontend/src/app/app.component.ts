@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -36,6 +36,7 @@ export class AppComponent implements OnInit, OnDestroy {
   isBackendUp = false;
   isSidebarCollapsed = false;
   isClassificationExpanded = true;
+  isMobileView = false;
   retryCountdownSeconds = 0;
   private readonly retryIntervalSeconds = Math.max(1, Math.ceil(environment.healthCheckIntervalMs / 1000));
   private readonly destroy$ = new Subject<void>();
@@ -55,6 +56,8 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.updateViewportState();
+
     timer(0, environment.healthCheckIntervalMs)
       .pipe(
         tap(() => {
@@ -93,15 +96,44 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   logout(): void {
+    this.closeMobileSidebar();
     this.authService.clearSession();
     this.router.navigate(['/login']);
   }
 
   toggleSidebar(): void {
+    if (this.isMobileView) {
+      this.isSidebarCollapsed = !this.isSidebarCollapsed;
+      return;
+    }
+
     this.isSidebarCollapsed = !this.isSidebarCollapsed;
   }
 
   toggleClassificationMenu(): void {
     this.isClassificationExpanded = !this.isClassificationExpanded;
+  }
+
+  onNavItemClick(): void {
+    this.closeMobileSidebar();
+  }
+
+  closeMobileSidebar(): void {
+    if (this.isMobileView) {
+      this.isSidebarCollapsed = false;
+    }
+  }
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    this.updateViewportState();
+  }
+
+  private updateViewportState(): void {
+    const mobileBreakpoint = 900;
+    this.isMobileView = window.innerWidth <= mobileBreakpoint;
+    if (this.isMobileView) {
+      this.isSidebarCollapsed = false;
+    }
   }
 }
