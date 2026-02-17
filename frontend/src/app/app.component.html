@@ -8,7 +8,7 @@
   </div>
   <span class="spacer"></span>
   <div class="status-pill">
-    <span class="status-dot"></span>
+    <span class="status-dot" [class.up]="isBackendUp" [class.down]="!isBackendUp"></span>
     <span>{{ status }}</span>
   </div>
 </mat-toolbar>
@@ -31,3 +31,11 @@
     <router-outlet></router-outlet>
   </section>
 </main>
+
+<div *ngIf="!isBackendUp" class="backend-overlay">
+  <p>
+    Backend is down. Please wait...
+    <br />
+    Retrying in {{ retryCountdownSeconds }}s
+  </p>
+</div>

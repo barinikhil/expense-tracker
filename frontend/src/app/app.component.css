@@ -61,8 +61,18 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.2);
+  background: #6b7280;
+  box-shadow: 0 0 0 4px rgba(107, 114, 128, 0.2);
+}
+
+.status-dot.up {
+  background: #16a34a;
+  box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.2);
+}
+
+.status-dot.down {
+  background: #dc2626;
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.2);
 }
 
 .app-shell {
@@ -108,6 +118,24 @@
 
 .content {
   min-width: 0;
+}
+
+.backend-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.3);
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  text-align: center;
+  padding: 1rem;
+}
+
+.backend-overlay p {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
 }
 
 @media (max-width: 900px) {
