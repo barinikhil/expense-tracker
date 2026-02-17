@@ -7,7 +7,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatDividerModule } from '@angular/material/divider';
 import { BackendService, Category, SubCategory } from '../services/backend.service';
 
 @Component({
@@ -21,8 +20,7 @@ import { BackendService, Category, SubCategory } from '../services/backend.servi
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
-    MatIconModule,
-    MatDividerModule
+    MatIconModule
   ],
   templateUrl: './sub-categories-page.component.html',
   styleUrl: './sub-categories-page.component.css'
@@ -33,6 +31,7 @@ export class SubCategoriesPageComponent implements OnInit {
   subCategories: SubCategory[] = [];
 
   newSubCategory = { name: '', categoryId: 0 };
+  subCategoryFilterCategoryId = 0;
   editingSubCategoryId: number | null = null;
   editingSubCategory = { name: '', categoryId: 0 };
 
@@ -107,5 +106,15 @@ export class SubCategoriesPageComponent implements OnInit {
   cancelSubCategoryEdit(): void {
     this.editingSubCategoryId = null;
     this.editingSubCategory = { name: '', categoryId: 0 };
+  }
+
+  get filteredSubCategories(): SubCategory[] {
+    if (!this.subCategoryFilterCategoryId) {
+      return this.subCategories;
+    }
+
+    return this.subCategories.filter(
+      (subCategory) => subCategory.categoryId === this.subCategoryFilterCategoryId
+    );
   }
 }

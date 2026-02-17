@@ -29,10 +29,6 @@
   margin-bottom: 1rem;
 }
 
-.section-block h3 {
-  margin: 0 0 0.9rem;
-}
-
 .form-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -43,15 +39,6 @@
 .form-row button {
   height: 56px;
   align-self: end;
-}
-
-.filter-row {
-  margin-top: 0.4rem;
-  max-width: 340px;
-}
-
-.section-divider {
-  margin: 1.2rem 0;
 }
 
 .table-wrap {

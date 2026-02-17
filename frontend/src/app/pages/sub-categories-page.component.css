@@ -41,56 +41,58 @@
   align-self: end;
 }
 
-.section-divider {
-  margin: 1.2rem 0;
+.filter-row {
+  margin-top: 0.4rem;
+  max-width: 340px;
 }
 
-.list {
-  display: grid;
-  gap: 0.9rem;
-}
-
-.item {
-  border-radius: 18px;
+.table-wrap {
+  margin-top: 1rem;
+  overflow-x: auto;
   border: 1px solid var(--outline);
-  box-shadow: 0 10px 22px rgba(21, 35, 45, 0.08);
+  border-radius: 14px;
 }
 
-.item ::ng-deep .mat-mdc-card-content {
-  padding: 0 1.1rem 1.1rem;
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 640px;
 }
 
-.item-head {
+th,
+td {
+  text-align: left;
+  padding: 0.8rem;
+  border-bottom: 1px solid var(--outline);
+  vertical-align: middle;
+}
+
+thead {
+  background: var(--surface-alt);
+}
+
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.inline-field {
+  width: 100%;
+  margin-bottom: -1.25em;
+}
+
+.actions-cell {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.8rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
-.item h3 {
-  margin: 0;
-  font-size: 1.05rem;
-}
-
-.item p {
-  margin: 0.3rem 0 0;
+.empty-cell {
+  text-align: center;
   color: var(--muted);
 }
 
-.edit-grid {
-  display: grid;
-  gap: 0.9rem;
-}
-
-.edit-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-}
-
-@media (max-width: 600px) {
-  .item-head {
-    flex-direction: column;
-    align-items: flex-start;
+@media (max-width: 900px) {
+  .actions-cell {
+    min-width: 170px;
   }
 }

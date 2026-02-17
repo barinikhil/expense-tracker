@@ -1,7 +1,7 @@
 <mat-card class="panel">
   <mat-card-header>
-    <mat-card-title>Categories and Sub-categories</mat-card-title>
-    <mat-card-subtitle>Manage your taxonomy in one place.</mat-card-subtitle>
+    <mat-card-title>Categories</mat-card-title>
+    <mat-card-subtitle>Manage your expense groups.</mat-card-subtitle>
   </mat-card-header>
 
   <mat-card-content>
@@ -10,146 +10,64 @@
       <span>{{ error }}</span>
     </div>
 
-    <section class="section-block">
-      <h3>Categories</h3>
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Name</mat-label>
+        <input matInput [(ngModel)]="newCategory.name" placeholder="Category name" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Description</mat-label>
+        <input matInput [(ngModel)]="newCategory.description" placeholder="Description" />
+      </mat-form-field>
+      <button mat-flat-button class="primary-button" (click)="addCategory()">Add Category</button>
+    </div>
 
-      <div class="form-row">
-        <mat-form-field appearance="outline">
-          <mat-label>Name</mat-label>
-          <input matInput [(ngModel)]="newCategory.name" placeholder="Category name" />
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Description</mat-label>
-          <input matInput [(ngModel)]="newCategory.description" placeholder="Description" />
-        </mat-form-field>
-        <button mat-flat-button class="primary-button" (click)="addCategory()">Add Category</button>
-      </div>
-
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Description</th>
-              <th>Sub-categories</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let category of categories">
-              <ng-container *ngIf="editingCategoryId !== category.id; else editCategoryRow">
-                <td>{{ category.name }}</td>
-                <td>{{ category.description }}</td>
-                <td>{{ subCategoryNames(category) || '-' }}</td>
-                <td class="actions-cell">
-                  <button mat-stroked-button class="ghost-button" (click)="startEditCategory(category)">
-                    <mat-icon>edit</mat-icon>
-                    <span>Edit</span>
-                  </button>
-                </td>
-              </ng-container>
-              <ng-template #editCategoryRow>
-                <td>
-                  <mat-form-field appearance="outline" class="inline-field">
-                    <input matInput [(ngModel)]="editingCategory.name" />
-                  </mat-form-field>
-                </td>
-                <td>
-                  <mat-form-field appearance="outline" class="inline-field">
-                    <input matInput [(ngModel)]="editingCategory.description" />
-                  </mat-form-field>
-                </td>
-                <td>-</td>
-                <td class="actions-cell">
-                  <button mat-flat-button class="primary-button" (click)="saveCategoryEdit()">Save</button>
-                  <button mat-stroked-button class="ghost-button" (click)="cancelCategoryEdit()">Cancel</button>
-                </td>
-              </ng-template>
-            </tr>
-            <tr *ngIf="!categories.length">
-              <td colspan="4" class="empty-cell">No categories found.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <mat-divider class="section-divider"></mat-divider>
-
-    <section class="section-block">
-      <h3>Sub-categories</h3>
-
-      <div class="form-row">
-        <mat-form-field appearance="outline">
-          <mat-label>Name</mat-label>
-          <input matInput [(ngModel)]="newSubCategory.name" placeholder="Sub-category name" />
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Category</mat-label>
-          <mat-select [(ngModel)]="newSubCategory.categoryId">
-            <mat-option [value]="0">Select category</mat-option>
-            <mat-option *ngFor="let category of categories" [value]="category.id">{{ category.name }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-        <button mat-flat-button class="primary-button" (click)="addSubCategory()">Add Sub-category</button>
-      </div>
-
-      <div class="filter-row">
-        <mat-form-field appearance="outline">
-          <mat-label>Filter by category</mat-label>
-          <mat-select [(ngModel)]="subCategoryFilterCategoryId">
-            <mat-option [value]="0">All categories</mat-option>
-            <mat-option *ngFor="let category of categories" [value]="category.id">{{ category.name }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Category</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let subCategory of filteredSubCategories">
-              <ng-container *ngIf="editingSubCategoryId !== subCategory.id; else editSubCategoryRow">
-                <td>{{ subCategory.name }}</td>
-                <td>{{ subCategory.categoryName }}</td>
-                <td class="actions-cell">
-                  <button mat-stroked-button class="ghost-button" (click)="startEditSubCategory(subCategory)">
-                    <mat-icon>edit</mat-icon>
-                    <span>Edit</span>
-                  </button>
-                </td>
-              </ng-container>
-              <ng-template #editSubCategoryRow>
-                <td>
-                  <mat-form-field appearance="outline" class="inline-field">
-                    <input matInput [(ngModel)]="editingSubCategory.name" />
-                  </mat-form-field>
-                </td>
-                <td>
-                  <mat-form-field appearance="outline" class="inline-field">
-                    <mat-select [(ngModel)]="editingSubCategory.categoryId">
-                      <mat-option *ngFor="let category of categories" [value]="category.id">{{ category.name }}</mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                </td>
-                <td class="actions-cell">
-                  <button mat-flat-button class="primary-button" (click)="saveSubCategoryEdit()">Save</button>
-                  <button mat-stroked-button class="ghost-button" (click)="cancelSubCategoryEdit()">Cancel</button>
-                </td>
-              </ng-template>
-            </tr>
-            <tr *ngIf="!filteredSubCategories.length">
-              <td colspan="3" class="empty-cell">No sub-categories found.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Sub-categories</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let category of categories">
+            <ng-container *ngIf="editingCategoryId !== category.id; else editCategoryRow">
+              <td>{{ category.name }}</td>
+              <td>{{ category.description }}</td>
+              <td>{{ subCategoryNames(category) || '-' }}</td>
+              <td class="actions-cell">
+                <button mat-stroked-button class="ghost-button" (click)="startEditCategory(category)">
+                  <mat-icon>edit</mat-icon>
+                  <span>Edit</span>
+                </button>
+              </td>
+            </ng-container>
+            <ng-template #editCategoryRow>
+              <td>
+                <mat-form-field appearance="outline" class="inline-field">
+                  <input matInput [(ngModel)]="editingCategory.name" />
+                </mat-form-field>
+              </td>
+              <td>
+                <mat-form-field appearance="outline" class="inline-field">
+                  <input matInput [(ngModel)]="editingCategory.description" />
+                </mat-form-field>
+              </td>
+              <td>-</td>
+              <td class="actions-cell">
+                <button mat-flat-button class="primary-button" (click)="saveCategoryEdit()">Save</button>
+                <button mat-stroked-button class="ghost-button" (click)="cancelCategoryEdit()">Cancel</button>
+              </td>
+            </ng-template>
+          </tr>
+          <tr *ngIf="!categories.length">
+            <td colspan="4" class="empty-cell">No categories found.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </mat-card-content>
 </mat-card>

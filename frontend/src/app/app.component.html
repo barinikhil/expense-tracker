@@ -22,7 +22,11 @@
     <mat-nav-list class="menu">
       <a mat-list-item routerLink="/categories" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
         <mat-icon>category</mat-icon>
-        <span>Categories & Sub-categories</span>
+        <span>Categories</span>
+      </a>
+      <a mat-list-item routerLink="/sub-categories" routerLinkActive="active">
+        <mat-icon>account_tree</mat-icon>
+        <span>Sub-categories</span>
       </a>
     </mat-nav-list>
   </mat-card>
