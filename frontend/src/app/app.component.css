@@ -5,7 +5,7 @@
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(18px);
   border-bottom: 1px solid var(--outline);
-  height: 74px;
+  height: 4.625rem;
   padding: 0 1.5rem;
 }
 
@@ -30,7 +30,7 @@
 
 .brand-badge {
   width: 46px;
-  height: 46px;
+  height: 2.875rem;
   border-radius: 16px;
   background: var(--primary);
   color: #fff;
@@ -91,12 +91,12 @@
 .user-pill mat-icon {
   font-size: 18px;
   width: 18px;
-  height: 18px;
+  height: 1.125rem;
 }
 
 .status-dot {
   width: 8px;
-  height: 8px;
+  height: 0.5rem;
   border-radius: 50%;
   background: #6b7280;
   box-shadow: 0 0 0 4px rgba(107, 114, 128, 0.2);
@@ -113,7 +113,7 @@
 }
 
 .app-shell {
-  min-height: calc(100vh - 74px);
+  min-height: calc(100vh - 4.625rem);
   display: grid;
   grid-template-columns: 280px 1fr;
   gap: 1.4rem;
@@ -145,7 +145,7 @@
 
 .sidebar.collapsed .menu .mat-mdc-list-item {
   justify-content: center;
-  min-height: 46px;
+  min-height: 2.875rem;
 }
 
 .sidebar.collapsed .menu .mat-mdc-list-item span {
@@ -197,7 +197,7 @@
   margin-left: auto;
   font-size: 18px;
   width: 18px;
-  height: 18px;
+  height: 1.125rem;
 }
 
 .menu-subgroup {
@@ -250,6 +250,10 @@
   font-weight: 600;
 }
 
+.mobile-backdrop {
+  display: none;
+}
+
 @media (max-width: 900px) {
   .topbar {
     padding: 0 1rem;
@@ -265,6 +269,102 @@
   }
 
   .sidebar {
+    position: fixed;
+    z-index: 20;
+    left: 0.25rem;
+    top: 5.125rem;
+    width: min(92vw, 420px);
+    max-height: calc(100vh - 5.875rem);
+    overflow-y: auto;
+    transform: translateX(-110%);
+    transition: transform 180ms ease;
+  }
+
+  .sidebar.collapsed {
+    transform: translateX(0);
+    width: min(92vw, 420px);
+    padding: 1.4rem 1.2rem;
+  }
+
+  .sidebar.collapsed .sidebar-head {
+    display: block;
+  }
+
+  .sidebar.collapsed .menu .mat-mdc-list-item {
+    justify-content: flex-start;
+  }
+
+  .sidebar.collapsed .menu .mat-mdc-list-item span {
+    display: inline;
+  }
+
+  .sidebar.collapsed .menu-expand-icon {
+    display: inline-flex;
+  }
+
+  .sidebar.collapsed .menu mat-icon {
+    margin-right: 14px;
+  }
+
+  .content {
     width: 100%;
+  }
+
+  .mobile-backdrop.visible {
+    display: block;
+    position: fixed;
+    inset: 4.625rem 0 0 0;
+    z-index: 15;
+    background: rgba(16, 24, 40, 0.35);
+  }
+}
+
+@media (max-width: 700px) {
+  .topbar {
+    height: 4rem;
+    padding: 0 0.75rem;
+  }
+
+  .brand {
+    gap: 0.55rem;
+  }
+
+  .brand-text {
+    display: none;
+  }
+
+  .brand-badge {
+    width: 40px;
+    height: 2.5rem;
+    border-radius: 13px;
+  }
+
+  .status-pill {
+    padding: 0.3rem 0.55rem;
+    font-size: 0.78rem;
+  }
+
+  .user-pill {
+    margin-left: 0.4rem;
+    padding: 0.3rem 0.45rem;
+  }
+
+  .user-pill span {
+    display: none;
+  }
+
+  .sidebar {
+    top: 4.5rem;
+    max-height: calc(100vh - 5.125rem);
+    left: 0;
+    width: 96vw;
+  }
+
+  .sidebar.collapsed {
+    width: 96vw;
+  }
+
+  .mobile-backdrop.visible {
+    inset: 4rem 0 0 0;
   }
 }
