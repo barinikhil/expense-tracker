@@ -1,0 +1,36 @@
+.expense-form-horizontal {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(170px, 1fr));
+  gap: 0.9rem;
+  align-items: end;
+}
+
+.expense-form-horizontal .expense-repeat-check {
+  grid-column: 1 / -1;
+}
+
+.expense-form-horizontal .expense-form-actions {
+  grid-column: 1 / -1;
+}
+
+.expense-repeat-check {
+  margin-top: 0.1rem;
+}
+
+.expense-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+@media (max-width: 1100px) {
+  .expense-form-horizontal {
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .expense-form-horizontal {
+    grid-template-columns: 1fr;
+  }
+}

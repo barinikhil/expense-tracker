@@ -33,6 +33,19 @@
       <p>Stay on top of your taxonomy.</p>
     </div>
     <mat-nav-list class="menu">
+      <a
+        mat-list-item
+        class="menu-child"
+        routerLink="/expenses"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [matTooltip]="isSidebarCollapsed ? 'Expenses' : ''"
+        matTooltipPosition="right"
+      >
+        <mat-icon>receipt_long</mat-icon>
+        <span>Expenses</span>
+      </a>
+
       <div class="menu-group">
         <div
           mat-list-item
@@ -45,18 +58,6 @@
         </div>
 
         <div class="menu-children">
-          <a
-            mat-list-item
-            class="menu-child"
-            routerLink="/expenses"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: true }"
-            [matTooltip]="isSidebarCollapsed ? 'Expenses' : ''"
-            matTooltipPosition="right"
-          >
-            <mat-icon>receipt_long</mat-icon>
-            <span>Expenses</span>
-          </a>
           <a
             mat-list-item
             class="menu-child"

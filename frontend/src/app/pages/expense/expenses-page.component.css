@@ -1,1 +1,5 @@
-/* Shared styles are defined in src/styles.css */
+.expense-top-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.9rem;
+}
