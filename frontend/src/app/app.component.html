@@ -7,14 +7,19 @@
     </div>
   </div>
   <span class="spacer"></span>
+  <div *ngIf="isAuthenticated" class="user-pill">
+    <mat-icon>person</mat-icon>
+    <span>{{ loggedInUsername }}</span>
+  </div>
   <div class="status-pill">
     <span class="status-dot" [class.up]="isBackendUp" [class.down]="!isBackendUp"></span>
     <span>{{ status }}</span>
   </div>
+  <button *ngIf="isAuthenticated" mat-stroked-button class="logout-button" (click)="logout()">Logout</button>
 </mat-toolbar>
 
-<main class="app-shell">
-  <mat-card class="sidebar">
+<main class="app-shell" [class.auth-shell]="!isAuthenticated">
+  <mat-card *ngIf="isAuthenticated" class="sidebar">
     <div class="sidebar-head">
       <h2>Navigation</h2>
       <p>Stay on top of your taxonomy.</p>

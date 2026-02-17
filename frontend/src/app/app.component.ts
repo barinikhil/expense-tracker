@@ -1,13 +1,15 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 import { of, Subject, timer } from 'rxjs';
 import { catchError, switchMap, takeUntil, tap, timeout } from 'rxjs/operators';
 import { BackendService } from './services/backend.service';
+import { AuthService } from './services/auth.service';
 import { environment } from '../environments/environment';
 
 @Component({
@@ -21,7 +23,8 @@ import { environment } from '../environments/environment';
     MatToolbarModule,
     MatCardModule,
     MatListModule,
-    MatIconModule
+    MatIconModule,
+    MatButtonModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
@@ -33,7 +36,19 @@ export class AppComponent implements OnInit, OnDestroy {
   private readonly retryIntervalSeconds = Math.max(1, Math.ceil(environment.healthCheckIntervalMs / 1000));
   private readonly destroy$ = new Subject<void>();
 
-  constructor(private readonly backendService: BackendService) {}
+  constructor(
+    private readonly backendService: BackendService,
+    private readonly authService: AuthService,
+    private readonly router: Router
+  ) {}
+
+  get isAuthenticated(): boolean {
+    return this.authService.isAuthenticated();
+  }
+
+  get loggedInUsername(): string {
+    return this.authService.getUsername();
+  }
 
   ngOnInit(): void {
     timer(0, environment.healthCheckIntervalMs)
@@ -71,5 +86,10 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  logout(): void {
+    this.authService.clearSession();
+    this.router.navigate(['/login']);
   }
 }

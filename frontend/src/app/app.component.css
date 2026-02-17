@@ -57,6 +57,27 @@
   font-size: 0.85rem;
 }
 
+.user-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid var(--outline);
+  color: var(--muted);
+  margin-right: 0.5rem;
+}
+
+.user-pill mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.logout-button {
+  margin-left: 0.6rem;
+}
+
 .status-dot {
   width: 8px;
   height: 8px;
@@ -81,6 +102,10 @@
   grid-template-columns: 280px 1fr;
   gap: 1.4rem;
   padding: 1.6rem;
+}
+
+.app-shell.auth-shell {
+  grid-template-columns: 1fr;
 }
 
 .sidebar {

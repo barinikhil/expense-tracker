@@ -1,0 +1,30 @@
+.login-shell {
+  min-height: calc(100vh - 74px - 3.2rem);
+  display: grid;
+  place-items: center;
+}
+
+.login-card {
+  width: min(440px, 100%);
+  border-radius: 20px;
+  border: 1px solid var(--outline);
+  box-shadow: var(--shadow-1);
+}
+
+.login-card .mat-mdc-card-title {
+  font-size: 1.3rem;
+}
+
+.login-card .mat-mdc-card-subtitle {
+  color: var(--muted);
+}
+
+.login-form {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 0.4rem;
+}
+
+.login-form button {
+  height: 48px;
+}

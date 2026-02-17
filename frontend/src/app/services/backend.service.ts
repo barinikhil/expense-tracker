@@ -6,6 +6,11 @@ interface HealthResponse {
   status: string;
 }
 
+export interface LoginResponse {
+  token: string;
+  username: string;
+}
+
 export interface Category {
   id: number;
   name: string;
@@ -30,6 +35,10 @@ export class BackendService {
 
   getHealth(): Observable<HealthResponse> {
     return this.http.get<HealthResponse>(`${this.apiBaseUrl}/health`);
+  }
+
+  login(payload: { username: string; password: string }): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.apiBaseUrl}/auth/login`, payload);
   }
 
   listCategories(): Observable<Category[]> {
