@@ -1,16 +1,16 @@
-<mat-card class="panel">
+<mat-card class="taxonomy-panel">
   <mat-card-header>
     <mat-card-title>Categories</mat-card-title>
     <mat-card-subtitle>Manage your expense groups.</mat-card-subtitle>
   </mat-card-header>
 
   <mat-card-content>
-    <div *ngIf="error" class="error">
+    <div *ngIf="error" class="taxonomy-error">
       <mat-icon>error</mat-icon>
       <span>{{ error }}</span>
     </div>
 
-    <form #categoryForm="ngForm" class="form-row" (ngSubmit)="addCategory()">
+    <form #categoryForm="ngForm" class="taxonomy-form-row" (ngSubmit)="addCategory()">
       <mat-form-field appearance="outline">
         <mat-label>Name</mat-label>
         <input
@@ -42,8 +42,8 @@
       <button mat-flat-button type="submit" class="primary-button">Add Category</button>
     </form>
 
-    <div class="table-wrap">
-      <table>
+    <div class="taxonomy-table-wrap">
+      <table class="taxonomy-table">
         <thead>
           <tr>
             <th>Name</th>
@@ -58,7 +58,7 @@
               <td>{{ category.name }}</td>
               <td>{{ category.description }}</td>
               <td>{{ subCategoryNames(category) || '-' }}</td>
-              <td class="actions-cell">
+              <td class="taxonomy-actions-cell">
                 <button mat-stroked-button class="ghost-button" (click)="startEditCategory(category)">
                   <mat-icon>edit</mat-icon>
                   <span>Edit</span>
@@ -67,24 +67,24 @@
             </ng-container>
             <ng-template #editCategoryRow>
               <td>
-                <mat-form-field appearance="outline" class="inline-field">
+                <mat-form-field appearance="outline" class="taxonomy-inline-field">
                   <input matInput [(ngModel)]="editingCategory.name" />
                 </mat-form-field>
               </td>
               <td>
-                <mat-form-field appearance="outline" class="inline-field">
+                <mat-form-field appearance="outline" class="taxonomy-inline-field">
                   <input matInput [(ngModel)]="editingCategory.description" />
                 </mat-form-field>
               </td>
               <td>-</td>
-              <td class="actions-cell">
+              <td class="taxonomy-actions-cell">
                 <button mat-flat-button class="primary-button" (click)="saveCategoryEdit()">Save</button>
                 <button mat-stroked-button class="ghost-button" (click)="cancelCategoryEdit()">Cancel</button>
               </td>
             </ng-template>
           </tr>
           <tr *ngIf="!categories.length">
-            <td colspan="4" class="empty-cell">No categories found.</td>
+            <td colspan="4" class="taxonomy-empty-cell">No categories found.</td>
           </tr>
         </tbody>
       </table>
