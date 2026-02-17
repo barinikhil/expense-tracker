@@ -1,0 +1,87 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { BackendService, Category } from '../services/backend.service';
+
+@Component({
+  selector: 'app-categories-page',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './categories-page.component.html',
+  styleUrl: './categories-page.component.css'
+})
+export class CategoriesPageComponent implements OnInit {
+  error = '';
+  categories: Category[] = [];
+
+  newCategory = { name: '', description: '' };
+  editingCategoryId: number | null = null;
+  editingCategory = { name: '', description: '' };
+
+  constructor(private readonly backendService: BackendService) {}
+
+  ngOnInit(): void {
+    this.loadCategories();
+  }
+
+  loadCategories(): void {
+    this.error = '';
+    this.backendService.listCategories().subscribe({
+      next: (categories) => {
+        this.categories = categories;
+      },
+      error: () => {
+        this.error = 'Failed to load categories.';
+      }
+    });
+  }
+
+  addCategory(): void {
+    if (!this.newCategory.name.trim() || !this.newCategory.description.trim()) {
+      return;
+    }
+
+    this.backendService.addCategory(this.newCategory).subscribe({
+      next: () => {
+        this.newCategory = { name: '', description: '' };
+        this.loadCategories();
+      },
+      error: (err) => {
+        this.error = err?.error?.message ?? 'Unable to add category.';
+      }
+    });
+  }
+
+  startEditCategory(category: Category): void {
+    this.editingCategoryId = category.id;
+    this.editingCategory = {
+      name: category.name,
+      description: category.description
+    };
+  }
+
+  saveCategoryEdit(): void {
+    if (this.editingCategoryId === null) {
+      return;
+    }
+
+    this.backendService.updateCategory(this.editingCategoryId, this.editingCategory).subscribe({
+      next: () => {
+        this.cancelCategoryEdit();
+        this.loadCategories();
+      },
+      error: (err) => {
+        this.error = err?.error?.message ?? 'Unable to update category.';
+      }
+    });
+  }
+
+  cancelCategoryEdit(): void {
+    this.editingCategoryId = null;
+    this.editingCategory = { name: '', description: '' };
+  }
+
+  subCategoryNames(category: Category): string {
+    return category.subCategories.map((subCategory) => subCategory.name).join(', ');
+  }
+}

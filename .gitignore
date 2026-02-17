@@ -12,3 +12,4 @@ frontend/dist/
 # OS
 .DS_Store
 /frontend/.angular/
+/frontend/package-lock.json
