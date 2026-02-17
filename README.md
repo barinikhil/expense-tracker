@@ -2,7 +2,7 @@
 
 This repository contains a basic full-stack starter setup:
 
-- `backend/`: Spring Boot API (port `8080`)
+- `backend/`: Spring Boot API (port `8081`)
 - `frontend/`: Angular UI (port `4200`)
 - `maven/`: Maven setup and backend build/run notes
 
