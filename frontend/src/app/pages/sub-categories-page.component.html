@@ -1,33 +1,66 @@
-<section class="panel">
-  <h2>Sub-categories</h2>
-  <p *ngIf="error" class="error">{{ error }}</p>
+<mat-card class="panel">
+  <mat-card-header>
+    <mat-card-title>Sub-categories</mat-card-title>
+    <mat-card-subtitle>Dial in granular spending labels.</mat-card-subtitle>
+  </mat-card-header>
 
-  <div class="form-row">
-    <input [(ngModel)]="newSubCategory.name" placeholder="Sub-category name" />
-    <select [(ngModel)]="newSubCategory.categoryId">
-      <option [ngValue]="0">Select category</option>
-      <option *ngFor="let category of categories" [ngValue]="category.id">{{ category.name }}</option>
-    </select>
-    <button (click)="addSubCategory()">Add Sub-category</button>
-  </div>
+  <mat-card-content>
+    <div *ngIf="error" class="error">
+      <mat-icon>error</mat-icon>
+      <span>{{ error }}</span>
+    </div>
 
-  <ul>
-    <li *ngFor="let subCategory of subCategories">
-      <ng-container *ngIf="editingSubCategoryId !== subCategory.id; else editSubCategoryBlock">
-        <strong>{{ subCategory.name }}</strong> in {{ subCategory.categoryName }}
-        <button (click)="startEditSubCategory(subCategory)">Edit</button>
-      </ng-container>
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Name</mat-label>
+        <input matInput [(ngModel)]="newSubCategory.name" placeholder="Sub-category name" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Category</mat-label>
+        <mat-select [(ngModel)]="newSubCategory.categoryId">
+          <mat-option [value]="0">Select category</mat-option>
+          <mat-option *ngFor="let category of categories" [value]="category.id">{{ category.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button mat-flat-button class="primary-button" (click)="addSubCategory()">Add Sub-category</button>
+    </div>
 
-      <ng-template #editSubCategoryBlock>
-        <div class="form-row inline-edit">
-          <input [(ngModel)]="editingSubCategory.name" />
-          <select [(ngModel)]="editingSubCategory.categoryId">
-            <option *ngFor="let category of categories" [ngValue]="category.id">{{ category.name }}</option>
-          </select>
-          <button (click)="saveSubCategoryEdit()">Save</button>
-          <button (click)="cancelSubCategoryEdit()" class="secondary">Cancel</button>
-        </div>
-      </ng-template>
-    </li>
-  </ul>
-</section>
+    <mat-divider class="section-divider"></mat-divider>
+
+    <div class="list">
+      <mat-card *ngFor="let subCategory of subCategories" class="item">
+        <ng-container *ngIf="editingSubCategoryId !== subCategory.id; else editSubCategoryBlock">
+          <div class="item-head">
+            <div>
+              <h3>{{ subCategory.name }}</h3>
+              <p>In {{ subCategory.categoryName }}</p>
+            </div>
+            <button mat-stroked-button class="ghost-button" (click)="startEditSubCategory(subCategory)">
+              <mat-icon>edit</mat-icon>
+              <span>Edit</span>
+            </button>
+          </div>
+        </ng-container>
+
+        <ng-template #editSubCategoryBlock>
+          <div class="edit-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Name</mat-label>
+              <input matInput [(ngModel)]="editingSubCategory.name" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Category</mat-label>
+              <mat-select [(ngModel)]="editingSubCategory.categoryId">
+                <mat-option *ngFor="let category of categories" [value]="category.id">{{ category.name }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <div class="edit-actions">
+              <button mat-flat-button class="primary-button" (click)="saveSubCategoryEdit()">Save</button>
+              <button mat-stroked-button class="ghost-button" (click)="cancelSubCategoryEdit()">Cancel</button>
+            </div>
+          </div>
+        </ng-template>
+      </mat-card>
+    </div>
+  </mat-card-content>
+</mat-card>

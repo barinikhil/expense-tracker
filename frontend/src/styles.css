@@ -1,4 +1,57 @@
+:root {
+  --bg: #f6f4ef;
+  --surface: #ffffff;
+  --surface-alt: #f1efe7;
+  --text: #1f232b;
+  --muted: #5a6573;
+  --primary: #0f766e;
+  --primary-strong: #0b4f4c;
+  --accent: #f59e0b;
+  --danger: #b42318;
+  --outline: #e1ded6;
+  --shadow-1: 0 12px 24px rgba(21, 35, 45, 0.08), 0 3px 8px rgba(21, 35, 45, 0.06);
+  --shadow-2: 0 24px 48px rgba(21, 35, 45, 0.12), 0 6px 18px rgba(21, 35, 45, 0.1);
+  --mdc-theme-primary: var(--primary);
+  --mdc-theme-secondary: var(--accent);
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  background: #f4f6f8;
+  font-family: "Source Sans 3", "Segoe UI", sans-serif;
+  background: radial-gradient(circle at top, #fff6e5 0%, #f7f1e5 40%, #f6f4ef 100%);
+  color: var(--text);
+}
+
+html, body {
+  height: 100%;
+}
+
+h1, h2, h3, .mat-headline-5, .mat-headline-6 {
+  font-family: "Space Grotesk", "Source Sans 3", sans-serif;
+}
+
+.primary-button {
+  background: var(--primary);
+  color: #fff;
+}
+
+.primary-button:hover {
+  background: var(--primary-strong);
+}
+
+.ghost-button {
+  border-color: var(--outline);
+  color: var(--text);
+}
+
+.mat-mdc-form-field {
+  width: 100%;
+}
+
+.mat-mdc-card {
+  background: var(--surface);
 }

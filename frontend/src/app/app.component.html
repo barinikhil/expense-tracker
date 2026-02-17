@@ -1,13 +1,31 @@
-<main class="app-shell">
-  <aside class="sidebar">
-    <h1>Expense Tracker</h1>
-    <p class="status">{{ status }}</p>
+<mat-toolbar class="topbar">
+  <div class="brand">
+    <div class="brand-badge">ET</div>
+    <div>
+      <span class="eyebrow">Personal Finance</span>
+      <h1>Expense Tracker</h1>
+    </div>
+  </div>
+  <span class="spacer"></span>
+  <div class="status-pill">
+    <span class="status-dot"></span>
+    <span>{{ status }}</span>
+  </div>
+</mat-toolbar>
 
-    <nav class="menu">
-      <a routerLink="/categories" routerLinkActive="active">Categories</a>
-      <a routerLink="/sub-categories" routerLinkActive="active">Sub-categories</a>
-    </nav>
-  </aside>
+<main class="app-shell">
+  <mat-card class="sidebar">
+    <div class="sidebar-head">
+      <h2>Navigation</h2>
+      <p>Stay on top of your taxonomy.</p>
+    </div>
+    <mat-nav-list class="menu">
+      <a mat-list-item routerLink="/categories" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        <mat-icon>category</mat-icon>
+        <span>Categories & Sub-categories</span>
+      </a>
+    </mat-nav-list>
+  </mat-card>
 
   <section class="content">
     <router-outlet></router-outlet>

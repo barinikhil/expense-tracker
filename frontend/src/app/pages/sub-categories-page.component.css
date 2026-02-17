@@ -1,52 +1,96 @@
 .panel {
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 1rem;
+  border-radius: 24px;
+  border: 1px solid var(--outline);
+  box-shadow: var(--shadow-1);
+  padding: 0.6rem 0.2rem 0.2rem;
+}
+
+.panel ::ng-deep .mat-mdc-card-header {
+  align-items: flex-start;
+}
+
+.panel ::ng-deep .mat-mdc-card-title {
+  font-size: 1.35rem;
+}
+
+.panel ::ng-deep .mat-mdc-card-subtitle {
+  color: var(--muted);
+  margin-top: 0.25rem;
 }
 
 .error {
-  color: #c62828;
-}
-
-.form-row {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--danger);
+  background: #fff5f5;
+  border-radius: 12px;
+  padding: 0.4rem 0.7rem;
   margin-bottom: 1rem;
 }
 
-input,
-select {
-  padding: 0.45rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  min-width: 180px;
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.9rem;
+  align-items: end;
 }
 
-button {
-  padding: 0.45rem 0.75rem;
-  border: none;
-  border-radius: 4px;
-  background: #1565c0;
-  color: #fff;
-  cursor: pointer;
+.form-row button {
+  height: 56px;
+  align-self: end;
 }
 
-button.secondary {
-  background: #757575;
+.section-divider {
+  margin: 1.2rem 0;
 }
 
-ul {
-  list-style: none;
-  padding: 0;
+.list {
+  display: grid;
+  gap: 0.9rem;
 }
 
-li {
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #f0f0f0;
+.item {
+  border-radius: 18px;
+  border: 1px solid var(--outline);
+  box-shadow: 0 10px 22px rgba(21, 35, 45, 0.08);
 }
 
-.inline-edit {
-  margin-top: 0.35rem;
+.item ::ng-deep .mat-mdc-card-content {
+  padding: 0 1.1rem 1.1rem;
+}
+
+.item-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.item h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.item p {
+  margin: 0.3rem 0 0;
+  color: var(--muted);
+}
+
+.edit-grid {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.edit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+@media (max-width: 600px) {
+  .item-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
