@@ -33,7 +33,7 @@ Maven Wrapper scripts will automatically download `maven-wrapper.jar` on first r
 
 After starting the backend, use:
 
-- Actuator health: `http://localhost:8081/actuator/health`
-- Actuator info: `http://localhost:8081/actuator/info`
-- Swagger UI: `http://localhost:8081/swagger-ui/index.html`
-- OpenAPI JSON: `http://localhost:8081/v3/api-docs`
+- Actuator health: `http://localhost:9081/actuator/health`
+- Actuator info: `http://localhost:9081/actuator/info`
+- Swagger UI: `http://localhost:9081/swagger-ui/index.html`
+- OpenAPI JSON: `http://localhost:9081/v3/api-docs`

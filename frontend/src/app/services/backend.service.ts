@@ -14,7 +14,7 @@ interface MessageResponse {
   providedIn: 'root'
 })
 export class BackendService {
-  private readonly apiBaseUrl = 'http://localhost:8081/api';
+  private readonly apiBaseUrl = 'http://localhost:9081/api';
 
   constructor(private readonly http: HttpClient) {}
 

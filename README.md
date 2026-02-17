@@ -2,7 +2,7 @@
 
 This repository contains a basic full-stack starter setup:
 
-- `backend/`: Spring Boot API (port `8081`)
+- `backend/`: Spring Boot API (port `9081`)
 - `frontend/`: Angular UI (port `4200`)
 - `maven/`: Maven setup and backend build/run notes
 
@@ -36,8 +36,8 @@ Actuator endpoints:
 
 Swagger/OpenAPI:
 
-- Swagger UI: `http://localhost:8081/swagger-ui/index.html`
-- OpenAPI JSON: `http://localhost:8081/v3/api-docs`
+- Swagger UI: `http://localhost:9081/swagger-ui/index.html`
+- OpenAPI JSON: `http://localhost:9081/v3/api-docs`
 
 ### Terminal 2: Start frontend (Angular)
 
