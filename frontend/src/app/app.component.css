@@ -15,6 +15,14 @@
   gap: 0.85rem;
 }
 
+.brand-text {
+  display: block;
+}
+
+.brand-text.hidden {
+  display: none;
+}
+
 .brand h1 {
   margin: 0;
   font-size: 1.2rem;
@@ -46,6 +54,18 @@
   flex: 1;
 }
 
+.sidebar-toggle {
+  margin-left: 0.2rem;
+  border: 1px solid var(--outline);
+  border-radius: 10px;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.sidebar-toggle:hover {
+  background: var(--surface-alt);
+  border-color: #cfc8b7;
+}
+
 .status-pill {
   display: inline-flex;
   align-items: center;
@@ -65,17 +85,13 @@
   border-radius: 999px;
   border: 1px solid var(--outline);
   color: var(--muted);
-  margin-right: 0.5rem;
+  margin-left: 0.6rem;
 }
 
 .user-pill mat-icon {
   font-size: 18px;
   width: 18px;
   height: 18px;
-}
-
-.logout-button {
-  margin-left: 0.6rem;
 }
 
 .status-dot {
@@ -115,6 +131,40 @@
   border: 1px solid var(--outline);
   box-shadow: var(--shadow-1);
   height: fit-content;
+  transition: width 180ms ease, padding 180ms ease;
+}
+
+.sidebar.collapsed {
+  padding: 0.8rem 0.45rem;
+  width: 78px;
+}
+
+.sidebar.collapsed .sidebar-head {
+  display: none;
+}
+
+.sidebar.collapsed .menu .mat-mdc-list-item {
+  justify-content: center;
+  min-height: 46px;
+}
+
+.sidebar.collapsed .menu .mat-mdc-list-item span {
+  display: none;
+}
+
+.sidebar.collapsed .menu-parent {
+  display: none;
+}
+
+.sidebar.collapsed .menu-children {
+  margin-left: 0;
+  margin-top: 0;
+  padding-left: 0;
+  border-left: 0;
+}
+
+.sidebar.collapsed .menu mat-icon {
+  margin-right: 0;
 }
 
 .sidebar-head h2 {
@@ -128,13 +178,47 @@
   font-size: 0.9rem;
 }
 
-.menu a.mat-mdc-list-item {
+.menu .mat-mdc-list-item {
   border-radius: 14px;
+  margin-bottom: 0.4rem;
+  border: 1px solid transparent;
+  transition: background-color 160ms ease, border-color 160ms ease, transform 140ms ease;
+}
+
+.menu-group {
   margin-bottom: 0.35rem;
+}
+
+.menu-parent {
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+}
+
+.menu-parent mat-icon {
+  color: var(--muted);
+}
+
+.menu-children {
+  margin-top: 0.15rem;
+  margin-left: 0.35rem;
+  padding-left: 0.65rem;
+  border-left: 1px dashed var(--outline);
+}
+
+.menu-child.mat-mdc-list-item {
+  margin-bottom: 0.3rem;
+}
+
+.menu .mat-mdc-list-item:hover {
+  background: rgba(15, 118, 110, 0.08);
+  transform: translateX(2px);
 }
 
 .menu a.active {
   background: rgba(15, 118, 110, 0.12);
+  border-color: rgba(15, 118, 110, 0.2);
 }
 
 .menu mat-icon {
@@ -143,6 +227,10 @@
 
 .content {
   min-width: 0;
+}
+
+.app-shell.sidebar-collapsed {
+  grid-template-columns: 78px 1fr;
 }
 
 .backend-overlay {
@@ -171,6 +259,10 @@
   .app-shell {
     grid-template-columns: 1fr;
     padding: 1rem;
+  }
+
+  .app-shell.sidebar-collapsed {
+    grid-template-columns: 1fr;
   }
 
   .sidebar {

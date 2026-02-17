@@ -1,37 +1,85 @@
 <mat-toolbar class="topbar">
   <div class="brand">
     <div class="brand-badge">ET</div>
-    <div>
+    <div class="brand-text" [class.hidden]="isAuthenticated && isSidebarCollapsed">
       <span class="eyebrow">Personal Finance</span>
       <h1>Expense Tracker</h1>
     </div>
   </div>
+  <button
+    *ngIf="isAuthenticated"
+    mat-icon-button
+    class="sidebar-toggle"
+    (click)="toggleSidebar()"
+    [matTooltip]="isSidebarCollapsed ? 'Expand menu' : 'Collapse menu'"
+  >
+    <mat-icon>{{ isSidebarCollapsed ? 'menu_open' : 'menu' }}</mat-icon>
+  </button>
   <span class="spacer"></span>
-  <div *ngIf="isAuthenticated" class="user-pill">
-    <mat-icon>person</mat-icon>
-    <span>{{ loggedInUsername }}</span>
-  </div>
   <div class="status-pill">
     <span class="status-dot" [class.up]="isBackendUp" [class.down]="!isBackendUp"></span>
     <span>{{ status }}</span>
   </div>
-  <button *ngIf="isAuthenticated" mat-stroked-button class="logout-button" (click)="logout()">Logout</button>
+  <div *ngIf="isAuthenticated" class="user-pill">
+    <mat-icon>person</mat-icon>
+    <span>{{ loggedInUsername }}</span>
+  </div>
 </mat-toolbar>
 
-<main class="app-shell" [class.auth-shell]="!isAuthenticated">
-  <mat-card *ngIf="isAuthenticated" class="sidebar">
+<main class="app-shell" [class.auth-shell]="!isAuthenticated" [class.sidebar-collapsed]="isAuthenticated && isSidebarCollapsed">
+  <mat-card *ngIf="isAuthenticated" class="sidebar" [class.collapsed]="isSidebarCollapsed">
     <div class="sidebar-head">
       <h2>Navigation</h2>
       <p>Stay on top of your taxonomy.</p>
     </div>
     <mat-nav-list class="menu">
-      <a mat-list-item routerLink="/categories" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-        <mat-icon>category</mat-icon>
-        <span>Categories</span>
-      </a>
-      <a mat-list-item routerLink="/sub-categories" routerLinkActive="active">
-        <mat-icon>account_tree</mat-icon>
-        <span>Sub-categories</span>
+      <div class="menu-group">
+        <div
+          mat-list-item
+          class="menu-parent"
+          [matTooltip]="isSidebarCollapsed ? 'Others' : ''"
+          matTooltipPosition="right"
+        >
+          <mat-icon>more_horiz</mat-icon>
+          <span>Others</span>
+        </div>
+
+        <div class="menu-children">
+          <a
+            mat-list-item
+            class="menu-child"
+            routerLink="/categories"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            [matTooltip]="isSidebarCollapsed ? 'Category' : ''"
+            matTooltipPosition="right"
+          >
+            <mat-icon>category</mat-icon>
+            <span>Category</span>
+          </a>
+          <a
+            mat-list-item
+            class="menu-child"
+            routerLink="/sub-categories"
+            routerLinkActive="active"
+            [matTooltip]="isSidebarCollapsed ? 'Sub-category' : ''"
+            matTooltipPosition="right"
+          >
+            <mat-icon>account_tree</mat-icon>
+            <span>Sub-category</span>
+          </a>
+        </div>
+      </div>
+      <a
+        mat-list-item
+        class="logout-nav-item"
+        href=""
+        (click)="logout(); $event.preventDefault()"
+        [matTooltip]="isSidebarCollapsed ? 'Logout' : ''"
+        matTooltipPosition="right"
+      >
+        <mat-icon>logout</mat-icon>
+        <span>Logout</span>
       </a>
     </mat-nav-list>
   </mat-card>

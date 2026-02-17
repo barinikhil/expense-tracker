@@ -6,6 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { of, Subject, timer } from 'rxjs';
 import { catchError, switchMap, takeUntil, tap, timeout } from 'rxjs/operators';
 import { BackendService } from './services/backend.service';
@@ -24,7 +25,8 @@ import { environment } from '../environments/environment';
     MatCardModule,
     MatListModule,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
+    MatTooltipModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
@@ -32,6 +34,7 @@ import { environment } from '../environments/environment';
 export class AppComponent implements OnInit, OnDestroy {
   status = 'Checking backend status...';
   isBackendUp = false;
+  isSidebarCollapsed = false;
   retryCountdownSeconds = 0;
   private readonly retryIntervalSeconds = Math.max(1, Math.ceil(environment.healthCheckIntervalMs / 1000));
   private readonly destroy$ = new Subject<void>();
@@ -91,5 +94,9 @@ export class AppComponent implements OnInit, OnDestroy {
   logout(): void {
     this.authService.clearSession();
     this.router.navigate(['/login']);
+  }
+
+  toggleSidebar(): void {
+    this.isSidebarCollapsed = !this.isSidebarCollapsed;
   }
 }
