@@ -24,10 +24,20 @@ cd backend
 ./mvnw spring-boot:run
 ```
 
-Available endpoints:
+Available API endpoints:
 
 - `GET /api/health`
 - `GET /api/message`
+
+Actuator endpoints:
+
+- `GET /actuator/health`
+- `GET /actuator/info`
+
+Swagger/OpenAPI:
+
+- Swagger UI: `http://localhost:8081/swagger-ui/index.html`
+- OpenAPI JSON: `http://localhost:8081/v3/api-docs`
 
 ### Terminal 2: Start frontend (Angular)
 
