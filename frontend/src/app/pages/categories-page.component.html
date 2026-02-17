@@ -94,6 +94,16 @@
         <button mat-flat-button class="primary-button" (click)="addSubCategory()">Add Sub-category</button>
       </div>
 
+      <div class="filter-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Filter by category</mat-label>
+          <mat-select [(ngModel)]="subCategoryFilterCategoryId">
+            <mat-option [value]="0">All categories</mat-option>
+            <mat-option *ngFor="let category of categories" [value]="category.id">{{ category.name }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
       <div class="table-wrap">
         <table>
           <thead>
@@ -104,7 +114,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let subCategory of subCategories">
+            <tr *ngFor="let subCategory of filteredSubCategories">
               <ng-container *ngIf="editingSubCategoryId !== subCategory.id; else editSubCategoryRow">
                 <td>{{ subCategory.name }}</td>
                 <td>{{ subCategory.categoryName }}</td>
@@ -134,7 +144,7 @@
                 </td>
               </ng-template>
             </tr>
-            <tr *ngIf="!subCategories.length">
+            <tr *ngIf="!filteredSubCategories.length">
               <td colspan="3" class="empty-cell">No sub-categories found.</td>
             </tr>
           </tbody>

@@ -45,6 +45,11 @@
   align-self: end;
 }
 
+.filter-row {
+  margin-top: 0.4rem;
+  max-width: 340px;
+}
+
 .section-divider {
   margin: 1.2rem 0;
 }

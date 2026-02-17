@@ -37,6 +37,7 @@ export class CategoriesPageComponent implements OnInit {
   editingCategory = { name: '', description: '' };
 
   newSubCategory = { name: '', categoryId: 0 };
+  subCategoryFilterCategoryId = 0;
   editingSubCategoryId: number | null = null;
   editingSubCategory = { name: '', categoryId: 0 };
 
@@ -156,6 +157,16 @@ export class CategoriesPageComponent implements OnInit {
   cancelSubCategoryEdit(): void {
     this.editingSubCategoryId = null;
     this.editingSubCategory = { name: '', categoryId: 0 };
+  }
+
+  get filteredSubCategories(): SubCategory[] {
+    if (!this.subCategoryFilterCategoryId) {
+      return this.subCategories;
+    }
+
+    return this.subCategories.filter(
+      (subCategory) => subCategory.categoryId === this.subCategoryFilterCategoryId
+    );
   }
 
   subCategoryNames(category: Category): string {
