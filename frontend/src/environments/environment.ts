@@ -1,3 +1,3 @@
 export const environment = {
-  healthCheckIntervalMs: 10000
+  healthCheckIntervalMs: 30000
 };
