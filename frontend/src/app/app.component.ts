@@ -153,4 +153,8 @@ export class AppComponent implements OnInit {
     this.editingSubCategoryId = null;
     this.editingSubCategory = { name: '', categoryId: 0 };
   }
+
+  subCategoryNames(category: Category): string {
+    return category.subCategories.map((subCategory) => subCategory.name).join(', ');
+  }
 }

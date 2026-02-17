@@ -28,7 +28,7 @@
         </ng-template>
 
         <small *ngIf="category.subCategories.length">
-          Sub-categories: {{ category.subCategories.map(sub => sub.name).join(', ') }}
+          Sub-categories: {{ subCategoryNames(category) }}
         </small>
       </li>
     </ul>
