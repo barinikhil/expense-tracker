@@ -10,17 +10,37 @@
       <span>{{ error }}</span>
     </div>
 
-    <div class="form-row">
+    <form #categoryForm="ngForm" class="form-row" (ngSubmit)="addCategory()">
       <mat-form-field appearance="outline">
         <mat-label>Name</mat-label>
-        <input matInput [(ngModel)]="newCategory.name" placeholder="Category name" />
+        <input
+          matInput
+          name="categoryName"
+          required
+          #categoryNameModel="ngModel"
+          [(ngModel)]="newCategory.name"
+          placeholder="Category name"
+        />
+        <mat-error *ngIf="(categoryNameModel.touched || categoryForm.submitted) && categoryNameModel.invalid">
+          Category name is required.
+        </mat-error>
       </mat-form-field>
       <mat-form-field appearance="outline">
         <mat-label>Description</mat-label>
-        <input matInput [(ngModel)]="newCategory.description" placeholder="Description" />
+        <input
+          matInput
+          name="categoryDescription"
+          required
+          #categoryDescriptionModel="ngModel"
+          [(ngModel)]="newCategory.description"
+          placeholder="Description"
+        />
+        <mat-error *ngIf="(categoryDescriptionModel.touched || categoryForm.submitted) && categoryDescriptionModel.invalid">
+          Category description is required.
+        </mat-error>
       </mat-form-field>
-      <button mat-flat-button class="primary-button" (click)="addCategory()">Add Category</button>
-    </div>
+      <button mat-flat-button type="submit" class="primary-button">Add Category</button>
+    </form>
 
     <div class="table-wrap">
       <table>

@@ -30,10 +30,10 @@ export class SubCategoriesPageComponent implements OnInit {
   categories: Category[] = [];
   subCategories: SubCategory[] = [];
 
-  newSubCategory = { name: '', categoryId: 0 };
+  newSubCategory: { name: string; categoryId: number | null } = { name: '', categoryId: null };
   subCategoryFilterCategoryId = 0;
   editingSubCategoryId: number | null = null;
-  editingSubCategory = { name: '', categoryId: 0 };
+  editingSubCategory: { name: string; categoryId: number | null } = { name: '', categoryId: null };
 
   constructor(private readonly backendService: BackendService) {}
 
@@ -64,13 +64,17 @@ export class SubCategoriesPageComponent implements OnInit {
   }
 
   addSubCategory(): void {
-    if (!this.newSubCategory.name.trim() || !this.newSubCategory.categoryId) {
+    if (!this.newSubCategory.name.trim() || this.newSubCategory.categoryId === null) {
       return;
     }
+    const payload = {
+      name: this.newSubCategory.name.trim(),
+      categoryId: this.newSubCategory.categoryId
+    };
 
-    this.backendService.addSubCategory(this.newSubCategory).subscribe({
+    this.backendService.addSubCategory(payload).subscribe({
       next: () => {
-        this.newSubCategory = { name: '', categoryId: 0 };
+        this.newSubCategory = { name: '', categoryId: null };
         this.loadData();
       },
       error: (err) => {
@@ -91,8 +95,16 @@ export class SubCategoriesPageComponent implements OnInit {
     if (this.editingSubCategoryId === null) {
       return;
     }
+    if (!this.editingSubCategory.name.trim() || this.editingSubCategory.categoryId === null) {
+      this.error = 'Sub-category name and category are required.';
+      return;
+    }
+    const payload = {
+      name: this.editingSubCategory.name.trim(),
+      categoryId: this.editingSubCategory.categoryId
+    };
 
-    this.backendService.updateSubCategory(this.editingSubCategoryId, this.editingSubCategory).subscribe({
+    this.backendService.updateSubCategory(this.editingSubCategoryId, payload).subscribe({
       next: () => {
         this.cancelSubCategoryEdit();
         this.loadData();
@@ -105,7 +117,7 @@ export class SubCategoriesPageComponent implements OnInit {
 
   cancelSubCategoryEdit(): void {
     this.editingSubCategoryId = null;
-    this.editingSubCategory = { name: '', categoryId: 0 };
+    this.editingSubCategory = { name: '', categoryId: null };
   }
 
   get filteredSubCategories(): SubCategory[] {

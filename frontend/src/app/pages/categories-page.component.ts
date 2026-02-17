@@ -78,6 +78,10 @@ export class CategoriesPageComponent implements OnInit {
     if (this.editingCategoryId === null) {
       return;
     }
+    if (!this.editingCategory.name.trim() || !this.editingCategory.description.trim()) {
+      this.error = 'Category name and description are required.';
+      return;
+    }
 
     this.backendService.updateCategory(this.editingCategoryId, this.editingCategory).subscribe({
       next: () => {

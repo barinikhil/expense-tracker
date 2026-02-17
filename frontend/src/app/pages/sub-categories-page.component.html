@@ -10,20 +10,38 @@
       <span>{{ error }}</span>
     </div>
 
-    <div class="form-row">
+    <form #subCategoryForm="ngForm" class="form-row" (ngSubmit)="addSubCategory()">
       <mat-form-field appearance="outline">
         <mat-label>Name</mat-label>
-        <input matInput [(ngModel)]="newSubCategory.name" placeholder="Sub-category name" />
+        <input
+          matInput
+          name="subCategoryName"
+          required
+          #subCategoryNameModel="ngModel"
+          [(ngModel)]="newSubCategory.name"
+          placeholder="Sub-category name"
+        />
+        <mat-error *ngIf="(subCategoryNameModel.touched || subCategoryForm.submitted) && subCategoryNameModel.invalid">
+          Sub-category name is required.
+        </mat-error>
       </mat-form-field>
       <mat-form-field appearance="outline">
         <mat-label>Category</mat-label>
-        <mat-select [(ngModel)]="newSubCategory.categoryId">
-          <mat-option [value]="0">Select category</mat-option>
+        <mat-select
+          name="subCategoryCategory"
+          required
+          #subCategoryCategoryModel="ngModel"
+          [(ngModel)]="newSubCategory.categoryId"
+        >
+          <mat-option [value]="null">Select category</mat-option>
           <mat-option *ngFor="let category of categories" [value]="category.id">{{ category.name }}</mat-option>
         </mat-select>
+        <mat-error *ngIf="(subCategoryCategoryModel.touched || subCategoryForm.submitted) && subCategoryCategoryModel.invalid">
+          Category is required.
+        </mat-error>
       </mat-form-field>
-      <button mat-flat-button class="primary-button" (click)="addSubCategory()">Add Sub-category</button>
-    </div>
+      <button mat-flat-button type="submit" class="primary-button">Add Sub-category</button>
+    </form>
 
     <div class="filter-row">
       <mat-form-field appearance="outline">
