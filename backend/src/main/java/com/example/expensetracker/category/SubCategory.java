@@ -1,5 +1,6 @@
 package com.example.expensetracker.category;
 
+import com.example.expensetracker.audit.AuditableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -12,7 +13,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "sub_categories")
-public class SubCategory {
+public class SubCategory extends AuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

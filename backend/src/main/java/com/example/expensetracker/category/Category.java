@@ -1,5 +1,6 @@
 package com.example.expensetracker.category;
 
+import com.example.expensetracker.audit.AuditableEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,7 +16,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "categories")
-public class Category {
+public class Category extends AuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

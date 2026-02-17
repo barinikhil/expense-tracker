@@ -27,12 +27,17 @@ cd backend
 Available API endpoints:
 
 - `GET /api/health`
+- `POST /api/auth/login`
 - `GET /api/categories`
 - `POST /api/categories`
 - `PUT /api/categories/{id}`
 - `GET /api/sub-categories`
 - `POST /api/sub-categories`
 - `PUT /api/sub-categories/{id}`
+
+Authentication details:
+
+- Login/JWT guide: [backend/LOGIN.md](backend/LOGIN.md)
 
 Actuator endpoints:
 
@@ -69,9 +74,9 @@ Maven Wrapper scripts will automatically download `maven-wrapper.jar` on first r
 
 ## Category management feature
 
-The app now includes full category and sub-category management with database persistence using H2.
+The app includes full category and sub-category management with database persistence.
 
 - **List**: View all categories with nested sub-categories, and a global list of sub-categories.
 - **Add**: Create new categories and sub-categories from the Angular UI.
 - **Edit**: Update category details or move sub-categories to another category.
-- **Database**: Spring Data JPA stores data in H2 (`jdbc:h2:mem:expensetracker`) and auto-creates schema at startup.
+- **Database**: Spring Data JPA stores data in MySQL and auto-creates schema at startup.
