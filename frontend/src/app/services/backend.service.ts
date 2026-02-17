@@ -40,7 +40,7 @@ export interface Expense {
   providedIn: 'root'
 })
 export class BackendService {
-  private readonly apiBaseUrl = 'http://localhost:9081/api';
+  private readonly apiBaseUrl = 'http://192.168.6.35:9081/api';
 
   constructor(private readonly http: HttpClient) {}
 
