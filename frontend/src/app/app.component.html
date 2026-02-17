@@ -45,44 +45,29 @@
         <mat-icon>receipt_long</mat-icon>
         <span>Expenses</span>
       </a>
-
-      <div class="menu-group">
-        <div
-          mat-list-item
-          class="menu-parent"
-          [matTooltip]="isSidebarCollapsed ? 'Others' : ''"
-          matTooltipPosition="right"
-        >
-          <mat-icon>more_horiz</mat-icon>
-          <span>Others</span>
-        </div>
-
-        <div class="menu-children">
-          <a
-            mat-list-item
-            class="menu-child"
-            routerLink="/categories"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: true }"
-            [matTooltip]="isSidebarCollapsed ? 'Category' : ''"
-            matTooltipPosition="right"
-          >
-            <mat-icon>category</mat-icon>
-            <span>Category</span>
-          </a>
-          <a
-            mat-list-item
-            class="menu-child"
-            routerLink="/sub-categories"
-            routerLinkActive="active"
-            [matTooltip]="isSidebarCollapsed ? 'Sub-category' : ''"
-            matTooltipPosition="right"
-          >
-            <mat-icon>account_tree</mat-icon>
-            <span>Sub-category</span>
-          </a>
-        </div>
-      </div>
+      <a
+        mat-list-item
+        class="menu-child"
+        routerLink="/categories"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [matTooltip]="isSidebarCollapsed ? 'Category' : ''"
+        matTooltipPosition="right"
+      >
+        <mat-icon>category</mat-icon>
+        <span>Category</span>
+      </a>
+      <a
+        mat-list-item
+        class="menu-child"
+        routerLink="/sub-categories"
+        routerLinkActive="active"
+        [matTooltip]="isSidebarCollapsed ? 'Sub-category' : ''"
+        matTooltipPosition="right"
+      >
+        <mat-icon>account_tree</mat-icon>
+        <span>Sub-category</span>
+      </a>
       <a
         mat-list-item
         class="logout-nav-item"

@@ -152,17 +152,6 @@
   display: none;
 }
 
-.sidebar.collapsed .menu-parent {
-  display: none;
-}
-
-.sidebar.collapsed .menu-children {
-  margin-left: 0;
-  margin-top: 0;
-  padding-left: 0;
-  border-left: 0;
-}
-
 .sidebar.collapsed .menu mat-icon {
   margin-right: 0;
 }
@@ -183,28 +172,6 @@
   margin-bottom: 0.4rem;
   border: 1px solid transparent;
   transition: background-color 160ms ease, border-color 160ms ease, transform 140ms ease;
-}
-
-.menu-group {
-  margin-bottom: 0.35rem;
-}
-
-.menu-parent {
-  color: var(--muted);
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  pointer-events: none;
-}
-
-.menu-parent mat-icon {
-  color: var(--muted);
-}
-
-.menu-children {
-  margin-top: 0.15rem;
-  margin-left: 0.35rem;
-  padding-left: 0.65rem;
-  border-left: 1px dashed var(--outline);
 }
 
 .menu-child.mat-mdc-list-item {
