@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { CategoriesPageComponent } from './pages/categories-page.component';
-import { SubCategoriesPageComponent } from './pages/sub-categories-page.component';
+import { CategoriesPageComponent } from './pages/category/categories-page.component';
+import { SubCategoriesPageComponent } from './pages/sub-category/sub-categories-page.component';
 
 export const appRoutes: Routes = [
   { path: '', redirectTo: 'categories', pathMatch: 'full' },

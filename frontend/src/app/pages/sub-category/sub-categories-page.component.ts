@@ -7,7 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { BackendService, Category, SubCategory } from '../services/backend.service';
+import { BackendService, Category, SubCategory } from '../../services/backend.service';
 
 @Component({
   selector: 'app-sub-categories-page',

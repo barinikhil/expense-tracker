@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { BackendService, Category } from '../services/backend.service';
+import { BackendService, Category } from '../../services/backend.service';
 
 @Component({
   selector: 'app-categories-page',
