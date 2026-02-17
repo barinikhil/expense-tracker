@@ -3,6 +3,7 @@
   grid-template-columns: repeat(5, minmax(170px, 1fr));
   gap: 0.9rem;
   align-items: end;
+  margin-top: 0.25rem;
 }
 
 .expense-form-horizontal .expense-repeat-check {
