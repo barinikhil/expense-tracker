@@ -6,8 +6,18 @@ interface HealthResponse {
   status: string;
 }
 
-interface MessageResponse {
-  message: string;
+export interface Category {
+  id: number;
+  name: string;
+  description: string;
+  subCategories: SubCategory[];
+}
+
+export interface SubCategory {
+  id: number;
+  name: string;
+  categoryId: number;
+  categoryName: string;
 }
 
 @Injectable({
@@ -22,7 +32,27 @@ export class BackendService {
     return this.http.get<HealthResponse>(`${this.apiBaseUrl}/health`);
   }
 
-  getMessage(): Observable<MessageResponse> {
-    return this.http.get<MessageResponse>(`${this.apiBaseUrl}/message`);
+  listCategories(): Observable<Category[]> {
+    return this.http.get<Category[]>(`${this.apiBaseUrl}/categories`);
+  }
+
+  addCategory(payload: { name: string; description: string }): Observable<Category> {
+    return this.http.post<Category>(`${this.apiBaseUrl}/categories`, payload);
+  }
+
+  updateCategory(id: number, payload: { name: string; description: string }): Observable<Category> {
+    return this.http.put<Category>(`${this.apiBaseUrl}/categories/${id}`, payload);
+  }
+
+  listSubCategories(): Observable<SubCategory[]> {
+    return this.http.get<SubCategory[]>(`${this.apiBaseUrl}/sub-categories`);
+  }
+
+  addSubCategory(payload: { name: string; categoryId: number }): Observable<SubCategory> {
+    return this.http.post<SubCategory>(`${this.apiBaseUrl}/sub-categories`, payload);
+  }
+
+  updateSubCategory(id: number, payload: { name: string; categoryId: number }): Observable<SubCategory> {
+    return this.http.put<SubCategory>(`${this.apiBaseUrl}/sub-categories/${id}`, payload);
   }
 }

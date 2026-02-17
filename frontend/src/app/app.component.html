@@ -1,5 +1,68 @@
 <main class="container">
-  <h1>Expense Tracker</h1>
+  <h1>Expense Tracker: Category Management</h1>
   <p class="status">{{ status }}</p>
-  <p class="message">{{ message }}</p>
+  <p *ngIf="error" class="error">{{ error }}</p>
+
+  <section class="panel">
+    <h2>Categories</h2>
+    <div class="form-row">
+      <input [(ngModel)]="newCategory.name" placeholder="Category name" />
+      <input [(ngModel)]="newCategory.description" placeholder="Description" />
+      <button (click)="addCategory()">Add Category</button>
+    </div>
+
+    <ul>
+      <li *ngFor="let category of categories">
+        <ng-container *ngIf="editingCategoryId !== category.id; else editCategoryBlock">
+          <strong>{{ category.name }}</strong> - {{ category.description }}
+          <button (click)="startEditCategory(category)">Edit</button>
+        </ng-container>
+
+        <ng-template #editCategoryBlock>
+          <div class="form-row inline-edit">
+            <input [(ngModel)]="editingCategory.name" />
+            <input [(ngModel)]="editingCategory.description" />
+            <button (click)="saveCategoryEdit()">Save</button>
+            <button (click)="cancelCategoryEdit()" class="secondary">Cancel</button>
+          </div>
+        </ng-template>
+
+        <small *ngIf="category.subCategories.length">
+          Sub-categories: {{ category.subCategories.map(sub => sub.name).join(', ') }}
+        </small>
+      </li>
+    </ul>
+  </section>
+
+  <section class="panel">
+    <h2>Sub-categories</h2>
+    <div class="form-row">
+      <input [(ngModel)]="newSubCategory.name" placeholder="Sub-category name" />
+      <select [(ngModel)]="newSubCategory.categoryId">
+        <option [ngValue]="0">Select category</option>
+        <option *ngFor="let category of categories" [ngValue]="category.id">{{ category.name }}</option>
+      </select>
+      <button (click)="addSubCategory()">Add Sub-category</button>
+    </div>
+
+    <ul>
+      <li *ngFor="let subCategory of subCategories">
+        <ng-container *ngIf="editingSubCategoryId !== subCategory.id; else editSubCategoryBlock">
+          <strong>{{ subCategory.name }}</strong> in {{ subCategory.categoryName }}
+          <button (click)="startEditSubCategory(subCategory)">Edit</button>
+        </ng-container>
+
+        <ng-template #editSubCategoryBlock>
+          <div class="form-row inline-edit">
+            <input [(ngModel)]="editingSubCategory.name" />
+            <select [(ngModel)]="editingSubCategory.categoryId">
+              <option *ngFor="let category of categories" [ngValue]="category.id">{{ category.name }}</option>
+            </select>
+            <button (click)="saveSubCategoryEdit()">Save</button>
+            <button (click)="cancelSubCategoryEdit()" class="secondary">Cancel</button>
+          </div>
+        </ng-template>
+      </li>
+    </ul>
+  </section>
 </main>
