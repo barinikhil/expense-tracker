@@ -45,29 +45,42 @@
         <mat-icon>receipt_long</mat-icon>
         <span>Expenses</span>
       </a>
-      <a
+      <button
         mat-list-item
-        class="menu-child"
-        routerLink="/categories"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: true }"
-        [matTooltip]="isSidebarCollapsed ? 'Category' : ''"
+        type="button"
+        class="menu-parent-toggle"
+        (click)="toggleClassificationMenu()"
+        [matTooltip]="isSidebarCollapsed ? 'Classification' : ''"
         matTooltipPosition="right"
       >
-        <mat-icon>category</mat-icon>
-        <span>Category</span>
-      </a>
-      <a
-        mat-list-item
-        class="menu-child"
-        routerLink="/sub-categories"
-        routerLinkActive="active"
-        [matTooltip]="isSidebarCollapsed ? 'Sub-category' : ''"
-        matTooltipPosition="right"
-      >
-        <mat-icon>account_tree</mat-icon>
-        <span>Sub-category</span>
-      </a>
+        <mat-icon>folder_open</mat-icon>
+        <span>Classification</span>
+        <mat-icon class="menu-expand-icon">{{ isClassificationExpanded ? 'expand_more' : 'chevron_right' }}</mat-icon>
+      </button>
+
+      <div class="menu-subgroup" *ngIf="isClassificationExpanded && !isSidebarCollapsed">
+        <a
+          mat-list-item
+          class="menu-child menu-nested-child"
+          routerLink="/categories"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          matTooltipPosition="right"
+        >
+          <mat-icon>category</mat-icon>
+          <span>Category</span>
+        </a>
+        <a
+          mat-list-item
+          class="menu-child menu-nested-child"
+          routerLink="/sub-categories"
+          routerLinkActive="active"
+          matTooltipPosition="right"
+        >
+          <mat-icon>account_tree</mat-icon>
+          <span>Sub-category</span>
+        </a>
+      </div>
       <a
         mat-list-item
         class="logout-nav-item"

@@ -35,6 +35,7 @@ export class AppComponent implements OnInit, OnDestroy {
   status = 'Checking backend status...';
   isBackendUp = false;
   isSidebarCollapsed = false;
+  isClassificationExpanded = true;
   retryCountdownSeconds = 0;
   private readonly retryIntervalSeconds = Math.max(1, Math.ceil(environment.healthCheckIntervalMs / 1000));
   private readonly destroy$ = new Subject<void>();
@@ -98,5 +99,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
   toggleSidebar(): void {
     this.isSidebarCollapsed = !this.isSidebarCollapsed;
+  }
+
+  toggleClassificationMenu(): void {
+    this.isClassificationExpanded = !this.isClassificationExpanded;
   }
 }

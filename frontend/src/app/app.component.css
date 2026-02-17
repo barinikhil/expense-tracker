@@ -152,6 +152,10 @@
   display: none;
 }
 
+.sidebar.collapsed .menu-expand-icon {
+  display: none;
+}
+
 .sidebar.collapsed .menu mat-icon {
   margin-right: 0;
 }
@@ -175,6 +179,34 @@
 }
 
 .menu-child.mat-mdc-list-item {
+  margin-bottom: 0.3rem;
+}
+
+.menu-parent-toggle {
+  width: 100%;
+  text-align: left;
+  margin-bottom: 0.35rem;
+  color: var(--muted);
+}
+
+.menu-parent-toggle mat-icon {
+  color: var(--muted);
+}
+
+.menu-expand-icon {
+  margin-left: auto;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.menu-subgroup {
+  margin: 0 0 0.35rem 0.35rem;
+  padding-left: 0.65rem;
+  border-left: 1px solid var(--outline);
+}
+
+.menu-nested-child.mat-mdc-list-item {
   margin-bottom: 0.3rem;
 }
 
