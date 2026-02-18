@@ -15,7 +15,7 @@ export interface Category {
   id: number;
   name: string;
   description: string;
-  isSaving: boolean;
+  type: CategoryType;
   subCategories: SubCategory[];
 }
 
@@ -25,6 +25,9 @@ export interface SubCategory {
   categoryId: number;
   categoryName: string;
 }
+
+export type TransactionType = 'EXPENSE' | 'INCOME';
+export type CategoryType = 'EXPENSE' | 'INCOME' | 'SAVING';
 
 export interface Expense {
   id: number;
@@ -95,11 +98,11 @@ export class BackendService {
     return this.http.get<Category[]>(`${this.apiBaseUrl}/categories`);
   }
 
-  addCategory(payload: { name: string; description: string; isSaving: boolean }): Observable<Category> {
+  addCategory(payload: { name: string; description: string; type: CategoryType }): Observable<Category> {
     return this.http.post<Category>(`${this.apiBaseUrl}/categories`, payload);
   }
 
-  updateCategory(id: number, payload: { name: string; description: string; isSaving: boolean }): Observable<Category> {
+  updateCategory(id: number, payload: { name: string; description: string; type: CategoryType }): Observable<Category> {
     return this.http.put<Category>(`${this.apiBaseUrl}/categories/${id}`, payload);
   }
 
@@ -113,6 +116,37 @@ export class BackendService {
 
   updateSubCategory(id: number, payload: { name: string; categoryId: number }): Observable<SubCategory> {
     return this.http.put<SubCategory>(`${this.apiBaseUrl}/sub-categories/${id}`, payload);
+  }
+
+  listTransactions(
+    type: TransactionType,
+    page = 0,
+    size = 10,
+    startDate?: string,
+    endDate?: string
+  ): Observable<ExpensePageResponse> {
+    let params = new HttpParams();
+    params = params.set('page', page);
+    params = params.set('size', size);
+    params = params.set('type', type);
+    if (startDate) {
+      params = params.set('startDate', startDate);
+    }
+    if (endDate) {
+      params = params.set('endDate', endDate);
+    }
+    return this.http.get<ExpensePageResponse>(`${this.apiBaseUrl}/transactions`, { params });
+  }
+
+  addTransaction(payload: {
+    amount: number;
+    description: string;
+    expenseDate: string;
+    type: TransactionType;
+    categoryId: number;
+    subCategoryId: number;
+  }): Observable<Expense> {
+    return this.http.post<Expense>(`${this.apiBaseUrl}/transactions`, payload);
   }
 
   listExpenses(page = 0, size = 10, startDate?: string, endDate?: string): Observable<ExpensePageResponse> {

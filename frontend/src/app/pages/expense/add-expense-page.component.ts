@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -9,7 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { BackendService, Category, SubCategory } from '../../services/backend.service';
+import { BackendService, Category, CategoryType, SubCategory, TransactionType } from '../../services/backend.service';
 
 @Component({
   selector: 'app-add-expense-page',
@@ -32,6 +32,7 @@ export class AddExpensePageComponent implements OnInit {
   error = '';
   categories: Category[] = [];
   returnHereForAnother = false;
+  transactionType: TransactionType = 'EXPENSE';
 
   newExpense: {
     amount: number | null;
@@ -47,9 +48,14 @@ export class AddExpensePageComponent implements OnInit {
       subCategoryId: null
     };
 
-  constructor(private readonly backendService: BackendService, private readonly router: Router) {}
+  constructor(
+    private readonly backendService: BackendService,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
+    this.transactionType = (this.route.snapshot.data['transactionType'] as TransactionType) ?? 'EXPENSE';
     this.loadCategories();
   }
 
@@ -71,7 +77,7 @@ export class AddExpensePageComponent implements OnInit {
   }
 
   cancel(): void {
-    this.router.navigate(['/expenses']);
+    this.router.navigate([this.listRoute]);
   }
 
   addExpense(): void {
@@ -90,11 +96,12 @@ export class AddExpensePageComponent implements OnInit {
       amount: this.newExpense.amount,
       description: this.newExpense.description.trim(),
       expenseDate: this.newExpense.expenseDate,
+      type: this.transactionType,
       categoryId: this.newExpense.categoryId,
       subCategoryId: this.newExpense.subCategoryId
     };
 
-    this.backendService.addExpense(payload).subscribe({
+    this.backendService.addTransaction(payload).subscribe({
       next: () => {
         if (this.returnHereForAnother) {
           this.resetForm();
@@ -102,7 +109,7 @@ export class AddExpensePageComponent implements OnInit {
           return;
         }
 
-        this.router.navigate(['/expenses']);
+        this.router.navigate([this.listRoute]);
       },
       error: (err) => {
         this.error = err?.error?.message ?? 'Unable to add expense.';
@@ -116,6 +123,29 @@ export class AddExpensePageComponent implements OnInit {
     }
 
     return this.categories.find((category) => category.id === this.newExpense.categoryId)?.subCategories ?? [];
+  }
+
+  get filteredCategories(): Category[] {
+    if (this.transactionType === 'INCOME') {
+      return this.categories.filter((category) => category.type === 'INCOME');
+    }
+    return this.categories.filter(
+      (category) => category.type === 'EXPENSE' || category.type === 'SAVING'
+    );
+  }
+
+  get pageTitle(): string {
+    return this.transactionType === 'INCOME' ? 'Add Income' : 'Add Expense';
+  }
+
+  get pageSubtitle(): string {
+    return this.transactionType === 'INCOME'
+      ? 'Create a new income entry.'
+      : 'Create a new expense entry.';
+  }
+
+  get listRoute(): string {
+    return this.transactionType === 'INCOME' ? '/transactions/income' : '/transactions/expense';
   }
 
   private resetForm(): void {

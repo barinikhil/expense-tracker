@@ -1,7 +1,7 @@
 <mat-card class="taxonomy-panel">
   <mat-card-header>
-    <mat-card-title>Expenses</mat-card-title>
-    <mat-card-subtitle>Track your spending entries.</mat-card-subtitle>
+    <mat-card-title>{{ pageTitle }}</mat-card-title>
+    <mat-card-subtitle>{{ pageSubtitle }}</mat-card-subtitle>
   </mat-card-header>
 
   <mat-card-content>
@@ -11,7 +11,9 @@
     </div>
 
     <div class="expense-top-actions">
-      <a mat-flat-button class="primary-button" routerLink="/expenses/add">Add Expense</a>
+      <a mat-flat-button class="primary-button" [routerLink]="addRoute">
+        Add {{ transactionType === 'INCOME' ? 'Income' : 'Expense' }}
+      </a>
     </div>
 
     <div class="expense-filter-bar">
@@ -49,7 +51,9 @@
             <td>{{ expense.subCategoryName }}</td>
           </tr>
           <tr *ngIf="!expenses.length">
-            <td colspan="5" class="taxonomy-empty-cell">No expenses found.</td>
+            <td colspan="5" class="taxonomy-empty-cell">
+              No {{ transactionType === 'INCOME' ? 'income' : 'expense' }} records found.
+            </td>
           </tr>
         </tbody>
       </table>

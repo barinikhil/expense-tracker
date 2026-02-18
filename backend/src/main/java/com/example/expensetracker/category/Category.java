@@ -10,6 +10,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -32,8 +34,9 @@ public class Category extends AuditableEntity {
     @Column(nullable = false)
     private String description;
 
-    @Column(name = "is_saving", nullable = false)
-    private boolean saving;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "category_type", nullable = false, length = 20)
+    private CategoryType type = CategoryType.EXPENSE;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<SubCategory> subCategories = new ArrayList<>();

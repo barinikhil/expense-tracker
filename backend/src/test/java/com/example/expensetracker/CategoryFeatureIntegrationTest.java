@@ -1,6 +1,7 @@
 package com.example.expensetracker;
 
 import com.example.expensetracker.category.CategoryDtos;
+import com.example.expensetracker.category.CategoryType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,7 +21,7 @@ class CategoryFeatureIntegrationTest {
     void shouldCreateListAndUpdateCategoriesAndSubCategories() {
         ResponseEntity<CategoryDtos.CategoryResponse> createdCategory = restTemplate.postForEntity(
                 "/api/categories",
-                new CategoryDtos.CreateCategoryRequest("Food", "Food-related expenses", false),
+                new CategoryDtos.CreateCategoryRequest("Food", "Food-related expenses", CategoryType.EXPENSE),
                 CategoryDtos.CategoryResponse.class
         );
 
@@ -39,7 +40,7 @@ class CategoryFeatureIntegrationTest {
 
         restTemplate.put(
                 "/api/categories/{id}",
-                new CategoryDtos.UpdateCategoryRequest("Food & Dining", "Dining and groceries", true),
+                new CategoryDtos.UpdateCategoryRequest("Food & Dining", "Dining and groceries", CategoryType.SAVING),
                 categoryId
         );
 
@@ -52,7 +53,7 @@ class CategoryFeatureIntegrationTest {
         assertThat(categories.getBody()).isNotNull();
         assertThat(categories.getBody()).hasSize(1);
         assertThat(categories.getBody()[0].name()).isEqualTo("Food & Dining");
-        assertThat(categories.getBody()[0].isSaving()).isTrue();
+        assertThat(categories.getBody()[0].type()).isEqualTo(CategoryType.SAVING);
         assertThat(categories.getBody()[0].subCategories()).hasSize(1);
     }
 }

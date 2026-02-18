@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { BackendService, Expense } from '../../services/backend.service';
+import { BackendService, Expense, TransactionType } from '../../services/backend.service';
 
 @Component({
   selector: 'app-expenses-page',
@@ -17,6 +18,7 @@ import { BackendService, Expense } from '../../services/backend.service';
 export class ExpensesPageComponent implements OnInit {
   error = '';
   expenses: Expense[] = [];
+  transactionType: TransactionType = 'EXPENSE';
   startDate = '';
   endDate = '';
   pageSize = 10;
@@ -25,9 +27,13 @@ export class ExpensesPageComponent implements OnInit {
   totalPages = 1;
   totalElements = 0;
 
-  constructor(private readonly backendService: BackendService) {}
+  constructor(
+    private readonly backendService: BackendService,
+    private readonly route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
+    this.transactionType = (this.route.snapshot.data['transactionType'] as TransactionType) ?? 'EXPENSE';
     const today = new Date();
     const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
     this.startDate = this.toInputDate(firstDay);
@@ -37,7 +43,9 @@ export class ExpensesPageComponent implements OnInit {
 
   loadExpenses(): void {
     this.error = '';
-    this.backendService.listExpenses(this.currentPage - 1, this.pageSize, this.startDate, this.endDate).subscribe({
+    this.backendService
+      .listTransactions(this.transactionType, this.currentPage - 1, this.pageSize, this.startDate, this.endDate)
+      .subscribe({
       next: (response) => {
         this.expenses = response.items;
         this.totalPages = Math.max(1, response.totalPages);
@@ -48,6 +56,20 @@ export class ExpensesPageComponent implements OnInit {
         this.error = 'Failed to load expenses.';
       }
     });
+  }
+
+  get pageTitle(): string {
+    return this.transactionType === 'INCOME' ? 'Income' : 'Expenses';
+  }
+
+  get pageSubtitle(): string {
+    return this.transactionType === 'INCOME'
+      ? 'Track your income entries.'
+      : 'Track your spending entries.';
+  }
+
+  get addRoute(): string {
+    return this.transactionType === 'INCOME' ? '/transactions/income/add' : '/transactions/expense/add';
   }
 
   resetToCurrentMonth(): void {

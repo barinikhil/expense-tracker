@@ -15,6 +15,11 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     Page<Expense> findAllByExpenseDateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable);
     Page<Expense> findAllByExpenseDateGreaterThanEqual(LocalDate startDate, Pageable pageable);
     Page<Expense> findAllByExpenseDateLessThanEqual(LocalDate endDate, Pageable pageable);
+    Page<Expense> findAllByTransactionType(TransactionType type, Pageable pageable);
+    Page<Expense> findAllByExpenseDateBetweenAndTransactionType(LocalDate startDate, LocalDate endDate, TransactionType type, Pageable pageable);
+    Page<Expense> findAllByExpenseDateGreaterThanEqualAndTransactionType(LocalDate startDate, TransactionType type, Pageable pageable);
+    Page<Expense> findAllByExpenseDateLessThanEqualAndTransactionType(LocalDate endDate, TransactionType type, Pageable pageable);
+    List<Expense> findAllByExpenseDateBetweenAndTransactionTypeOrderByExpenseDateDescIdDesc(LocalDate startDate, LocalDate endDate, TransactionType type);
     long countByExpenseDateBetween(LocalDate startDate, LocalDate endDate);
     long countByExpenseDateBetweenAndCategory_Id(LocalDate startDate, LocalDate endDate, Long categoryId);
     boolean existsByDescriptionStartingWith(String prefix);

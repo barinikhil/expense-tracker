@@ -14,7 +14,7 @@ public final class CategoryDtos {
             Long id,
             String name,
             String description,
-            boolean isSaving,
+            CategoryType type,
             List<SubCategoryResponse> subCategories
     ) {
     }
@@ -25,14 +25,14 @@ public final class CategoryDtos {
     public record CreateCategoryRequest(
             @NotBlank @Size(max = 80) String name,
             @NotBlank @Size(max = 200) String description,
-            Boolean isSaving
+            CategoryType type
     ) {
     }
 
     public record UpdateCategoryRequest(
             @NotBlank @Size(max = 80) String name,
             @NotBlank @Size(max = 200) String description,
-            Boolean isSaving
+            CategoryType type
     ) {
     }
 

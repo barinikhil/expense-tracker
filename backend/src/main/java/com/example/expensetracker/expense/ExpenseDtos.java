@@ -73,6 +73,7 @@ public final class ExpenseDtos {
             @NotNull @DecimalMin(value = "0.01") @Digits(integer = 12, fraction = 2) BigDecimal amount,
             @NotBlank @Size(max = 300) String description,
             @NotNull LocalDate expenseDate,
+            TransactionType type,
             @NotNull Long categoryId,
             @NotNull Long subCategoryId
     ) {

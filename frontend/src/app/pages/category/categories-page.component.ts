@@ -6,8 +6,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { BackendService, Category } from '../../services/backend.service';
+import { MatSelectModule } from '@angular/material/select';
+import { BackendService, Category, CategoryType } from '../../services/backend.service';
 
 @Component({
   selector: 'app-categories-page',
@@ -20,7 +20,7 @@ import { BackendService, Category } from '../../services/backend.service';
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatCheckboxModule
+    MatSelectModule
   ],
   templateUrl: './categories-page.component.html',
   styleUrl: './categories-page.component.css'
@@ -29,9 +29,15 @@ export class CategoriesPageComponent implements OnInit {
   error = '';
   categories: Category[] = [];
 
-  newCategory = { name: '', description: '', isSaving: false };
+  readonly categoryTypes: { value: CategoryType; label: string }[] = [
+    { value: 'EXPENSE', label: 'Expense' },
+    { value: 'INCOME', label: 'Income' },
+    { value: 'SAVING', label: 'Saving' }
+  ];
+
+  newCategory = { name: '', description: '', type: 'EXPENSE' as CategoryType };
   editingCategoryId: number | null = null;
-  editingCategory = { name: '', description: '', isSaving: false };
+  editingCategory = { name: '', description: '', type: 'EXPENSE' as CategoryType };
 
   constructor(private readonly backendService: BackendService) {}
 
@@ -59,7 +65,7 @@ export class CategoriesPageComponent implements OnInit {
 
     this.backendService.addCategory(this.newCategory).subscribe({
       next: () => {
-        this.newCategory = { name: '', description: '', isSaving: false };
+        this.newCategory = { name: '', description: '', type: 'EXPENSE' as CategoryType };
         this.loadCategories();
       },
       error: (err) => {
@@ -73,7 +79,7 @@ export class CategoriesPageComponent implements OnInit {
     this.editingCategory = {
       name: category.name,
       description: category.description,
-      isSaving: category.isSaving
+      type: category.type ?? 'EXPENSE'
     };
   }
 
@@ -99,7 +105,7 @@ export class CategoriesPageComponent implements OnInit {
 
   cancelCategoryEdit(): void {
     this.editingCategoryId = null;
-    this.editingCategory = { name: '', description: '', isSaving: false };
+    this.editingCategory = { name: '', description: '', type: 'EXPENSE' as CategoryType };
   }
 
   subCategoryNames(category: Category): string {

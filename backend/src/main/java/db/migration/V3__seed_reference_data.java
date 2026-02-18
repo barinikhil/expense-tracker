@@ -83,15 +83,14 @@ public class V3__seed_reference_data extends BaseJavaMigration {
         }
 
         String insertSql = """
-                INSERT INTO categories (name, description, is_saving, created_by, created_on)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO categories (name, description, created_by, created_on)
+                VALUES (?, ?, ?, ?)
                 """;
         try (PreparedStatement insert = connection.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
             insert.setString(1, name);
             insert.setString(2, name + " expenses");
-            insert.setBoolean(3, false);
-            insert.setString(4, "system");
-            insert.setObject(5, LocalDateTime.now());
+            insert.setString(3, "system");
+            insert.setObject(4, LocalDateTime.now());
             insert.executeUpdate();
             try (ResultSet keys = insert.getGeneratedKeys()) {
                 if (keys.next()) {

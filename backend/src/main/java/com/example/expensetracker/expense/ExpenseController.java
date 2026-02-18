@@ -32,6 +32,17 @@ public class ExpenseController {
         return expenseService.listExpenses(startDate, endDate, page, size);
     }
 
+    @GetMapping("/transactions")
+    public ExpenseDtos.ExpensePageResponse listTransactions(
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate,
+            @RequestParam(defaultValue = "EXPENSE") TransactionType type,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return expenseService.listTransactions(startDate, endDate, type, page, size);
+    }
+
     @GetMapping("/dashboard/summary")
     public ExpenseDtos.DashboardSummaryResponse getDashboardSummary(
             @RequestParam(defaultValue = "5") int topN
@@ -42,6 +53,12 @@ public class ExpenseController {
     @PostMapping("/expenses")
     @ResponseStatus(HttpStatus.CREATED)
     public ExpenseDtos.ExpenseResponse createExpense(@Valid @RequestBody ExpenseDtos.CreateExpenseRequest request) {
+        return expenseService.createExpense(request);
+    }
+
+    @PostMapping("/transactions")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ExpenseDtos.ExpenseResponse createTransaction(@Valid @RequestBody ExpenseDtos.CreateExpenseRequest request) {
         return expenseService.createExpense(request);
     }
 }

@@ -46,19 +46,47 @@
         <mat-icon>dashboard</mat-icon>
         <span>Dashboard</span>
       </a>
-      <a
+      <button
         mat-list-item
-        class="menu-child"
-        routerLink="/expenses"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: true }"
-        [matTooltip]="isSidebarCollapsed ? 'Expenses' : ''"
+        type="button"
+        class="menu-parent-toggle"
+        (click)="toggleTransactionsMenu()"
+        [matTooltip]="isSidebarCollapsed ? 'Transactions' : ''"
         matTooltipPosition="right"
-        (click)="onNavItemClick()"
       >
         <mat-icon>receipt_long</mat-icon>
-        <span>Expenses</span>
-      </a>
+        <span>Transactions</span>
+        <mat-icon class="menu-expand-icon">{{ isTransactionsExpanded ? 'expand_more' : 'chevron_right' }}</mat-icon>
+      </button>
+
+      <div class="menu-subgroup" *ngIf="isTransactionsExpanded && (!isSidebarCollapsed || isMobileView)">
+        <a
+          mat-list-item
+          class="menu-child menu-nested-child"
+          routerLink="/transactions/expense"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          [matTooltip]="isSidebarCollapsed ? 'Expense' : ''"
+          matTooltipPosition="right"
+          (click)="onNavItemClick()"
+        >
+          <mat-icon>trending_down</mat-icon>
+          <span>Expense</span>
+        </a>
+        <a
+          mat-list-item
+          class="menu-child menu-nested-child"
+          routerLink="/transactions/income"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          [matTooltip]="isSidebarCollapsed ? 'Income' : ''"
+          matTooltipPosition="right"
+          (click)="onNavItemClick()"
+        >
+          <mat-icon>trending_up</mat-icon>
+          <span>Income</span>
+        </a>
+      </div>
       <button
         mat-list-item
         type="button"

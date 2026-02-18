@@ -2,6 +2,7 @@ package com.example.expensetracker.expense;
 
 import com.example.expensetracker.category.Category;
 import com.example.expensetracker.category.CategoryRepository;
+import com.example.expensetracker.category.CategoryType;
 import com.example.expensetracker.category.SubCategory;
 import com.example.expensetracker.category.SubCategoryRepository;
 import org.springframework.data.domain.Page;
@@ -63,6 +64,59 @@ public class ExpenseService {
             expensePage = expenseRepository.findAllByExpenseDateLessThanEqual(endDate, pageable);
         } else {
             expensePage = expenseRepository.findAll(pageable);
+        }
+
+        return new ExpenseDtos.ExpensePageResponse(
+                expensePage.stream().map(this::toResponse).toList(),
+                expensePage.getNumber(),
+                expensePage.getSize(),
+                expensePage.getTotalElements(),
+                expensePage.getTotalPages()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public ExpenseDtos.ExpensePageResponse listTransactions(
+            LocalDate startDate,
+            LocalDate endDate,
+            TransactionType type,
+            int page,
+            int size
+    ) {
+        if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "startDate cannot be after endDate");
+        }
+        if (page < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "page must be 0 or greater");
+        }
+        if (size <= 0 || size > 200) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "size must be between 1 and 200");
+        }
+
+        TransactionType resolvedType = type == null ? TransactionType.EXPENSE : type;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "expenseDate", "id"));
+        Page<Expense> expensePage;
+        if (startDate != null && endDate != null) {
+            expensePage = expenseRepository.findAllByExpenseDateBetweenAndTransactionType(
+                    startDate,
+                    endDate,
+                    resolvedType,
+                    pageable
+            );
+        } else if (startDate != null) {
+            expensePage = expenseRepository.findAllByExpenseDateGreaterThanEqualAndTransactionType(
+                    startDate,
+                    resolvedType,
+                    pageable
+            );
+        } else if (endDate != null) {
+            expensePage = expenseRepository.findAllByExpenseDateLessThanEqualAndTransactionType(
+                    endDate,
+                    resolvedType,
+                    pageable
+            );
+        } else {
+            expensePage = expenseRepository.findAllByTransactionType(resolvedType, pageable);
         }
 
         return new ExpenseDtos.ExpensePageResponse(
@@ -189,12 +243,23 @@ public class ExpenseService {
             );
         }
 
+        TransactionType resolvedType = request.type() == null ? TransactionType.EXPENSE : request.type();
+        if (resolvedType == TransactionType.INCOME && category.getType() != CategoryType.INCOME) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Category type must be INCOME for income transactions");
+        }
+        if (resolvedType == TransactionType.EXPENSE
+                && category.getType() != CategoryType.EXPENSE
+                && category.getType() != CategoryType.SAVING) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Category type must be EXPENSE or SAVING for expense transactions");
+        }
+
         Expense expense = new Expense();
         expense.setAmount(request.amount());
         expense.setDescription(request.description().trim());
         expense.setExpenseDate(request.expenseDate());
         expense.setCategory(category);
         expense.setSubCategory(subCategory);
+        expense.setTransactionType(resolvedType);
 
         return toResponse(expenseRepository.save(expense));
     }
