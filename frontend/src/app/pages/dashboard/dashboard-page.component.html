@@ -68,32 +68,66 @@
       </div>
 
       <mat-card class="dashboard-card top-category-trend-card">
-        <h3>Top 5 Category Trends (Yearly Spend)</h3>
+        <div class="top-trend-headline">
+          <h3>Top Category Trends (Yearly Spend)</h3>
+          <div class="top-trend-controls">
+            <label for="topNSelect">Top</label>
+            <select id="topNSelect" [(ngModel)]="selectedTopN" (ngModelChange)="onTopNChange()">
+              <option *ngFor="let option of topNOptions" [ngValue]="option">{{ option }}</option>
+            </select>
+            <button type="button" class="show-all-button" (click)="hideAllCategories()">Hide All</button>
+            <button type="button" class="show-all-button" (click)="showAllCategories()">Show All</button>
+          </div>
+        </div>
         <div *ngIf="topYearlyCategoryTrends.length; else noTopTrendData" class="top-trend-chart-wrap">
           <svg class="top-trend-chart" viewBox="0 0 620 220" preserveAspectRatio="none">
             <line x1="20" y1="20" x2="20" y2="200" class="top-trend-axis"></line>
             <line x1="20" y1="200" x2="600" y2="200" class="top-trend-axis"></line>
             <polyline
-              *ngFor="let trend of topYearlyCategoryTrends; let i = index"
+              *ngFor="let trend of visibleTopYearlyCategoryTrends"
               [attr.points]="topTrendLinePoints(trend.monthlyTrend)"
-              [attr.stroke]="topTrendColor(i)"
+              [attr.stroke]="trendColor(trend.categoryName)"
               fill="none"
               stroke-width="3"
               stroke-linecap="round"
               stroke-linejoin="round"
             ></polyline>
+            <g *ngFor="let trend of visibleTopYearlyCategoryTrends">
+              <circle
+                *ngFor="let point of trend.monthlyTrend; let j = index"
+                [attr.cx]="topTrendPointX(j, trend.monthlyTrend.length)"
+                [attr.cy]="topTrendPointY(point.total)"
+                r="3.5"
+                [attr.fill]="trendColor(trend.categoryName)"
+                stroke="#ffffff"
+                stroke-width="1.5"
+              ></circle>
+              <text
+                *ngFor="let point of trend.monthlyTrend; let j = index"
+                class="top-trend-value"
+                [attr.x]="topTrendPointX(j, trend.monthlyTrend.length)"
+                [attr.y]="topTrendPointY(point.total) - 6"
+              >
+                {{ point.total | number:'1.0-0' }}
+              </text>
+            </g>
           </svg>
-
-          <div class="top-trend-month-labels" *ngIf="topYearlyCategoryTrends[0] as firstTrend">
-            <span *ngFor="let point of firstTrend.monthlyTrend">{{ monthLabel(point.yearMonth) }}</span>
+          <div class="top-trend-month-labels" *ngIf="topTrendMonths.length">
+            <span *ngFor="let month of topTrendMonths">{{ monthLabel(month.yearMonth) }}</span>
           </div>
 
           <div class="top-trend-legend">
-            <div class="legend-item" *ngFor="let trend of topYearlyCategoryTrends; let i = index">
-              <span class="legend-dot" [style.background]="topTrendColor(i)"></span>
+            <button
+              type="button"
+              class="legend-item"
+              *ngFor="let trend of topYearlyCategoryTrends"
+              [class.muted]="isCategoryHidden(trend.categoryName)"
+              (click)="toggleCategory(trend.categoryName)"
+            >
+              <span class="legend-dot" [style.background]="trendColor(trend.categoryName)"></span>
               <span>{{ trend.categoryName }}</span>
               <strong>{{ trend.yearTotal | number:'1.2-2' }}</strong>
-            </div>
+            </button>
           </div>
         </div>
         <ng-template #noTopTrendData>

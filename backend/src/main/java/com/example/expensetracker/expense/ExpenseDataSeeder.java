@@ -26,6 +26,8 @@ public class ExpenseDataSeeder implements ApplicationRunner {
     private static final String DUMMY_PREFIX = "Dummy expense - ";
     private static final int MIN_RECORDS_PER_MONTH = 25;
     private static final int MAX_RECORDS_PER_MONTH = 50;
+    private static final int MIN_CURRENT_MONTH_TOTAL_RECORDS = 15;
+    private static final int MIN_CURRENT_MONTH_RECORDS_PER_CATEGORY = 15;
     private static final Map<String, AmountRange> AMOUNT_RANGES = Map.of(
             "Food", new AmountRange(8, 80),
             "Shopping", new AmountRange(20, 250),
@@ -73,6 +75,29 @@ public class ExpenseDataSeeder implements ApplicationRunner {
                 CategoryBundle bundle = categoryBundles.get(random.nextInt(categoryBundles.size()));
                 SubCategory subCategory = bundle.subCategories().get(random.nextInt(bundle.subCategories().size()));
                 expensesToSave.add(buildExpense(month, bundle.category(), subCategory, random));
+            }
+        }
+
+        LocalDate currentMonthStart = currentMonth.atDay(1);
+        LocalDate currentMonthEnd = currentMonth.atEndOfMonth();
+        long currentMonthTotalRecords = expenseRepository.countByExpenseDateBetween(currentMonthStart, currentMonthEnd);
+        long minCurrentMonthMissing = Math.max(0, MIN_CURRENT_MONTH_TOTAL_RECORDS - currentMonthTotalRecords);
+        for (int i = 0; i < minCurrentMonthMissing; i++) {
+            CategoryBundle bundle = categoryBundles.get(random.nextInt(categoryBundles.size()));
+            SubCategory subCategory = bundle.subCategories().get(random.nextInt(bundle.subCategories().size()));
+            expensesToSave.add(buildExpense(currentMonth, bundle.category(), subCategory, random));
+        }
+
+        for (CategoryBundle bundle : categoryBundles) {
+            long currentMonthCategoryCount = expenseRepository.countByExpenseDateBetweenAndCategory_Id(
+                    currentMonthStart,
+                    currentMonthEnd,
+                    bundle.category().getId()
+            );
+            long missingForCategory = Math.max(0, MIN_CURRENT_MONTH_RECORDS_PER_CATEGORY - currentMonthCategoryCount);
+            for (int i = 0; i < missingForCategory; i++) {
+                SubCategory subCategory = bundle.subCategories().get(random.nextInt(bundle.subCategories().size()));
+                expensesToSave.add(buildExpense(currentMonth, bundle.category(), subCategory, random));
             }
         }
 

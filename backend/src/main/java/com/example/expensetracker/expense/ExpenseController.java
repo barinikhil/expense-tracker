@@ -33,8 +33,10 @@ public class ExpenseController {
     }
 
     @GetMapping("/dashboard/summary")
-    public ExpenseDtos.DashboardSummaryResponse getDashboardSummary() {
-        return expenseService.getDashboardSummary();
+    public ExpenseDtos.DashboardSummaryResponse getDashboardSummary(
+            @RequestParam(defaultValue = "5") int topN
+    ) {
+        return expenseService.getDashboardSummary(topN);
     }
 
     @PostMapping("/expenses")

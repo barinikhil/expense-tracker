@@ -75,7 +75,11 @@ public class ExpenseService {
     }
 
     @Transactional(readOnly = true)
-    public ExpenseDtos.DashboardSummaryResponse getDashboardSummary() {
+    public ExpenseDtos.DashboardSummaryResponse getDashboardSummary(int topN) {
+        if (topN < 1 || topN > 10) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "topN must be between 1 and 10");
+        }
+
         YearMonth currentMonth = YearMonth.now();
         YearMonth startMonth = currentMonth.minusMonths(11);
         LocalDate fromDate = startMonth.atDay(1);
@@ -156,7 +160,7 @@ public class ExpenseService {
                     return new ExpenseDtos.CategoryYearTrendPoint(entry.getKey(), yearTotal, monthlyTrend);
                 })
                 .sorted(Comparator.comparing(ExpenseDtos.CategoryYearTrendPoint::yearTotal).reversed())
-                .limit(5)
+                .limit(topN)
                 .toList();
 
         return new ExpenseDtos.DashboardSummaryResponse(

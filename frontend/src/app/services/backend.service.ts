@@ -127,8 +127,9 @@ export class BackendService {
     return this.http.get<ExpensePageResponse>(`${this.apiBaseUrl}/expenses`, { params });
   }
 
-  getDashboardSummary(): Observable<DashboardSummaryResponse> {
-    return this.http.get<DashboardSummaryResponse>(`${this.apiBaseUrl}/dashboard/summary`);
+  getDashboardSummary(topN = 5): Observable<DashboardSummaryResponse> {
+    const params = new HttpParams().set('topN', topN);
+    return this.http.get<DashboardSummaryResponse>(`${this.apiBaseUrl}/dashboard/summary`, { params });
   }
 
   addExpense(payload: {
