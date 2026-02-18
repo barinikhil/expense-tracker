@@ -1,0 +1,52 @@
+<div class="login-shell">
+  <mat-card class="login-card">
+    <mat-card-header>
+      <mat-card-title>Sign in</mat-card-title>
+      <mat-card-subtitle>Use your database user to continue.</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div *ngIf="error" class="taxonomy-error">
+        <mat-icon>error</mat-icon>
+        <span>{{ error }}</span>
+      </div>
+
+      <form #loginForm="ngForm" class="login-form" (ngSubmit)="login()">
+        <mat-form-field appearance="outline">
+          <mat-label>Username</mat-label>
+          <input
+            matInput
+            name="username"
+            required
+            #usernameModel="ngModel"
+            [(ngModel)]="credentials.username"
+            autocomplete="username"
+          />
+          <mat-error *ngIf="(loginForm.submitted || usernameModel.touched) && usernameModel.invalid">
+            Username is required.
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Password</mat-label>
+          <input
+            matInput
+            type="password"
+            name="password"
+            required
+            #passwordModel="ngModel"
+            [(ngModel)]="credentials.password"
+            autocomplete="current-password"
+          />
+          <mat-error *ngIf="(loginForm.submitted || passwordModel.touched) && passwordModel.invalid">
+            Password is required.
+          </mat-error>
+        </mat-form-field>
+
+        <button mat-flat-button type="submit" class="primary-button" [disabled]="submitting">
+          {{ submitting ? 'Signing in...' : 'Login' }}
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,5 +1,6 @@
 # Maven
 **/target/
+backend/data/
 
 # Node
 **/node_modules/
@@ -12,3 +13,4 @@ frontend/dist/
 # OS
 .DS_Store
 /frontend/.angular/
+/frontend/package-lock.json

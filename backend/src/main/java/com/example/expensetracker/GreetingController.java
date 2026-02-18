@@ -14,9 +14,4 @@ public class GreetingController {
     public Map<String, String> health() {
         return Map.of("status", "UP");
     }
-
-    @GetMapping("/message")
-    public Map<String, String> message() {
-        return Map.of("message", "Hello from Spring Boot backend!");
-    }
 }

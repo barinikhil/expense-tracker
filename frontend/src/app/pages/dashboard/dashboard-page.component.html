@@ -1,0 +1,147 @@
+<mat-card class="taxonomy-panel">
+  <mat-card-header>
+    <mat-card-title>Dashboard</mat-card-title>
+    <mat-card-subtitle>Spending overview for the last 12 months.</mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div *ngIf="error" class="taxonomy-error">
+      <mat-icon>error</mat-icon>
+      <span>{{ error }}</span>
+    </div>
+
+    <div *ngIf="loading" class="dashboard-loading">Loading dashboard...</div>
+
+    <ng-container *ngIf="!loading && summary">
+      <div class="dashboard-kpis">
+        <div class="dashboard-kpi">
+          <span class="kpi-label">{{ currentMonthLabel }}</span>
+          <strong>{{ summary.currentMonthTotal | number:'1.2-2' }}</strong>
+        </div>
+        <div class="dashboard-kpi">
+          <span class="kpi-label">{{ last30DaysLabel }}</span>
+          <strong>{{ summary.last30DaysTotal | number:'1.2-2' }}</strong>
+        </div>
+        <div class="dashboard-kpi">
+          <span class="kpi-label">{{ lastMonthLabel }}</span>
+          <strong>{{ summary.lastMonthTotal | number:'1.2-2' }}</strong>
+        </div>
+        <div class="dashboard-kpi">
+          <span class="kpi-label">{{ lastQuarterLabel }}</span>
+          <strong>{{ summary.lastQuarterTotal | number:'1.2-2' }}</strong>
+        </div>
+        <div class="dashboard-kpi">
+          <span class="kpi-label">{{ lastYearLabel }}</span>
+          <strong>{{ summary.lastYearTotal | number:'1.2-2' }}</strong>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <mat-card class="dashboard-card">
+          <h3>Monthly Spending Trend</h3>
+          <div class="monthly-chart">
+            <div class="monthly-bar" *ngFor="let item of monthlyTotals">
+              <span class="bar-value">{{ item.total | number:'1.0-0' }}</span>
+              <div class="bar-fill" [style.height.px]="barHeight(item.total)"></div>
+              <span class="bar-label">{{ monthLabel(item.yearMonth) }}</span>
+            </div>
+          </div>
+        </mat-card>
+
+        <mat-card class="dashboard-card">
+          <div class="category-card-head">
+            <h3>Current Month by Category</h3>
+            <div class="category-top-controls">
+              <label for="categoryTopSelect">Top</label>
+              <select id="categoryTopSelect" [(ngModel)]="selectedCategoryTopN">
+                <option *ngFor="let option of categoryTopOptions" [ngValue]="option">{{ option }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="category-chart" *ngIf="visibleCategoryTotals.length; else noCategoryData">
+            <div class="category-row" *ngFor="let item of visibleCategoryTotals">
+              <div class="category-head">
+                <span>{{ item.categoryName }}</span>
+                <strong>{{ item.total | number:'1.2-2' }}</strong>
+              </div>
+              <div class="category-track">
+                <div class="category-fill" [style.width.%]="categoryWidth(item.total)"></div>
+              </div>
+            </div>
+          </div>
+          <ng-template #noCategoryData>
+            <p class="dashboard-empty">No category data for current month.</p>
+          </ng-template>
+        </mat-card>
+      </div>
+
+      <mat-card class="dashboard-card top-category-trend-card">
+        <div class="top-trend-headline">
+          <h3>Top Category Trends (Yearly Spend)</h3>
+          <div class="top-trend-controls">
+            <label for="topNSelect">Top</label>
+            <select id="topNSelect" [(ngModel)]="selectedTopN" (ngModelChange)="onTopNChange()">
+              <option *ngFor="let option of topNOptions" [ngValue]="option">{{ option }}</option>
+            </select>
+            <button type="button" class="show-all-button" (click)="hideAllCategories()">Hide All</button>
+            <button type="button" class="show-all-button" (click)="showAllCategories()">Show All</button>
+          </div>
+        </div>
+        <div *ngIf="topYearlyCategoryTrends.length; else noTopTrendData" class="top-trend-chart-wrap">
+          <svg class="top-trend-chart" viewBox="0 0 620 220" preserveAspectRatio="none">
+            <line x1="20" y1="20" x2="20" y2="200" class="top-trend-axis"></line>
+            <line x1="20" y1="200" x2="600" y2="200" class="top-trend-axis"></line>
+            <polyline
+              *ngFor="let trend of visibleTopYearlyCategoryTrends"
+              [attr.points]="topTrendLinePoints(trend.monthlyTrend)"
+              [attr.stroke]="trendColor(trend.categoryName)"
+              fill="none"
+              stroke-width="3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ></polyline>
+            <g *ngFor="let trend of visibleTopYearlyCategoryTrends">
+              <circle
+                *ngFor="let point of trend.monthlyTrend; let j = index"
+                [attr.cx]="topTrendPointX(j, trend.monthlyTrend.length)"
+                [attr.cy]="topTrendPointY(point.total)"
+                r="3.5"
+                [attr.fill]="trendColor(trend.categoryName)"
+                stroke="#ffffff"
+                stroke-width="1.5"
+              ></circle>
+              <text
+                *ngFor="let point of trend.monthlyTrend; let j = index"
+                class="top-trend-value"
+                [attr.x]="topTrendPointX(j, trend.monthlyTrend.length)"
+                [attr.y]="topTrendPointY(point.total) - 6"
+              >
+                {{ point.total | number:'1.0-0' }}
+              </text>
+            </g>
+          </svg>
+          <div class="top-trend-month-labels" *ngIf="topTrendMonths.length">
+            <span *ngFor="let month of topTrendMonths">{{ monthLabel(month.yearMonth) }}</span>
+          </div>
+
+          <div class="top-trend-legend">
+            <button
+              type="button"
+              class="legend-item"
+              *ngFor="let trend of topYearlyCategoryTrends"
+              [class.muted]="isCategoryHidden(trend.categoryName)"
+              (click)="toggleCategory(trend.categoryName)"
+            >
+              <span class="legend-dot" [style.background]="trendColor(trend.categoryName)"></span>
+              <span>{{ trend.categoryName }}</span>
+              <strong>{{ trend.yearTotal | number:'1.2-2' }}</strong>
+            </button>
+          </div>
+        </div>
+        <ng-template #noTopTrendData>
+          <p class="dashboard-empty">No yearly category trend data available.</p>
+        </ng-template>
+      </mat-card>
+    </ng-container>
+  </mat-card-content>
+</mat-card>

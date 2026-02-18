@@ -1,0 +1,99 @@
+<mat-card class="taxonomy-panel">
+  <mat-card-header>
+    <mat-card-title>Categories</mat-card-title>
+    <mat-card-subtitle>Manage your expense groups.</mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div *ngIf="error" class="taxonomy-error">
+      <mat-icon>error</mat-icon>
+      <span>{{ error }}</span>
+    </div>
+
+    <form #categoryForm="ngForm" class="taxonomy-form-row" (ngSubmit)="addCategory()">
+      <mat-form-field appearance="outline">
+        <mat-label>Name</mat-label>
+        <input
+          matInput
+          name="categoryName"
+          required
+          #categoryNameModel="ngModel"
+          [(ngModel)]="newCategory.name"
+          placeholder="Category name"
+        />
+        <mat-error *ngIf="(categoryNameModel.touched || categoryForm.submitted) && categoryNameModel.invalid">
+          Category name is required.
+        </mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Description</mat-label>
+        <input
+          matInput
+          name="categoryDescription"
+          required
+          #categoryDescriptionModel="ngModel"
+          [(ngModel)]="newCategory.description"
+          placeholder="Description"
+        />
+        <mat-error *ngIf="(categoryDescriptionModel.touched || categoryForm.submitted) && categoryDescriptionModel.invalid">
+          Category description is required.
+        </mat-error>
+      </mat-form-field>
+      <mat-checkbox name="categoryIsSaving" [(ngModel)]="newCategory.isSaving">Saving Category</mat-checkbox>
+      <button mat-flat-button type="submit" class="primary-button">Add Category</button>
+    </form>
+
+    <div class="taxonomy-table-wrap">
+      <table class="taxonomy-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Saving</th>
+            <th>Sub-categories</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let category of categories">
+            <ng-container *ngIf="editingCategoryId !== category.id; else editCategoryRow">
+              <td>{{ category.name }}</td>
+              <td>{{ category.description }}</td>
+              <td>{{ category.isSaving ? 'Yes' : 'No' }}</td>
+              <td>{{ subCategoryNames(category) || '-' }}</td>
+              <td class="taxonomy-actions-cell">
+                <button mat-stroked-button class="ghost-button" (click)="startEditCategory(category)">
+                  <mat-icon>edit</mat-icon>
+                  <span>Edit</span>
+                </button>
+              </td>
+            </ng-container>
+            <ng-template #editCategoryRow>
+              <td>
+                <mat-form-field appearance="outline" class="taxonomy-inline-field">
+                  <input matInput [(ngModel)]="editingCategory.name" />
+                </mat-form-field>
+              </td>
+              <td>
+                <mat-form-field appearance="outline" class="taxonomy-inline-field">
+                  <input matInput [(ngModel)]="editingCategory.description" />
+                </mat-form-field>
+              </td>
+              <td>
+                <mat-checkbox [(ngModel)]="editingCategory.isSaving">Saving</mat-checkbox>
+              </td>
+              <td>-</td>
+              <td class="taxonomy-actions-cell">
+                <button mat-flat-button class="primary-button" (click)="saveCategoryEdit()">Save</button>
+                <button mat-stroked-button class="ghost-button" (click)="cancelCategoryEdit()">Cancel</button>
+              </td>
+            </ng-template>
+          </tr>
+          <tr *ngIf="!categories.length">
+            <td colspan="5" class="taxonomy-empty-cell">No categories found.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </mat-card-content>
+</mat-card>

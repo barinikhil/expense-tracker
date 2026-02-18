@@ -27,7 +27,17 @@ cd backend
 Available API endpoints:
 
 - `GET /api/health`
-- `GET /api/message`
+- `POST /api/auth/login`
+- `GET /api/categories`
+- `POST /api/categories`
+- `PUT /api/categories/{id}`
+- `GET /api/sub-categories`
+- `POST /api/sub-categories`
+- `PUT /api/sub-categories/{id}`
+
+Authentication details:
+
+- Login/JWT guide: [backend/LOGIN.md](backend/LOGIN.md)
 
 Actuator endpoints:
 
@@ -60,3 +70,13 @@ The packaged JAR will be created in `backend/target/`.
 
 
 Maven Wrapper scripts will automatically download `maven-wrapper.jar` on first run.
+
+
+## Category management feature
+
+The app includes full category and sub-category management with database persistence.
+
+- **List**: View all categories with nested sub-categories, and a global list of sub-categories.
+- **Add**: Create new categories and sub-categories from the Angular UI.
+- **Edit**: Update category details or move sub-categories to another category.
+- **Database**: Spring Data JPA stores data in MySQL and auto-creates schema at startup.

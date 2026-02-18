@@ -1,5 +1,142 @@
-<main class="container">
-  <h1>Expense Tracker</h1>
-  <p class="status">{{ status }}</p>
-  <p class="message">{{ message }}</p>
+<mat-toolbar class="topbar">
+  <div class="brand">
+    <div class="brand-badge">ET</div>
+    <div class="brand-text" [class.hidden]="isAuthenticated && isSidebarCollapsed">
+      <span class="eyebrow">Personal Finance</span>
+      <h1>Expense Tracker</h1>
+    </div>
+  </div>
+  <button
+    *ngIf="isAuthenticated"
+    mat-icon-button
+    class="sidebar-toggle"
+    (click)="toggleSidebar()"
+    [matTooltip]="isMobileView ? (isSidebarCollapsed ? 'Close menu' : 'Open menu') : (isSidebarCollapsed ? 'Expand menu' : 'Collapse menu')"
+  >
+    <mat-icon>{{ isMobileView ? (isSidebarCollapsed ? 'close' : 'menu') : (isSidebarCollapsed ? 'menu_open' : 'menu') }}</mat-icon>
+  </button>
+  <span class="spacer"></span>
+  <div class="status-pill">
+    <span class="status-dot" [class.up]="isBackendUp" [class.down]="!isBackendUp"></span>
+    <span>{{ status }}</span>
+  </div>
+  <div *ngIf="isAuthenticated" class="user-pill">
+    <mat-icon>person</mat-icon>
+    <span>{{ loggedInUsername }}</span>
+  </div>
+</mat-toolbar>
+
+<main class="app-shell" [class.auth-shell]="!isAuthenticated" [class.sidebar-collapsed]="isAuthenticated && isSidebarCollapsed">
+  <mat-card *ngIf="isAuthenticated" class="sidebar" [class.collapsed]="isSidebarCollapsed">
+    <div class="sidebar-head">
+      <h2>Navigation</h2>
+      <p>Stay on top of your taxonomy.</p>
+    </div>
+    <mat-nav-list class="menu">
+      <a
+        mat-list-item
+        class="menu-child"
+        routerLink="/dashboard"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [matTooltip]="isSidebarCollapsed ? 'Dashboard' : ''"
+        matTooltipPosition="right"
+        (click)="onNavItemClick()"
+      >
+        <mat-icon>dashboard</mat-icon>
+        <span>Dashboard</span>
+      </a>
+      <a
+        mat-list-item
+        class="menu-child"
+        routerLink="/expenses"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [matTooltip]="isSidebarCollapsed ? 'Expenses' : ''"
+        matTooltipPosition="right"
+        (click)="onNavItemClick()"
+      >
+        <mat-icon>receipt_long</mat-icon>
+        <span>Expenses</span>
+      </a>
+      <button
+        mat-list-item
+        type="button"
+        class="menu-parent-toggle"
+        (click)="toggleClassificationMenu()"
+        [matTooltip]="isSidebarCollapsed ? 'Classification' : ''"
+        matTooltipPosition="right"
+      >
+        <mat-icon>folder_open</mat-icon>
+        <span>Classification</span>
+        <mat-icon class="menu-expand-icon">{{ isClassificationExpanded ? 'expand_more' : 'chevron_right' }}</mat-icon>
+      </button>
+
+      <div class="menu-subgroup" *ngIf="isClassificationExpanded && (!isSidebarCollapsed || isMobileView)">
+        <a
+          mat-list-item
+          class="menu-child menu-nested-child"
+          routerLink="/categories"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          matTooltipPosition="right"
+          (click)="onNavItemClick()"
+        >
+          <mat-icon>category</mat-icon>
+          <span>Category</span>
+        </a>
+        <a
+          mat-list-item
+          class="menu-child menu-nested-child"
+          routerLink="/sub-categories"
+          routerLinkActive="active"
+          matTooltipPosition="right"
+          (click)="onNavItemClick()"
+        >
+          <mat-icon>account_tree</mat-icon>
+          <span>Sub-category</span>
+        </a>
+      </div>
+      <a
+        mat-list-item
+        class="logout-nav-item"
+        href=""
+        (click)="logout(); $event.preventDefault()"
+        [matTooltip]="isSidebarCollapsed ? 'Logout' : ''"
+        matTooltipPosition="right"
+      >
+        <mat-icon>logout</mat-icon>
+        <span>Logout</span>
+      </a>
+    </mat-nav-list>
+  </mat-card>
+
+  <section class="content">
+    <router-outlet></router-outlet>
+  </section>
 </main>
+
+<div
+  *ngIf="isAuthenticated"
+  class="mobile-backdrop"
+  [class.visible]="isMobileView && isSidebarCollapsed"
+  (click)="closeMobileSidebar()"
+></div>
+
+<div *ngIf="!isBackendUp" class="backend-overlay">
+  <p>
+    Backend is down. Please wait...
+    <br />
+    Retrying in {{ retryCountdownSeconds }}s
+  </p>
+</div>
+
+<div *ngIf="isSessionModalVisible" class="session-modal-backdrop">
+  <div class="session-modal">
+    <h3>Session Expired</h3>
+    <p>Your session is no longer valid. Please log in again.</p>
+    <button mat-flat-button class="primary-button" type="button" (click)="closeSessionModal()">
+      OK
+    </button>
+  </div>
+</div>
