@@ -11,6 +11,7 @@ import { of, Subject, timer } from 'rxjs';
 import { catchError, switchMap, takeUntil, tap, timeout } from 'rxjs/operators';
 import { BackendService } from './services/backend.service';
 import { AuthService } from './services/auth.service';
+import { SessionExpiredModalService } from './services/session-expired-modal.service';
 import { environment } from '../environments/environment';
 
 @Component({
@@ -44,6 +45,7 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(
     private readonly backendService: BackendService,
     private readonly authService: AuthService,
+    private readonly sessionExpiredModalService: SessionExpiredModalService,
     private readonly router: Router
   ) {}
 
@@ -53,6 +55,14 @@ export class AppComponent implements OnInit, OnDestroy {
 
   get loggedInUsername(): string {
     return this.authService.getUsername();
+  }
+
+  get isSessionModalVisible(): boolean {
+    return this.sessionExpiredModalService.isVisible;
+  }
+
+  closeSessionModal(): void {
+    this.sessionExpiredModalService.hide();
   }
 
   ngOnInit(): void {

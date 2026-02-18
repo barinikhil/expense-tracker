@@ -130,3 +130,13 @@
     Retrying in {{ retryCountdownSeconds }}s
   </p>
 </div>
+
+<div *ngIf="isSessionModalVisible" class="session-modal-backdrop">
+  <div class="session-modal">
+    <h3>Session Expired</h3>
+    <p>Your session is no longer valid. Please log in again.</p>
+    <button mat-flat-button class="primary-button" type="button" (click)="closeSessionModal()">
+      OK
+    </button>
+  </div>
+</div>

@@ -368,3 +368,32 @@
     inset: 4rem 0 0 0;
   }
 }
+
+.session-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: rgba(15, 23, 42, 0.48);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.session-modal {
+  width: min(92vw, 420px);
+  background: #fff;
+  border: 1px solid var(--outline);
+  border-radius: 14px;
+  padding: 1.1rem;
+  box-shadow: var(--shadow-1);
+}
+
+.session-modal h3 {
+  margin: 0 0 0.45rem;
+  font-size: 1.05rem;
+}
+
+.session-modal p {
+  margin: 0 0 0.95rem;
+  color: var(--muted);
+}

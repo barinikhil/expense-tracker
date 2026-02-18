@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { BackendService } from '../../services/backend.service';
 import { AuthService } from '../../services/auth.service';
+import { SessionExpiredModalService } from '../../services/session-expired-modal.service';
 
 @Component({
   selector: 'app-login-page',
@@ -33,6 +34,7 @@ export class LoginPageComponent {
   constructor(
     private readonly backendService: BackendService,
     private readonly authService: AuthService,
+    private readonly sessionExpiredModalService: SessionExpiredModalService,
     private readonly router: Router
   ) {}
 
@@ -47,6 +49,7 @@ export class LoginPageComponent {
     this.backendService.login(this.credentials).subscribe({
       next: (response) => {
         this.authService.setSession(response.token, response.username);
+        this.sessionExpiredModalService.hide();
         this.credentials = { username: '', password: '' };
         this.submitting = false;
         this.router.navigate(['/dashboard']);
