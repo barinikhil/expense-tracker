@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 public final class ExpenseDtos {
 
@@ -23,6 +24,15 @@ public final class ExpenseDtos {
             String categoryName,
             Long subCategoryId,
             String subCategoryName
+    ) {
+    }
+
+    public record ExpensePageResponse(
+            List<ExpenseResponse> items,
+            int page,
+            int size,
+            long totalElements,
+            int totalPages
     ) {
     }
 

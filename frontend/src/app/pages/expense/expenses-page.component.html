@@ -14,6 +14,21 @@
       <a mat-flat-button class="primary-button" routerLink="/expenses/add">Add Expense</a>
     </div>
 
+    <div class="expense-filter-bar">
+      <div class="expense-date-field">
+        <label for="startDate">From</label>
+        <input id="startDate" type="date" [(ngModel)]="startDate">
+      </div>
+      <div class="expense-date-field">
+        <label for="endDate">To</label>
+        <input id="endDate" type="date" [(ngModel)]="endDate">
+      </div>
+      <div class="expense-filter-actions">
+        <button mat-flat-button class="primary-button" type="button" (click)="applyFilters()">Apply</button>
+        <button mat-button type="button" (click)="resetToCurrentMonth()">Current Month</button>
+      </div>
+    </div>
+
     <div class="taxonomy-table-wrap">
       <table class="taxonomy-table">
         <thead>
@@ -38,6 +53,26 @@
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <div class="expense-pagination" *ngIf="totalElements">
+      <span class="expense-pagination-info">
+        Showing {{ pageStartRecord }}-{{ pageEndRecord }} of {{ totalElements }}
+      </span>
+      <div class="expense-pagination-actions">
+        <label class="expense-page-size-label" for="expensePageSize">Rows</label>
+        <select
+          id="expensePageSize"
+          class="expense-page-size-select"
+          [(ngModel)]="pageSize"
+          (ngModelChange)="onPageSizeChange()"
+        >
+          <option *ngFor="let option of pageSizeOptions" [ngValue]="option">{{ option }}</option>
+        </select>
+        <button mat-button type="button" (click)="previousPage()" [disabled]="currentPage === 1">Previous</button>
+        <span class="expense-pagination-page">Page {{ currentPage }} / {{ totalPages }}</span>
+        <button mat-button type="button" (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
+      </div>
     </div>
   </mat-card-content>
 </mat-card>

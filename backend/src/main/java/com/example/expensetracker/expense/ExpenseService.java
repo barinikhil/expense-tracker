@@ -4,12 +4,16 @@ import com.example.expensetracker.category.Category;
 import com.example.expensetracker.category.CategoryRepository;
 import com.example.expensetracker.category.SubCategory;
 import com.example.expensetracker.category.SubCategoryRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
+import java.time.LocalDate;
 
 @Service
 @Transactional
@@ -30,10 +34,36 @@ public class ExpenseService {
     }
 
     @Transactional(readOnly = true)
-    public List<ExpenseDtos.ExpenseResponse> listExpenses() {
-        return expenseRepository.findAllByOrderByExpenseDateDescIdDesc().stream()
-                .map(this::toResponse)
-                .toList();
+    public ExpenseDtos.ExpensePageResponse listExpenses(LocalDate startDate, LocalDate endDate, int page, int size) {
+        if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "startDate cannot be after endDate");
+        }
+        if (page < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "page must be 0 or greater");
+        }
+        if (size <= 0 || size > 200) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "size must be between 1 and 200");
+        }
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "expenseDate", "id"));
+        Page<Expense> expensePage;
+        if (startDate != null && endDate != null) {
+            expensePage = expenseRepository.findAllByExpenseDateBetween(startDate, endDate, pageable);
+        } else if (startDate != null) {
+            expensePage = expenseRepository.findAllByExpenseDateGreaterThanEqual(startDate, pageable);
+        } else if (endDate != null) {
+            expensePage = expenseRepository.findAllByExpenseDateLessThanEqual(endDate, pageable);
+        } else {
+            expensePage = expenseRepository.findAll(pageable);
+        }
+
+        return new ExpenseDtos.ExpensePageResponse(
+                expensePage.stream().map(this::toResponse).toList(),
+                expensePage.getNumber(),
+                expensePage.getSize(),
+                expensePage.getTotalElements(),
+                expensePage.getTotalPages()
+        );
     }
 
     public ExpenseDtos.ExpenseResponse createExpense(ExpenseDtos.CreateExpenseRequest request) {

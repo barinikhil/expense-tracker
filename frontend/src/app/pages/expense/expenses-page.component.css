@@ -4,6 +4,83 @@
   margin-bottom: 0.9rem;
 }
 
+.expense-filter-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.expense-date-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.expense-date-field label {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.expense-date-field input[type="date"] {
+  height: 2.5rem;
+  min-width: 170px;
+  border-radius: 10px;
+  border: 1px solid var(--outline);
+  background: var(--surface);
+  padding: 0.45rem 0.65rem;
+  font: inherit;
+}
+
+.expense-filter-actions {
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.expense-pagination {
+  margin-top: 0.95rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.expense-pagination-info {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.expense-pagination-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.expense-page-size-label {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.expense-page-size-select {
+  height: 2.1rem;
+  border-radius: 8px;
+  border: 1px solid var(--outline);
+  background: var(--surface);
+  padding: 0 0.45rem;
+  font: inherit;
+}
+
+.expense-pagination-page {
+  color: var(--muted);
+  font-size: 0.88rem;
+  min-width: 5.5rem;
+  text-align: center;
+}
+
 @media (max-width: 700px) {
   .expense-top-actions {
     justify-content: stretch;
@@ -12,5 +89,27 @@
   .expense-top-actions a {
     width: 100%;
     height: 3rem;
+  }
+
+  .expense-filter-bar {
+    align-items: stretch;
+  }
+
+  .expense-date-field {
+    width: 100%;
+  }
+
+  .expense-date-field input[type="date"] {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .expense-pagination {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .expense-pagination-actions {
+    justify-content: space-between;
   }
 }

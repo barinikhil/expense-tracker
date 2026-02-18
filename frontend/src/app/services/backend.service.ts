@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 interface HealthResponse {
@@ -36,11 +36,20 @@ export interface Expense {
   subCategoryName: string;
 }
 
+export interface ExpensePageResponse {
+  items: Expense[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class BackendService {
-  private readonly apiBaseUrl = 'http://192.168.6.35:9081/api';
+//   private readonly apiBaseUrl = 'http://192.168.6.35:9081/api';
+  private readonly apiBaseUrl = 'http://192.168.1.18:9081/api';
 
   constructor(private readonly http: HttpClient) {}
 
@@ -76,8 +85,17 @@ export class BackendService {
     return this.http.put<SubCategory>(`${this.apiBaseUrl}/sub-categories/${id}`, payload);
   }
 
-  listExpenses(): Observable<Expense[]> {
-    return this.http.get<Expense[]>(`${this.apiBaseUrl}/expenses`);
+  listExpenses(page = 0, size = 10, startDate?: string, endDate?: string): Observable<ExpensePageResponse> {
+    let params = new HttpParams();
+    params = params.set('page', page);
+    params = params.set('size', size);
+    if (startDate) {
+      params = params.set('startDate', startDate);
+    }
+    if (endDate) {
+      params = params.set('endDate', endDate);
+    }
+    return this.http.get<ExpensePageResponse>(`${this.apiBaseUrl}/expenses`, { params });
   }
 
   addExpense(payload: {
