@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 interface HealthResponse {
   status: string;
@@ -81,8 +82,7 @@ export interface DashboardSummaryResponse {
   providedIn: 'root'
 })
 export class BackendService {
-//   private readonly apiBaseUrl = 'http://192.168.6.35:9081/api';
-  private readonly apiBaseUrl = 'http://192.168.1.18:9081/api';
+  private readonly apiBaseUrl = environment.apiBaseUrl;
 
   constructor(private readonly http: HttpClient) {}
 
