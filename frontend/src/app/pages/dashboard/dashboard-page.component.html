@@ -49,9 +49,17 @@
         </mat-card>
 
         <mat-card class="dashboard-card">
-          <h3>Current Month by Category</h3>
-          <div class="category-chart" *ngIf="categoryTotals.length; else noCategoryData">
-            <div class="category-row" *ngFor="let item of categoryTotals">
+          <div class="category-card-head">
+            <h3>Current Month by Category</h3>
+            <div class="category-top-controls">
+              <label for="categoryTopSelect">Top</label>
+              <select id="categoryTopSelect" [(ngModel)]="selectedCategoryTopN">
+                <option *ngFor="let option of categoryTopOptions" [ngValue]="option">{{ option }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="category-chart" *ngIf="visibleCategoryTotals.length; else noCategoryData">
+            <div class="category-row" *ngFor="let item of visibleCategoryTotals">
               <div class="category-head">
                 <span>{{ item.categoryName }}</span>
                 <strong>{{ item.total | number:'1.2-2' }}</strong>

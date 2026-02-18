@@ -21,9 +21,11 @@ import {
 export class DashboardPageComponent implements OnInit {
   readonly topTrendColors = ['#0f766e', '#2563eb', '#9333ea', '#ea580c', '#dc2626'];
   readonly topNOptions = [1, 3, 5, 10];
+  readonly categoryTopOptions = [3, 5, 10, 100];
   loading = true;
   error = '';
   selectedTopN = 5;
+  selectedCategoryTopN = 5;
   hiddenCategoryNames = new Set<string>();
   summary: DashboardSummaryResponse | null = null;
 
@@ -39,6 +41,10 @@ export class DashboardPageComponent implements OnInit {
 
   get categoryTotals(): DashboardCategoryTotal[] {
     return this.summary?.currentMonthCategoryTotals ?? [];
+  }
+
+  get visibleCategoryTotals(): DashboardCategoryTotal[] {
+    return this.categoryTotals.slice(0, this.selectedCategoryTopN);
   }
 
   get topYearlyCategoryTrends(): DashboardCategoryYearTrend[] {
