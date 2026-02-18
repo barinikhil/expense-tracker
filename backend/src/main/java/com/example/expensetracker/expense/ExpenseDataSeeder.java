@@ -17,7 +17,6 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Random;
 
 @Component
@@ -25,8 +24,8 @@ import java.util.Random;
 public class ExpenseDataSeeder implements ApplicationRunner {
 
     private static final String DUMMY_PREFIX = "Dummy expense - ";
-    private static final int MIN_CURRENT_MONTH_RECORDS = 50;
-    private static final List<String> TARGET_CATEGORIES = List.of("Food", "Shopping", "Entertainment");
+    private static final int MIN_RECORDS_PER_MONTH = 25;
+    private static final int MAX_RECORDS_PER_MONTH = 50;
     private static final Map<String, AmountRange> AMOUNT_RANGES = Map.of(
             "Food", new AmountRange(8, 80),
             "Shopping", new AmountRange(20, 250),
@@ -50,46 +49,31 @@ public class ExpenseDataSeeder implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
-        Map<String, CategoryBundle> categoryBundles = loadCategoryBundles();
-        if (categoryBundles.size() != TARGET_CATEGORIES.size()) {
+        List<CategoryBundle> categoryBundles = loadCategoryBundles();
+        if (categoryBundles.isEmpty()) {
             return;
         }
 
         List<Expense> expensesToSave = new ArrayList<>();
         Random random = new Random(20260218L);
         YearMonth currentMonth = YearMonth.now();
-        boolean hasAnyDummyData = expenseRepository.existsByDescriptionStartingWith(DUMMY_PREFIX);
 
-        if (!hasAnyDummyData) {
-            for (int monthOffset = 11; monthOffset >= 0; monthOffset--) {
-                YearMonth month = currentMonth.minusMonths(monthOffset);
-                int recordCount = 10 + random.nextInt(6);
-                for (int i = 0; i < recordCount; i++) {
-                    String categoryName = TARGET_CATEGORIES.get(random.nextInt(TARGET_CATEGORIES.size()));
-                    CategoryBundle bundle = categoryBundles.get(categoryName);
-                    if (bundle == null || bundle.subCategories().isEmpty()) {
-                        continue;
-                    }
-                    SubCategory subCategory = bundle.subCategories().get(random.nextInt(bundle.subCategories().size()));
-                    expensesToSave.add(buildExpense(month, bundle.category(), subCategory, random));
-                }
-            }
-        }
+        for (int monthOffset = 11; monthOffset >= 0; monthOffset--) {
+            YearMonth month = currentMonth.minusMonths(monthOffset);
+            int targetCount = MIN_RECORDS_PER_MONTH + random.nextInt(MAX_RECORDS_PER_MONTH - MIN_RECORDS_PER_MONTH + 1);
 
-        long currentMonthDummyCount = expenseRepository.countByDescriptionStartingWithAndExpenseDateBetween(
-                DUMMY_PREFIX,
-                currentMonth.atDay(1),
-                currentMonth.atEndOfMonth()
-        );
-        long missingCurrentMonthRecords = Math.max(0, MIN_CURRENT_MONTH_RECORDS - currentMonthDummyCount);
-        for (int i = 0; i < missingCurrentMonthRecords; i++) {
-            String categoryName = TARGET_CATEGORIES.get(random.nextInt(TARGET_CATEGORIES.size()));
-            CategoryBundle bundle = categoryBundles.get(categoryName);
-            if (bundle == null || bundle.subCategories().isEmpty()) {
-                continue;
+            long existingDummyCount = expenseRepository.countByDescriptionStartingWithAndExpenseDateBetween(
+                    DUMMY_PREFIX,
+                    month.atDay(1),
+                    month.atEndOfMonth()
+            );
+
+            long missingCount = Math.max(0, targetCount - existingDummyCount);
+            for (int i = 0; i < missingCount; i++) {
+                CategoryBundle bundle = categoryBundles.get(random.nextInt(categoryBundles.size()));
+                SubCategory subCategory = bundle.subCategories().get(random.nextInt(bundle.subCategories().size()));
+                expensesToSave.add(buildExpense(month, bundle.category(), subCategory, random));
             }
-            SubCategory subCategory = bundle.subCategories().get(random.nextInt(bundle.subCategories().size()));
-            expensesToSave.add(buildExpense(currentMonth, bundle.category(), subCategory, random));
         }
 
         if (!expensesToSave.isEmpty()) {
@@ -97,19 +81,13 @@ public class ExpenseDataSeeder implements ApplicationRunner {
         }
     }
 
-    private Map<String, CategoryBundle> loadCategoryBundles() {
-        java.util.HashMap<String, CategoryBundle> bundles = new java.util.HashMap<>();
-        for (String categoryName : TARGET_CATEGORIES) {
-            Optional<Category> categoryOpt = categoryRepository.findByNameIgnoreCase(categoryName);
-            if (categoryOpt.isEmpty()) {
-                continue;
-            }
-            Category category = categoryOpt.get();
+    private List<CategoryBundle> loadCategoryBundles() {
+        List<CategoryBundle> bundles = new ArrayList<>();
+        for (Category category : categoryRepository.findAll()) {
             List<SubCategory> subCategories = subCategoryRepository.findAllByCategory_Id(category.getId());
-            if (subCategories.isEmpty()) {
-                continue;
+            if (!subCategories.isEmpty()) {
+                bundles.add(new CategoryBundle(category, subCategories));
             }
-            bundles.put(categoryName, new CategoryBundle(category, subCategories));
         }
         return bundles;
     }
