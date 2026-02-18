@@ -59,6 +59,28 @@ npm start
 
 Open `http://localhost:4200` in your browser.
 
+
+## Run with Docker Compose (UI + Backend)
+
+Build and run both services:
+
+```bash
+docker compose up --build
+```
+
+Services:
+
+- UI (Nginx): `http://localhost:8080`
+- Backend API: `http://localhost:9081`
+
+The UI proxies API requests from `/api/*` to the backend service through Nginx.
+
+To stop:
+
+```bash
+docker compose down
+```
+
 ## Optional: Build backend JAR with Maven
 
 ```bash
