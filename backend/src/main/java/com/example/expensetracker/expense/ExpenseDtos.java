@@ -38,10 +38,13 @@ public final class ExpenseDtos {
 
     public record DashboardSummaryResponse(
             BigDecimal currentMonthTotal,
-            long currentMonthCount,
-            BigDecimal previousMonthTotal,
+            BigDecimal last30DaysTotal,
+            BigDecimal lastMonthTotal,
+            BigDecimal lastQuarterTotal,
+            BigDecimal lastYearTotal,
             List<MonthlyTotalPoint> monthlyTotals,
-            List<CategoryTotalPoint> currentMonthCategoryTotals
+            List<CategoryTotalPoint> currentMonthCategoryTotals,
+            List<CategoryYearTrendPoint> topYearlyCategoryTrends
     ) {
     }
 
@@ -56,6 +59,13 @@ public final class ExpenseDtos {
             String categoryName,
             BigDecimal total,
             long count
+    ) {
+    }
+
+    public record CategoryYearTrendPoint(
+            String categoryName,
+            BigDecimal yearTotal,
+            List<MonthlyTotalPoint> monthlyTrend
     ) {
     }
 

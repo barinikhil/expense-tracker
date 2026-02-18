@@ -104,10 +104,20 @@ public class ExpenseService {
 
         List<Expense> currentMonthExpenses = byMonth.getOrDefault(currentMonth, List.of());
         BigDecimal currentMonthTotal = sumAmounts(currentMonthExpenses);
-        long currentMonthCount = currentMonthExpenses.size();
+
+        LocalDate today = LocalDate.now();
+        LocalDate last30DaysStart = today.minusDays(29);
+        BigDecimal last30DaysTotal = sumAmountsInRange(expenses, last30DaysStart, today);
 
         YearMonth previousMonth = currentMonth.minusMonths(1);
-        BigDecimal previousMonthTotal = sumAmounts(byMonth.getOrDefault(previousMonth, List.of()));
+        BigDecimal lastMonthTotal = sumAmounts(byMonth.getOrDefault(previousMonth, List.of()));
+
+        LocalDate lastQuarterStart = currentMonth.minusMonths(3).atDay(1);
+        LocalDate lastQuarterEnd = currentMonth.minusMonths(1).atEndOfMonth();
+        BigDecimal lastQuarterTotal = sumAmountsInRange(expenses, lastQuarterStart, lastQuarterEnd);
+
+        LocalDate lastYearStart = today.minusDays(364);
+        BigDecimal lastYearTotal = sumAmountsInRange(expenses, lastYearStart, today);
 
         Map<String, List<Expense>> byCategory = new LinkedHashMap<>();
         for (Expense expense : currentMonthExpenses) {
@@ -123,12 +133,41 @@ public class ExpenseService {
                 .sorted(Comparator.comparing(ExpenseDtos.CategoryTotalPoint::total).reversed())
                 .toList();
 
+        Map<String, List<Expense>> byYearCategory = new LinkedHashMap<>();
+        for (Expense expense : expenses) {
+            byYearCategory.computeIfAbsent(expense.getCategory().getName(), key -> new ArrayList<>()).add(expense);
+        }
+
+        List<ExpenseDtos.CategoryYearTrendPoint> topYearlyCategoryTrends = byYearCategory.entrySet().stream()
+                .map(entry -> {
+                    BigDecimal yearTotal = sumAmounts(entry.getValue());
+                    List<ExpenseDtos.MonthlyTotalPoint> monthlyTrend = byMonth.entrySet().stream()
+                            .map(monthEntry -> {
+                                List<Expense> categoryMonthExpenses = monthEntry.getValue().stream()
+                                        .filter(exp -> exp.getCategory().getName().equalsIgnoreCase(entry.getKey()))
+                                        .toList();
+                                return new ExpenseDtos.MonthlyTotalPoint(
+                                        monthEntry.getKey().toString(),
+                                        sumAmounts(categoryMonthExpenses),
+                                        categoryMonthExpenses.size()
+                                );
+                            })
+                            .toList();
+                    return new ExpenseDtos.CategoryYearTrendPoint(entry.getKey(), yearTotal, monthlyTrend);
+                })
+                .sorted(Comparator.comparing(ExpenseDtos.CategoryYearTrendPoint::yearTotal).reversed())
+                .limit(5)
+                .toList();
+
         return new ExpenseDtos.DashboardSummaryResponse(
                 currentMonthTotal,
-                currentMonthCount,
-                previousMonthTotal,
+                last30DaysTotal,
+                lastMonthTotal,
+                lastQuarterTotal,
+                lastYearTotal,
                 monthlyTotals,
-                categoryTotals
+                categoryTotals,
+                topYearlyCategoryTrends
         );
     }
 
@@ -171,6 +210,14 @@ public class ExpenseService {
 
     private BigDecimal sumAmounts(List<Expense> expenses) {
         return expenses.stream()
+                .map(Expense::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private BigDecimal sumAmountsInRange(List<Expense> expenses, LocalDate startDate, LocalDate endDate) {
+        return expenses.stream()
+                .filter(expense -> !expense.getExpenseDate().isBefore(startDate) && !expense.getExpenseDate().isAfter(endDate))
                 .map(Expense::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .setScale(2, RoundingMode.HALF_UP);

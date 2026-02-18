@@ -56,12 +56,21 @@ export interface DashboardCategoryTotal {
   count: number;
 }
 
+export interface DashboardCategoryYearTrend {
+  categoryName: string;
+  yearTotal: number;
+  monthlyTrend: DashboardMonthlyTotal[];
+}
+
 export interface DashboardSummaryResponse {
   currentMonthTotal: number;
-  currentMonthCount: number;
-  previousMonthTotal: number;
+  last30DaysTotal: number;
+  lastMonthTotal: number;
+  lastQuarterTotal: number;
+  lastYearTotal: number;
   monthlyTotals: DashboardMonthlyTotal[];
   currentMonthCategoryTotals: DashboardCategoryTotal[];
+  topYearlyCategoryTrends: DashboardCategoryYearTrend[];
 }
 
 @Injectable({

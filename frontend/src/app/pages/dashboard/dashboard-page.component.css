@@ -5,7 +5,7 @@
 
 .dashboard-kpis {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 0.8rem;
   margin-bottom: 1rem;
 }
@@ -118,12 +118,74 @@
   margin: 0;
 }
 
+.top-category-trend-card {
+  margin-top: 0.9rem;
+}
+
+.top-trend-chart-wrap {
+  border: 1px solid var(--outline);
+  border-radius: 12px;
+  padding: 0.7rem;
+  background: #fbfcff;
+}
+
+.top-trend-chart {
+  width: 100%;
+  height: 220px;
+}
+
+.top-trend-axis {
+  stroke: #d7dae5;
+  stroke-width: 1;
+}
+
+.top-trend-month-labels {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 0.2rem;
+  margin-top: 0.25rem;
+}
+
+.top-trend-month-labels span {
+  font-size: 0.68rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.top-trend-legend {
+  margin-top: 0.7rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+}
+
+.legend-item strong {
+  margin-left: auto;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+}
+
 @media (max-width: 900px) {
   .dashboard-kpis {
     grid-template-columns: 1fr;
   }
 
   .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .top-trend-legend {
     grid-template-columns: 1fr;
   }
 }

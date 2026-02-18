@@ -15,16 +15,24 @@
     <ng-container *ngIf="!loading && summary">
       <div class="dashboard-kpis">
         <div class="dashboard-kpi">
-          <span class="kpi-label">Current Month Spend</span>
+          <span class="kpi-label">Current Month</span>
           <strong>{{ summary.currentMonthTotal | number:'1.2-2' }}</strong>
         </div>
         <div class="dashboard-kpi">
-          <span class="kpi-label">Current Month Records</span>
-          <strong>{{ summary.currentMonthCount }}</strong>
+          <span class="kpi-label">Last 30 Days</span>
+          <strong>{{ summary.last30DaysTotal | number:'1.2-2' }}</strong>
         </div>
         <div class="dashboard-kpi">
-          <span class="kpi-label">Previous Month Spend</span>
-          <strong>{{ summary.previousMonthTotal | number:'1.2-2' }}</strong>
+          <span class="kpi-label">Last Month</span>
+          <strong>{{ summary.lastMonthTotal | number:'1.2-2' }}</strong>
+        </div>
+        <div class="dashboard-kpi">
+          <span class="kpi-label">Last Quarter</span>
+          <strong>{{ summary.lastQuarterTotal | number:'1.2-2' }}</strong>
+        </div>
+        <div class="dashboard-kpi">
+          <span class="kpi-label">Last Year</span>
+          <strong>{{ summary.lastYearTotal | number:'1.2-2' }}</strong>
         </div>
       </div>
 
@@ -58,6 +66,40 @@
           </ng-template>
         </mat-card>
       </div>
+
+      <mat-card class="dashboard-card top-category-trend-card">
+        <h3>Top 5 Category Trends (Yearly Spend)</h3>
+        <div *ngIf="topYearlyCategoryTrends.length; else noTopTrendData" class="top-trend-chart-wrap">
+          <svg class="top-trend-chart" viewBox="0 0 620 220" preserveAspectRatio="none">
+            <line x1="20" y1="20" x2="20" y2="200" class="top-trend-axis"></line>
+            <line x1="20" y1="200" x2="600" y2="200" class="top-trend-axis"></line>
+            <polyline
+              *ngFor="let trend of topYearlyCategoryTrends; let i = index"
+              [attr.points]="topTrendLinePoints(trend.monthlyTrend)"
+              [attr.stroke]="topTrendColor(i)"
+              fill="none"
+              stroke-width="3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ></polyline>
+          </svg>
+
+          <div class="top-trend-month-labels" *ngIf="topYearlyCategoryTrends[0] as firstTrend">
+            <span *ngFor="let point of firstTrend.monthlyTrend">{{ monthLabel(point.yearMonth) }}</span>
+          </div>
+
+          <div class="top-trend-legend">
+            <div class="legend-item" *ngFor="let trend of topYearlyCategoryTrends; let i = index">
+              <span class="legend-dot" [style.background]="topTrendColor(i)"></span>
+              <span>{{ trend.categoryName }}</span>
+              <strong>{{ trend.yearTotal | number:'1.2-2' }}</strong>
+            </div>
+          </div>
+        </div>
+        <ng-template #noTopTrendData>
+          <p class="dashboard-empty">No yearly category trend data available.</p>
+        </ng-template>
+      </mat-card>
     </ng-container>
   </mat-card-content>
 </mat-card>
