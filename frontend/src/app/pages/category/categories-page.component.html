@@ -39,6 +39,7 @@
           Category description is required.
         </mat-error>
       </mat-form-field>
+      <mat-checkbox name="categoryIsSaving" [(ngModel)]="newCategory.isSaving">Saving Category</mat-checkbox>
       <button mat-flat-button type="submit" class="primary-button">Add Category</button>
     </form>
 
@@ -48,6 +49,7 @@
           <tr>
             <th>Name</th>
             <th>Description</th>
+            <th>Saving</th>
             <th>Sub-categories</th>
             <th>Actions</th>
           </tr>
@@ -57,6 +59,7 @@
             <ng-container *ngIf="editingCategoryId !== category.id; else editCategoryRow">
               <td>{{ category.name }}</td>
               <td>{{ category.description }}</td>
+              <td>{{ category.isSaving ? 'Yes' : 'No' }}</td>
               <td>{{ subCategoryNames(category) || '-' }}</td>
               <td class="taxonomy-actions-cell">
                 <button mat-stroked-button class="ghost-button" (click)="startEditCategory(category)">
@@ -76,6 +79,9 @@
                   <input matInput [(ngModel)]="editingCategory.description" />
                 </mat-form-field>
               </td>
+              <td>
+                <mat-checkbox [(ngModel)]="editingCategory.isSaving">Saving</mat-checkbox>
+              </td>
               <td>-</td>
               <td class="taxonomy-actions-cell">
                 <button mat-flat-button class="primary-button" (click)="saveCategoryEdit()">Save</button>
@@ -84,7 +90,7 @@
             </ng-template>
           </tr>
           <tr *ngIf="!categories.length">
-            <td colspan="4" class="taxonomy-empty-cell">No categories found.</td>
+            <td colspan="5" class="taxonomy-empty-cell">No categories found.</td>
           </tr>
         </tbody>
       </table>

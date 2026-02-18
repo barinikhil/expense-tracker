@@ -32,6 +32,9 @@ public class Category extends AuditableEntity {
     @Column(nullable = false)
     private String description;
 
+    @Column(name = "is_saving", nullable = false)
+    private boolean saving;
+
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<SubCategory> subCategories = new ArrayList<>();
 }

@@ -15,6 +15,7 @@ export interface Category {
   id: number;
   name: string;
   description: string;
+  isSaving: boolean;
   subCategories: SubCategory[];
 }
 
@@ -94,11 +95,11 @@ export class BackendService {
     return this.http.get<Category[]>(`${this.apiBaseUrl}/categories`);
   }
 
-  addCategory(payload: { name: string; description: string }): Observable<Category> {
+  addCategory(payload: { name: string; description: string; isSaving: boolean }): Observable<Category> {
     return this.http.post<Category>(`${this.apiBaseUrl}/categories`, payload);
   }
 
-  updateCategory(id: number, payload: { name: string; description: string }): Observable<Category> {
+  updateCategory(id: number, payload: { name: string; description: string; isSaving: boolean }): Observable<Category> {
     return this.http.put<Category>(`${this.apiBaseUrl}/categories/${id}`, payload);
   }
 

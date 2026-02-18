@@ -20,7 +20,7 @@ class CategoryFeatureIntegrationTest {
     void shouldCreateListAndUpdateCategoriesAndSubCategories() {
         ResponseEntity<CategoryDtos.CategoryResponse> createdCategory = restTemplate.postForEntity(
                 "/api/categories",
-                new CategoryDtos.CreateCategoryRequest("Food", "Food-related expenses"),
+                new CategoryDtos.CreateCategoryRequest("Food", "Food-related expenses", false),
                 CategoryDtos.CategoryResponse.class
         );
 
@@ -39,7 +39,7 @@ class CategoryFeatureIntegrationTest {
 
         restTemplate.put(
                 "/api/categories/{id}",
-                new CategoryDtos.UpdateCategoryRequest("Food & Dining", "Dining and groceries"),
+                new CategoryDtos.UpdateCategoryRequest("Food & Dining", "Dining and groceries", true),
                 categoryId
         );
 
@@ -52,6 +52,7 @@ class CategoryFeatureIntegrationTest {
         assertThat(categories.getBody()).isNotNull();
         assertThat(categories.getBody()).hasSize(1);
         assertThat(categories.getBody()[0].name()).isEqualTo("Food & Dining");
+        assertThat(categories.getBody()[0].isSaving()).isTrue();
         assertThat(categories.getBody()[0].subCategories()).hasSize(1);
     }
 }

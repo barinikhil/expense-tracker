@@ -37,6 +37,7 @@ public class CategoryService {
         Category category = new Category();
         category.setName(request.name().trim());
         category.setDescription(request.description().trim());
+        category.setSaving(Boolean.TRUE.equals(request.isSaving()));
 
         return toCategoryResponse(categoryRepository.save(category));
     }
@@ -53,6 +54,7 @@ public class CategoryService {
 
         category.setName(request.name().trim());
         category.setDescription(request.description().trim());
+        category.setSaving(Boolean.TRUE.equals(request.isSaving()));
 
         return toCategoryResponse(category);
     }
@@ -102,7 +104,13 @@ public class CategoryService {
                 .map(this::toSubCategoryResponse)
                 .toList();
 
-        return new CategoryDtos.CategoryResponse(category.getId(), category.getName(), category.getDescription(), subCategories);
+        return new CategoryDtos.CategoryResponse(
+                category.getId(),
+                category.getName(),
+                category.getDescription(),
+                category.isSaving(),
+                subCategories
+        );
     }
 
     private CategoryDtos.SubCategoryResponse toSubCategoryResponse(SubCategory subCategory) {

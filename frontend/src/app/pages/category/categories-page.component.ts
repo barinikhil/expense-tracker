@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { BackendService, Category } from '../../services/backend.service';
 
 @Component({
@@ -18,7 +19,8 @@ import { BackendService, Category } from '../../services/backend.service';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    MatCheckboxModule
   ],
   templateUrl: './categories-page.component.html',
   styleUrl: './categories-page.component.css'
@@ -27,9 +29,9 @@ export class CategoriesPageComponent implements OnInit {
   error = '';
   categories: Category[] = [];
 
-  newCategory = { name: '', description: '' };
+  newCategory = { name: '', description: '', isSaving: false };
   editingCategoryId: number | null = null;
-  editingCategory = { name: '', description: '' };
+  editingCategory = { name: '', description: '', isSaving: false };
 
   constructor(private readonly backendService: BackendService) {}
 
@@ -57,7 +59,7 @@ export class CategoriesPageComponent implements OnInit {
 
     this.backendService.addCategory(this.newCategory).subscribe({
       next: () => {
-        this.newCategory = { name: '', description: '' };
+        this.newCategory = { name: '', description: '', isSaving: false };
         this.loadCategories();
       },
       error: (err) => {
@@ -70,7 +72,8 @@ export class CategoriesPageComponent implements OnInit {
     this.editingCategoryId = category.id;
     this.editingCategory = {
       name: category.name,
-      description: category.description
+      description: category.description,
+      isSaving: category.isSaving
     };
   }
 
@@ -96,7 +99,7 @@ export class CategoriesPageComponent implements OnInit {
 
   cancelCategoryEdit(): void {
     this.editingCategoryId = null;
-    this.editingCategory = { name: '', description: '' };
+    this.editingCategory = { name: '', description: '', isSaving: false };
   }
 
   subCategoryNames(category: Category): string {

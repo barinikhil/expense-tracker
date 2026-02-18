@@ -10,7 +10,13 @@ public final class CategoryDtos {
     private CategoryDtos() {
     }
 
-    public record CategoryResponse(Long id, String name, String description, List<SubCategoryResponse> subCategories) {
+    public record CategoryResponse(
+            Long id,
+            String name,
+            String description,
+            boolean isSaving,
+            List<SubCategoryResponse> subCategories
+    ) {
     }
 
     public record SubCategoryResponse(Long id, String name, Long categoryId, String categoryName) {
@@ -18,13 +24,15 @@ public final class CategoryDtos {
 
     public record CreateCategoryRequest(
             @NotBlank @Size(max = 80) String name,
-            @NotBlank @Size(max = 200) String description
+            @NotBlank @Size(max = 200) String description,
+            Boolean isSaving
     ) {
     }
 
     public record UpdateCategoryRequest(
             @NotBlank @Size(max = 80) String name,
-            @NotBlank @Size(max = 200) String description
+            @NotBlank @Size(max = 200) String description,
+            Boolean isSaving
     ) {
     }
 
