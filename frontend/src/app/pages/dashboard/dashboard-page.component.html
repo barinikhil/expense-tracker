@@ -15,23 +15,23 @@
     <ng-container *ngIf="!loading && summary">
       <div class="dashboard-kpis">
         <div class="dashboard-kpi">
-          <span class="kpi-label">Current Month</span>
+          <span class="kpi-label">{{ currentMonthLabel }}</span>
           <strong>{{ summary.currentMonthTotal | number:'1.2-2' }}</strong>
         </div>
         <div class="dashboard-kpi">
-          <span class="kpi-label">Last 30 Days</span>
+          <span class="kpi-label">{{ last30DaysLabel }}</span>
           <strong>{{ summary.last30DaysTotal | number:'1.2-2' }}</strong>
         </div>
         <div class="dashboard-kpi">
-          <span class="kpi-label">Last Month</span>
+          <span class="kpi-label">{{ lastMonthLabel }}</span>
           <strong>{{ summary.lastMonthTotal | number:'1.2-2' }}</strong>
         </div>
         <div class="dashboard-kpi">
-          <span class="kpi-label">Last Quarter</span>
+          <span class="kpi-label">{{ lastQuarterLabel }}</span>
           <strong>{{ summary.lastQuarterTotal | number:'1.2-2' }}</strong>
         </div>
         <div class="dashboard-kpi">
-          <span class="kpi-label">Last Year</span>
+          <span class="kpi-label">{{ lastYearLabel }}</span>
           <strong>{{ summary.lastYearTotal | number:'1.2-2' }}</strong>
         </div>
       </div>

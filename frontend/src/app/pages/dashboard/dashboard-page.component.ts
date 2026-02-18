@@ -81,6 +81,60 @@ export class DashboardPageComponent implements OnInit {
     return date.toLocaleDateString(undefined, { month: 'short' });
   }
 
+  get currentMonthDateRange(): string {
+    const today = new Date();
+    const start = new Date(today.getFullYear(), today.getMonth(), 1);
+    return `${this.formatDate(start)} - ${this.formatDate(today)}`;
+  }
+
+  get last30DaysDateRange(): string {
+    const today = new Date();
+    const start = new Date(today);
+    start.setDate(today.getDate() - 29);
+    return `${this.formatDate(start)} - ${this.formatDate(today)}`;
+  }
+
+  get lastMonthDateRange(): string {
+    const today = new Date();
+    const lastMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+    return `${this.formatDate(lastMonthStart)} - ${this.formatDate(lastMonthEnd)}`;
+  }
+
+  get lastQuarterDateRange(): string {
+    const today = new Date();
+    const lastQuarterStart = new Date(today.getFullYear(), today.getMonth() - 3, 1);
+    const lastQuarterEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+    return `${this.formatDate(lastQuarterStart)} - ${this.formatDate(lastQuarterEnd)}`;
+  }
+
+  get lastYearDateRange(): string {
+    const today = new Date();
+    const start = new Date(today);
+    start.setDate(today.getDate() - 364);
+    return `${this.formatDate(start)} - ${this.formatDate(today)}`;
+  }
+
+  get currentMonthLabel(): string {
+    return `Current Month (${this.currentMonthDateRange})`;
+  }
+
+  get last30DaysLabel(): string {
+    return `Last 30 Days (${this.last30DaysDateRange})`;
+  }
+
+  get lastMonthLabel(): string {
+    return `Last Month (${this.lastMonthDateRange})`;
+  }
+
+  get lastQuarterLabel(): string {
+    return `Last Quarter (${this.lastQuarterDateRange})`;
+  }
+
+  get lastYearLabel(): string {
+    return `Last Year (${this.lastYearDateRange})`;
+  }
+
   barHeight(total: number): number {
     const ratio = total / this.maxMonthlyTotal;
     return Math.max(8, Math.round(ratio * 160));
@@ -164,6 +218,14 @@ export class DashboardPageComponent implements OnInit {
         this.error = 'Failed to load dashboard data.';
         this.loading = false;
       }
+    });
+  }
+
+  private formatDate(value: Date): string {
+    return value.toLocaleDateString(undefined, {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
     });
   }
 }
