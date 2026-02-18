@@ -49,7 +49,7 @@ export class LoginPageComponent {
         this.authService.setSession(response.token, response.username);
         this.credentials = { username: '', password: '' };
         this.submitting = false;
-        this.router.navigate(['/categories']);
+        this.router.navigate(['/dashboard']);
       },
       error: (err) => {
         this.error = err?.error?.message ?? 'Invalid username or password.';

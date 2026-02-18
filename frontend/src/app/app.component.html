@@ -36,6 +36,19 @@
       <a
         mat-list-item
         class="menu-child"
+        routerLink="/dashboard"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [matTooltip]="isSidebarCollapsed ? 'Dashboard' : ''"
+        matTooltipPosition="right"
+        (click)="onNavItemClick()"
+      >
+        <mat-icon>dashboard</mat-icon>
+        <span>Dashboard</span>
+      </a>
+      <a
+        mat-list-item
+        class="menu-child"
         routerLink="/expenses"
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }"

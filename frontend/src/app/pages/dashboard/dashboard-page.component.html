@@ -1,0 +1,63 @@
+<mat-card class="taxonomy-panel">
+  <mat-card-header>
+    <mat-card-title>Dashboard</mat-card-title>
+    <mat-card-subtitle>Spending overview for the last 12 months.</mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div *ngIf="error" class="taxonomy-error">
+      <mat-icon>error</mat-icon>
+      <span>{{ error }}</span>
+    </div>
+
+    <div *ngIf="loading" class="dashboard-loading">Loading dashboard...</div>
+
+    <ng-container *ngIf="!loading && summary">
+      <div class="dashboard-kpis">
+        <div class="dashboard-kpi">
+          <span class="kpi-label">Current Month Spend</span>
+          <strong>{{ summary.currentMonthTotal | number:'1.2-2' }}</strong>
+        </div>
+        <div class="dashboard-kpi">
+          <span class="kpi-label">Current Month Records</span>
+          <strong>{{ summary.currentMonthCount }}</strong>
+        </div>
+        <div class="dashboard-kpi">
+          <span class="kpi-label">Previous Month Spend</span>
+          <strong>{{ summary.previousMonthTotal | number:'1.2-2' }}</strong>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <mat-card class="dashboard-card">
+          <h3>Monthly Spending Trend</h3>
+          <div class="monthly-chart">
+            <div class="monthly-bar" *ngFor="let item of monthlyTotals">
+              <span class="bar-value">{{ item.total | number:'1.0-0' }}</span>
+              <div class="bar-fill" [style.height.px]="barHeight(item.total)"></div>
+              <span class="bar-label">{{ monthLabel(item.yearMonth) }}</span>
+            </div>
+          </div>
+        </mat-card>
+
+        <mat-card class="dashboard-card">
+          <h3>Current Month by Category</h3>
+          <div class="category-chart" *ngIf="categoryTotals.length; else noCategoryData">
+            <div class="category-row" *ngFor="let item of categoryTotals">
+              <div class="category-head">
+                <span>{{ item.categoryName }}</span>
+                <strong>{{ item.total | number:'1.2-2' }}</strong>
+              </div>
+              <div class="category-track">
+                <div class="category-fill" [style.width.%]="categoryWidth(item.total)"></div>
+              </div>
+            </div>
+          </div>
+          <ng-template #noCategoryData>
+            <p class="dashboard-empty">No category data for current month.</p>
+          </ng-template>
+        </mat-card>
+      </div>
+    </ng-container>
+  </mat-card-content>
+</mat-card>

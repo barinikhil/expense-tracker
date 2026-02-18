@@ -32,6 +32,11 @@ public class ExpenseController {
         return expenseService.listExpenses(startDate, endDate, page, size);
     }
 
+    @GetMapping("/dashboard/summary")
+    public ExpenseDtos.DashboardSummaryResponse getDashboardSummary() {
+        return expenseService.getDashboardSummary();
+    }
+
     @PostMapping("/expenses")
     @ResponseStatus(HttpStatus.CREATED)
     public ExpenseDtos.ExpenseResponse createExpense(@Valid @RequestBody ExpenseDtos.CreateExpenseRequest request) {

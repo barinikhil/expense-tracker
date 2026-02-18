@@ -44,6 +44,26 @@ export interface ExpensePageResponse {
   totalPages: number;
 }
 
+export interface DashboardMonthlyTotal {
+  yearMonth: string;
+  total: number;
+  count: number;
+}
+
+export interface DashboardCategoryTotal {
+  categoryName: string;
+  total: number;
+  count: number;
+}
+
+export interface DashboardSummaryResponse {
+  currentMonthTotal: number;
+  currentMonthCount: number;
+  previousMonthTotal: number;
+  monthlyTotals: DashboardMonthlyTotal[];
+  currentMonthCategoryTotals: DashboardCategoryTotal[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -96,6 +116,10 @@ export class BackendService {
       params = params.set('endDate', endDate);
     }
     return this.http.get<ExpensePageResponse>(`${this.apiBaseUrl}/expenses`, { params });
+  }
+
+  getDashboardSummary(): Observable<DashboardSummaryResponse> {
+    return this.http.get<DashboardSummaryResponse>(`${this.apiBaseUrl}/dashboard/summary`);
   }
 
   addExpense(payload: {

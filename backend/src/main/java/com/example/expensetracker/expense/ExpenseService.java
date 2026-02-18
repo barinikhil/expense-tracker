@@ -13,7 +13,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -66,6 +74,64 @@ public class ExpenseService {
         );
     }
 
+    @Transactional(readOnly = true)
+    public ExpenseDtos.DashboardSummaryResponse getDashboardSummary() {
+        YearMonth currentMonth = YearMonth.now();
+        YearMonth startMonth = currentMonth.minusMonths(11);
+        LocalDate fromDate = startMonth.atDay(1);
+        LocalDate toDate = currentMonth.atEndOfMonth();
+
+        List<Expense> expenses = expenseRepository.findAllByExpenseDateBetweenOrderByExpenseDateDescIdDesc(fromDate, toDate);
+        Map<YearMonth, List<Expense>> byMonth = new LinkedHashMap<>();
+        for (int i = 0; i < 12; i++) {
+            YearMonth month = startMonth.plusMonths(i);
+            byMonth.put(month, new ArrayList<>());
+        }
+        for (Expense expense : expenses) {
+            YearMonth month = YearMonth.from(expense.getExpenseDate());
+            List<Expense> monthExpenses = byMonth.get(month);
+            if (monthExpenses != null) {
+                monthExpenses.add(expense);
+            }
+        }
+
+        List<ExpenseDtos.MonthlyTotalPoint> monthlyTotals = byMonth.entrySet().stream()
+                .map(entry -> {
+                    BigDecimal total = sumAmounts(entry.getValue());
+                    return new ExpenseDtos.MonthlyTotalPoint(entry.getKey().toString(), total, entry.getValue().size());
+                })
+                .toList();
+
+        List<Expense> currentMonthExpenses = byMonth.getOrDefault(currentMonth, List.of());
+        BigDecimal currentMonthTotal = sumAmounts(currentMonthExpenses);
+        long currentMonthCount = currentMonthExpenses.size();
+
+        YearMonth previousMonth = currentMonth.minusMonths(1);
+        BigDecimal previousMonthTotal = sumAmounts(byMonth.getOrDefault(previousMonth, List.of()));
+
+        Map<String, List<Expense>> byCategory = new LinkedHashMap<>();
+        for (Expense expense : currentMonthExpenses) {
+            byCategory.computeIfAbsent(expense.getCategory().getName(), key -> new ArrayList<>()).add(expense);
+        }
+
+        List<ExpenseDtos.CategoryTotalPoint> categoryTotals = byCategory.entrySet().stream()
+                .map(entry -> new ExpenseDtos.CategoryTotalPoint(
+                        entry.getKey(),
+                        sumAmounts(entry.getValue()),
+                        entry.getValue().size()
+                ))
+                .sorted(Comparator.comparing(ExpenseDtos.CategoryTotalPoint::total).reversed())
+                .toList();
+
+        return new ExpenseDtos.DashboardSummaryResponse(
+                currentMonthTotal,
+                currentMonthCount,
+                previousMonthTotal,
+                monthlyTotals,
+                categoryTotals
+        );
+    }
+
     public ExpenseDtos.ExpenseResponse createExpense(ExpenseDtos.CreateExpenseRequest request) {
         Category category = categoryRepository.findById(request.categoryId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
@@ -101,5 +167,12 @@ public class ExpenseService {
                 expense.getSubCategory().getId(),
                 expense.getSubCategory().getName()
         );
+    }
+
+    private BigDecimal sumAmounts(List<Expense> expenses) {
+        return expenses.stream()
+                .map(Expense::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
     }
 }
