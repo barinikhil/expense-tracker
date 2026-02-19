@@ -7,7 +7,7 @@ services:
     command: mvn -B clean package -DskipTests
     volumes:
       - ./backend:/workspace
-      - ./build_helper/m2:/root/.m2
+      - ${USERPROFILE}/.m2:/root/.m2
 
   ui-build:
     image: node:20-alpine
