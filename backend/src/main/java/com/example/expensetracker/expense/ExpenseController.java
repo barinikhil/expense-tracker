@@ -102,4 +102,10 @@ public class ExpenseController {
     public void deleteTransaction(@PathVariable Long id) {
         expenseService.deleteTransaction(id);
     }
+
+    @DeleteMapping("/expenses/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteExpense(@PathVariable Long id) {
+        expenseService.deleteTransaction(id);
+    }
 }

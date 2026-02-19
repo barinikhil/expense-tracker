@@ -84,19 +84,27 @@
             <td>{{ expense.amount | number:'1.2-2' }}</td>
             <td>{{ expense.categoryName }}</td>
             <td>{{ expense.subCategoryName }}</td>
-            <td>
-              <a mat-stroked-button class="ghost-button" [routerLink]="editRoute(expense.id)">
-                Edit
+            <td class="expense-row-actions">
+              <a
+                mat-icon-button
+                class="expense-action-icon"
+                [routerLink]="editRoute(expense.id)"
+                aria-label="Edit transaction"
+                title="Edit"
+              >
+                <mat-icon>edit</mat-icon>
               </a>
               <button
-                mat-stroked-button
+                mat-icon-button
                 color="warn"
                 type="button"
-                class="expense-delete-btn"
+                class="expense-action-icon"
                 [disabled]="deletingTransactionId !== null"
                 (click)="deleteTransaction(expense)"
+                aria-label="Delete transaction"
+                title="Delete"
               >
-                Delete
+                <mat-icon>delete</mat-icon>
               </button>
             </td>
           </tr>
