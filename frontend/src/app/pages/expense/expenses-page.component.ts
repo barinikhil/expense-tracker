@@ -26,6 +26,8 @@ export class ExpensesPageComponent implements OnInit {
   subCategoryId: number | null = null;
   minAmount: number | null = null;
   maxAmount: number | null = null;
+  sortBy: 'expenseDate' | 'amount' | 'category' | 'subCategory' = 'expenseDate';
+  sortDir: 'asc' | 'desc' = 'desc';
   pageSize = 10;
   readonly pageSizeOptions = [10, 20, 50, 100];
   currentPage = 1;
@@ -59,7 +61,9 @@ export class ExpensesPageComponent implements OnInit {
         this.categoryId,
         this.subCategoryId,
         this.minAmount,
-        this.maxAmount
+        this.maxAmount,
+        this.sortBy,
+        this.sortDir
       )
       .subscribe({
       next: (response) => {
@@ -156,6 +160,24 @@ export class ExpensesPageComponent implements OnInit {
   onPageSizeChange(): void {
     this.currentPage = 1;
     this.loadExpenses();
+  }
+
+  toggleSort(field: 'amount' | 'category' | 'subCategory'): void {
+    if (this.sortBy === field) {
+      this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortBy = field;
+      this.sortDir = 'asc';
+    }
+    this.currentPage = 1;
+    this.loadExpenses();
+  }
+
+  sortIndicator(field: 'amount' | 'category' | 'subCategory'): string {
+    if (this.sortBy !== field) {
+      return '';
+    }
+    return this.sortDir === 'asc' ? '▲' : '▼';
   }
 
   private loadCategories(): void {

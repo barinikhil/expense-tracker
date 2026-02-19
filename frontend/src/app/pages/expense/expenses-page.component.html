@@ -59,9 +59,21 @@
           <tr>
             <th>Date</th>
             <th>Description</th>
-            <th>Amount</th>
-            <th>Category</th>
-            <th>Sub-category</th>
+            <th>
+              <button type="button" class="expense-sort-btn" (click)="toggleSort('amount')">
+                Amount <span>{{ sortIndicator('amount') }}</span>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="expense-sort-btn" (click)="toggleSort('category')">
+                Category <span>{{ sortIndicator('category') }}</span>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="expense-sort-btn" (click)="toggleSort('subCategory')">
+                Sub-category <span>{{ sortIndicator('subCategory') }}</span>
+              </button>
+            </th>
           </tr>
         </thead>
         <tbody>

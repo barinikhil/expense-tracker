@@ -155,7 +155,9 @@ export class BackendService {
     categoryId?: number | null,
     subCategoryId?: number | null,
     minAmount?: number | null,
-    maxAmount?: number | null
+    maxAmount?: number | null,
+    sortBy?: 'expenseDate' | 'amount' | 'category' | 'subCategory',
+    sortDir?: 'asc' | 'desc'
   ): Observable<ExpensePageResponse> {
     let params = new HttpParams();
     params = params.set('page', page);
@@ -178,6 +180,12 @@ export class BackendService {
     }
     if (maxAmount !== null && maxAmount !== undefined) {
       params = params.set('maxAmount', maxAmount);
+    }
+    if (sortBy) {
+      params = params.set('sortBy', sortBy);
+    }
+    if (sortDir) {
+      params = params.set('sortDir', sortDir);
     }
     return this.http.get<ExpensePageResponse>(`${this.apiBaseUrl}/transactions`, { params });
   }

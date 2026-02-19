@@ -97,6 +97,16 @@
   text-align: center;
 }
 
+.expense-sort-btn {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: inherit;
+  font: inherit;
+}
+
 @media (max-width: 700px) {
   .expense-top-actions {
     justify-content: stretch;

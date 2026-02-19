@@ -84,6 +84,8 @@ public class ExpenseService {
             BigDecimal minAmount,
             BigDecimal maxAmount,
             TransactionType type,
+            String sortBy,
+            String sortDir,
             int page,
             int size
     ) {
@@ -107,7 +109,7 @@ public class ExpenseService {
         }
 
         TransactionType resolvedType = type == null ? TransactionType.EXPENSE : type;
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "expenseDate", "id"));
+        Pageable pageable = PageRequest.of(page, size, resolveTransactionSort(sortBy, sortDir));
         Page<Expense> expensePage = expenseRepository.findTransactionsWithFilters(
                 resolvedType,
                 startDate,
@@ -126,6 +128,21 @@ public class ExpenseService {
                 expensePage.getTotalElements(),
                 expensePage.getTotalPages()
         );
+    }
+
+    private Sort resolveTransactionSort(String sortBy, String sortDir) {
+        Sort.Direction direction = "asc".equalsIgnoreCase(sortDir) ? Sort.Direction.ASC : Sort.Direction.DESC;
+        String normalized = sortBy == null ? "expenseDate" : sortBy.trim();
+        return switch (normalized) {
+            case "amount" -> Sort.by(direction, "amount").and(Sort.by(Sort.Direction.DESC, "expenseDate", "id"));
+            case "category" -> Sort.by(direction, "category.name").and(Sort.by(Sort.Direction.DESC, "expenseDate", "id"));
+            case "subCategory" -> Sort.by(direction, "subCategory.name").and(Sort.by(Sort.Direction.DESC, "expenseDate", "id"));
+            case "expenseDate" -> Sort.by(direction, "expenseDate", "id");
+            default -> throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "sortBy must be one of: expenseDate, amount, category, subCategory"
+            );
+        };
     }
 
     @Transactional(readOnly = true)

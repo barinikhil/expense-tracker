@@ -42,10 +42,24 @@ public class ExpenseController {
             @RequestParam(required = false) BigDecimal minAmount,
             @RequestParam(required = false) BigDecimal maxAmount,
             @RequestParam(defaultValue = "EXPENSE") TransactionType type,
+            @RequestParam(defaultValue = "expenseDate") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        return expenseService.listTransactions(startDate, endDate, categoryId, subCategoryId, minAmount, maxAmount, type, page, size);
+        return expenseService.listTransactions(
+                startDate,
+                endDate,
+                categoryId,
+                subCategoryId,
+                minAmount,
+                maxAmount,
+                type,
+                sortBy,
+                sortDir,
+                page,
+                size
+        );
     }
 
     @GetMapping("/dashboard/summary")
