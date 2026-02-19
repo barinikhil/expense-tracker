@@ -5,10 +5,10 @@
 }
 
 .expense-filter-bar {
-  display: flex;
-  align-items: flex-end;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  align-items: end;
   gap: 0.9rem;
-  flex-wrap: wrap;
   margin-bottom: 1rem;
 }
 
@@ -54,6 +54,7 @@
   display: flex;
   gap: 0.45rem;
   align-items: center;
+  justify-content: flex-end;
 }
 
 .expense-pagination {
@@ -118,6 +119,7 @@
   }
 
   .expense-filter-bar {
+    grid-template-columns: 1fr;
     align-items: stretch;
   }
 
@@ -143,5 +145,16 @@
 
   .expense-pagination-actions {
     justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .expense-filter-actions {
+    justify-content: stretch;
+    flex-direction: column;
+  }
+
+  .expense-filter-actions button {
+    width: 100%;
+    min-height: 2.7rem;
   }
 }

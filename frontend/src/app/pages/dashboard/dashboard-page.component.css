@@ -120,6 +120,8 @@
   align-items: flex-end;
   gap: 0.45rem;
   min-height: 210px;
+  overflow-x: auto;
+  padding-bottom: 0.2rem;
 }
 
 .monthly-bar {
@@ -153,6 +155,8 @@
   align-items: flex-end;
   gap: 0.45rem;
   min-height: 220px;
+  overflow-x: auto;
+  padding-bottom: 0.2rem;
 }
 
 .net-bar {
@@ -209,6 +213,8 @@
   align-items: flex-end;
   gap: 0.45rem;
   min-height: 210px;
+  overflow-x: auto;
+  padding-bottom: 0.2rem;
 }
 
 .saving-rate-bar {
@@ -425,6 +431,12 @@
 
   .top-trend-controls {
     justify-content: space-between;
+  }
+
+  .monthly-bar,
+  .net-bar,
+  .saving-rate-bar {
+    min-width: 34px;
   }
 }
 
