@@ -60,25 +60,31 @@ npm start
 Open `http://localhost:4200` in your browser.
 
 
-## Run with Docker Compose (UI + Backend)
+## Run with Docker Compose (split build and run)
 
-Build and run both services:
+Build artifacts first (reuses local Maven repository and `frontend/node_modules`):
 
 ```bash
-docker compose up --build
+docker compose --profile build up --abort-on-container-exit
+```
+
+Then run the prebuilt artifacts:
+
+```bash
+docker compose --profile run up
 ```
 
 Services:
 
-- UI (Nginx): `http://localhost:8080`
-- Backend API: `http://localhost:9081`
+- UI (Nginx): `http://localhost:18080`
+- Backend API: `http://localhost:10081`
 
 The UI proxies API requests from `/api/*` to the backend service through Nginx.
 
-To stop:
+To stop running containers:
 
 ```bash
-docker compose down
+docker compose --profile run down
 ```
 
 ## Optional: Build backend JAR with Maven
