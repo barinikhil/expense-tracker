@@ -62,6 +62,13 @@ export interface DashboardMonthlyIncomeExpense {
   netAmount: number;
 }
 
+export interface DashboardMonthlySavingRate {
+  yearMonth: string;
+  savingAmount: number;
+  incomeTotal: number;
+  savingRatePercent: number;
+}
+
 export interface DashboardPeriodSummary {
   expenseTotal: number;
   incomeTotal: number;
@@ -94,6 +101,7 @@ export interface DashboardSummaryResponse {
   lastYearSummary: DashboardPeriodSummary;
   monthlyTotals: DashboardMonthlyTotal[];
   monthlyIncomeExpensePoints: DashboardMonthlyIncomeExpense[];
+  monthlySavingRatePoints: DashboardMonthlySavingRate[];
   currentMonthCategoryTotals: DashboardCategoryTotal[];
   topYearlyCategoryTrends: DashboardCategoryYearTrend[];
 }
@@ -143,7 +151,11 @@ export class BackendService {
     page = 0,
     size = 10,
     startDate?: string,
-    endDate?: string
+    endDate?: string,
+    categoryId?: number | null,
+    subCategoryId?: number | null,
+    minAmount?: number | null,
+    maxAmount?: number | null
   ): Observable<ExpensePageResponse> {
     let params = new HttpParams();
     params = params.set('page', page);
@@ -154,6 +166,18 @@ export class BackendService {
     }
     if (endDate) {
       params = params.set('endDate', endDate);
+    }
+    if (categoryId !== null && categoryId !== undefined) {
+      params = params.set('categoryId', categoryId);
+    }
+    if (subCategoryId !== null && subCategoryId !== undefined) {
+      params = params.set('subCategoryId', subCategoryId);
+    }
+    if (minAmount !== null && minAmount !== undefined) {
+      params = params.set('minAmount', minAmount);
+    }
+    if (maxAmount !== null && maxAmount !== undefined) {
+      params = params.set('maxAmount', maxAmount);
     }
     return this.http.get<ExpensePageResponse>(`${this.apiBaseUrl}/transactions`, { params });
   }

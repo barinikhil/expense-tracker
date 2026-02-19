@@ -79,6 +79,10 @@ public class ExpenseService {
     public ExpenseDtos.ExpensePageResponse listTransactions(
             LocalDate startDate,
             LocalDate endDate,
+            Long categoryId,
+            Long subCategoryId,
+            BigDecimal minAmount,
+            BigDecimal maxAmount,
             TransactionType type,
             int page,
             int size
@@ -92,32 +96,28 @@ public class ExpenseService {
         if (size <= 0 || size > 200) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "size must be between 1 and 200");
         }
+        if (minAmount != null && minAmount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "minAmount must be 0 or greater");
+        }
+        if (maxAmount != null && maxAmount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "maxAmount must be 0 or greater");
+        }
+        if (minAmount != null && maxAmount != null && minAmount.compareTo(maxAmount) > 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "minAmount cannot be greater than maxAmount");
+        }
 
         TransactionType resolvedType = type == null ? TransactionType.EXPENSE : type;
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "expenseDate", "id"));
-        Page<Expense> expensePage;
-        if (startDate != null && endDate != null) {
-            expensePage = expenseRepository.findAllByExpenseDateBetweenAndTransactionType(
-                    startDate,
-                    endDate,
-                    resolvedType,
-                    pageable
-            );
-        } else if (startDate != null) {
-            expensePage = expenseRepository.findAllByExpenseDateGreaterThanEqualAndTransactionType(
-                    startDate,
-                    resolvedType,
-                    pageable
-            );
-        } else if (endDate != null) {
-            expensePage = expenseRepository.findAllByExpenseDateLessThanEqualAndTransactionType(
-                    endDate,
-                    resolvedType,
-                    pageable
-            );
-        } else {
-            expensePage = expenseRepository.findAllByTransactionType(resolvedType, pageable);
-        }
+        Page<Expense> expensePage = expenseRepository.findTransactionsWithFilters(
+                resolvedType,
+                startDate,
+                endDate,
+                categoryId,
+                subCategoryId,
+                minAmount,
+                maxAmount,
+                pageable
+        );
 
         return new ExpenseDtos.ExpensePageResponse(
                 expensePage.stream().map(this::toResponse).toList(),
@@ -169,6 +169,23 @@ public class ExpenseService {
                             incomeTotal,
                             expenseTotal,
                             incomeTotal.subtract(expenseTotal).setScale(2, RoundingMode.HALF_UP)
+                    );
+                })
+                .toList();
+
+        List<ExpenseDtos.MonthlySavingRatePoint> monthlySavingRatePoints = byMonth.entrySet().stream()
+                .map(entry -> {
+                    BigDecimal savingAmount = sumSavingAmounts(entry.getValue());
+                    BigDecimal incomeTotal = sumAmountsByType(entry.getValue(), TransactionType.INCOME);
+                    BigDecimal savingRatePercent = incomeTotal.compareTo(BigDecimal.ZERO) == 0
+                            ? BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP)
+                            : savingAmount.multiply(BigDecimal.valueOf(100))
+                            .divide(incomeTotal, 2, RoundingMode.HALF_UP);
+                    return new ExpenseDtos.MonthlySavingRatePoint(
+                            entry.getKey().toString(),
+                            savingAmount,
+                            incomeTotal,
+                            savingRatePercent
                     );
                 })
                 .toList();
@@ -266,6 +283,7 @@ public class ExpenseService {
                 lastYearSummary,
                 monthlyTotals,
                 monthlyIncomeExpensePoints,
+                monthlySavingRatePoints,
                 categoryTotals,
                 topYearlyCategoryTrends
         );
@@ -351,6 +369,14 @@ public class ExpenseService {
         return expenses.stream()
                 .filter(expense -> !expense.getExpenseDate().isBefore(startDate) && !expense.getExpenseDate().isAfter(endDate))
                 .filter(expense -> expense.getTransactionType() == type)
+                .map(Expense::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private BigDecimal sumSavingAmounts(List<Expense> expenses) {
+        return expenses.stream()
+                .filter(expense -> expense.getCategory().getType() == CategoryType.SAVING)
                 .map(Expense::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .setScale(2, RoundingMode.HALF_UP);

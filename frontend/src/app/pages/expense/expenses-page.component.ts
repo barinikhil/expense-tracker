@@ -6,7 +6,7 @@ import { RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { BackendService, Expense, TransactionType } from '../../services/backend.service';
+import { BackendService, Category, Expense, SubCategory, TransactionType } from '../../services/backend.service';
 
 @Component({
   selector: 'app-expenses-page',
@@ -18,9 +18,14 @@ import { BackendService, Expense, TransactionType } from '../../services/backend
 export class ExpensesPageComponent implements OnInit {
   error = '';
   expenses: Expense[] = [];
+  categories: Category[] = [];
   transactionType: TransactionType = 'EXPENSE';
   startDate = '';
   endDate = '';
+  categoryId: number | null = null;
+  subCategoryId: number | null = null;
+  minAmount: number | null = null;
+  maxAmount: number | null = null;
   pageSize = 10;
   readonly pageSizeOptions = [10, 20, 50, 100];
   currentPage = 1;
@@ -38,13 +43,24 @@ export class ExpensesPageComponent implements OnInit {
     const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
     this.startDate = this.toInputDate(firstDay);
     this.endDate = this.toInputDate(today);
+    this.loadCategories();
     this.loadExpenses();
   }
 
   loadExpenses(): void {
     this.error = '';
     this.backendService
-      .listTransactions(this.transactionType, this.currentPage - 1, this.pageSize, this.startDate, this.endDate)
+      .listTransactions(
+        this.transactionType,
+        this.currentPage - 1,
+        this.pageSize,
+        this.startDate,
+        this.endDate,
+        this.categoryId,
+        this.subCategoryId,
+        this.minAmount,
+        this.maxAmount
+      )
       .subscribe({
       next: (response) => {
         this.expenses = response.items;
@@ -72,13 +88,37 @@ export class ExpensesPageComponent implements OnInit {
     return this.transactionType === 'INCOME' ? '/transactions/income/add' : '/transactions/expense/add';
   }
 
+  get filteredCategories(): Category[] {
+    if (this.transactionType === 'INCOME') {
+      return this.categories.filter((category) => category.type === 'INCOME');
+    }
+    return this.categories.filter(
+      (category) => category.type === 'EXPENSE' || category.type === 'SAVING'
+    );
+  }
+
+  get filteredSubCategories(): SubCategory[] {
+    if (this.categoryId === null) {
+      return [];
+    }
+    return this.categories.find((category) => category.id === this.categoryId)?.subCategories ?? [];
+  }
+
   resetToCurrentMonth(): void {
     const today = new Date();
     const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
     this.startDate = this.toInputDate(firstDay);
     this.endDate = this.toInputDate(today);
+    this.categoryId = null;
+    this.subCategoryId = null;
+    this.minAmount = null;
+    this.maxAmount = null;
     this.currentPage = 1;
     this.loadExpenses();
+  }
+
+  onCategoryChange(): void {
+    this.subCategoryId = null;
   }
 
   get pageStartRecord(): number {
@@ -116,6 +156,17 @@ export class ExpensesPageComponent implements OnInit {
   onPageSizeChange(): void {
     this.currentPage = 1;
     this.loadExpenses();
+  }
+
+  private loadCategories(): void {
+    this.backendService.listCategories().subscribe({
+      next: (categories) => {
+        this.categories = categories;
+      },
+      error: () => {
+        this.error = 'Failed to load categories.';
+      }
+    });
   }
 
   private toInputDate(date: Date): string {

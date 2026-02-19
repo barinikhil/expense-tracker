@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/api")
@@ -36,11 +37,15 @@ public class ExpenseController {
     public ExpenseDtos.ExpensePageResponse listTransactions(
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) Long subCategoryId,
+            @RequestParam(required = false) BigDecimal minAmount,
+            @RequestParam(required = false) BigDecimal maxAmount,
             @RequestParam(defaultValue = "EXPENSE") TransactionType type,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        return expenseService.listTransactions(startDate, endDate, type, page, size);
+        return expenseService.listTransactions(startDate, endDate, categoryId, subCategoryId, minAmount, maxAmount, type, page, size);
     }
 
     @GetMapping("/dashboard/summary")

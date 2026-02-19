@@ -50,6 +50,7 @@ public final class ExpenseDtos {
             PeriodSummaryPoint lastYearSummary,
             List<MonthlyTotalPoint> monthlyTotals,
             List<MonthlyIncomeExpensePoint> monthlyIncomeExpensePoints,
+            List<MonthlySavingRatePoint> monthlySavingRatePoints,
             List<CategoryTotalPoint> currentMonthCategoryTotals,
             List<CategoryYearTrendPoint> topYearlyCategoryTrends
     ) {
@@ -67,6 +68,14 @@ public final class ExpenseDtos {
             BigDecimal incomeTotal,
             BigDecimal expenseTotal,
             BigDecimal netAmount
+    ) {
+    }
+
+    public record MonthlySavingRatePoint(
+            String yearMonth,
+            BigDecimal savingAmount,
+            BigDecimal incomeTotal,
+            BigDecimal savingRatePercent
     ) {
     }
 

@@ -34,6 +34,22 @@
   font: inherit;
 }
 
+.expense-date-field input[type="number"],
+.expense-date-field select {
+  height: 2.5rem;
+  min-width: 170px;
+  border-radius: 10px;
+  border: 1px solid var(--outline);
+  background: var(--surface);
+  padding: 0.45rem 0.65rem;
+  font: inherit;
+}
+
+.expense-date-field select:disabled {
+  background: #f3f4f6;
+  color: var(--muted);
+}
+
 .expense-filter-actions {
   display: flex;
   gap: 0.45rem;
@@ -100,6 +116,12 @@
   }
 
   .expense-date-field input[type="date"] {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .expense-date-field input[type="number"],
+  .expense-date-field select {
     width: 100%;
     min-width: 0;
   }

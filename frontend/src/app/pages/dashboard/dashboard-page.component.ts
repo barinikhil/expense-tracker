@@ -8,6 +8,7 @@ import {
   DashboardCategoryTotal,
   DashboardCategoryYearTrend,
   DashboardMonthlyIncomeExpense,
+  DashboardMonthlySavingRate,
   DashboardMonthlyTotal,
   DashboardPeriodSummary,
   DashboardSummaryResponse
@@ -47,6 +48,10 @@ export class DashboardPageComponent implements OnInit {
 
   get monthlyIncomeExpensePoints(): DashboardMonthlyIncomeExpense[] {
     return this.summary?.monthlyIncomeExpensePoints ?? [];
+  }
+
+  get monthlySavingRatePoints(): DashboardMonthlySavingRate[] {
+    return this.summary?.monthlySavingRatePoints ?? [];
   }
 
   get currentMonthSummary(): DashboardPeriodSummary {
@@ -103,6 +108,11 @@ export class DashboardPageComponent implements OnInit {
     const max = this.visibleTopYearlyCategoryTrends
       .flatMap((trend) => trend.monthlyTrend)
       .reduce((acc, item) => Math.max(acc, item.total), 0);
+    return max > 0 ? max : 1;
+  }
+
+  get maxSavingRatePercent(): number {
+    const max = this.monthlySavingRatePoints.reduce((acc, item) => Math.max(acc, item.savingRatePercent), 0);
     return max > 0 ? max : 1;
   }
 
@@ -210,6 +220,11 @@ export class DashboardPageComponent implements OnInit {
 
   netAmountClass(netAmount: number): string {
     return netAmount >= 0 ? 'kpi-net-positive' : 'kpi-net-negative';
+  }
+
+  savingRateHeight(ratePercent: number): number {
+    const ratio = ratePercent / this.maxSavingRatePercent;
+    return Math.max(6, Math.round(ratio * 150));
   }
 
   topTrendLinePoints(monthlyTrend: DashboardMonthlyTotal[]): string {

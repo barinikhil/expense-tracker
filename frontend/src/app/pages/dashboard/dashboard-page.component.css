@@ -204,6 +204,34 @@
   background: linear-gradient(180deg, #f97316 0%, #ea580c 100%);
 }
 
+.saving-rate-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.45rem;
+  min-height: 210px;
+}
+
+.saving-rate-bar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.saving-rate-fill {
+  width: 100%;
+  max-width: 32px;
+  min-height: 6px;
+  border-radius: 8px 8px 0 0;
+  background: linear-gradient(180deg, #15803d 0%, #22c55e 100%);
+}
+
+.saving-rate-value {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
 .category-chart {
   display: flex;
   flex-direction: column;

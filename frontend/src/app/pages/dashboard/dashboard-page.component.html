@@ -152,6 +152,20 @@
         </mat-card>
 
         <mat-card class="dashboard-card">
+          <h3>Monthly Saving %</h3>
+          <div class="saving-rate-chart" *ngIf="monthlySavingRatePoints.length; else noSavingRateData">
+            <div class="saving-rate-bar" *ngFor="let item of monthlySavingRatePoints">
+              <span class="saving-rate-value">{{ item.savingRatePercent | number:'1.1-2' }}%</span>
+              <div class="saving-rate-fill" [style.height.px]="savingRateHeight(item.savingRatePercent)"></div>
+              <span class="bar-label">{{ monthLabel(item.yearMonth) }}</span>
+            </div>
+          </div>
+          <ng-template #noSavingRateData>
+            <p class="dashboard-empty">No monthly saving rate data available.</p>
+          </ng-template>
+        </mat-card>
+
+        <mat-card class="dashboard-card">
           <div class="category-card-head">
             <h3>Current Month by Category</h3>
             <div class="category-top-controls">
