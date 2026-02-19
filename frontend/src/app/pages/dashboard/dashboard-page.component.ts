@@ -9,6 +9,7 @@ import {
   DashboardCategoryYearTrend,
   DashboardMonthlyIncomeExpense,
   DashboardMonthlyTotal,
+  DashboardPeriodSummary,
   DashboardSummaryResponse
 } from '../../services/backend.service';
 
@@ -46,6 +47,30 @@ export class DashboardPageComponent implements OnInit {
 
   get monthlyIncomeExpensePoints(): DashboardMonthlyIncomeExpense[] {
     return this.summary?.monthlyIncomeExpensePoints ?? [];
+  }
+
+  get currentMonthSummary(): DashboardPeriodSummary {
+    return this.summary?.currentMonthSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0 };
+  }
+
+  get samePeriodLastMonthSummary(): DashboardPeriodSummary {
+    return this.summary?.samePeriodLastMonthSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0 };
+  }
+
+  get last30DaysSummary(): DashboardPeriodSummary {
+    return this.summary?.last30DaysSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0 };
+  }
+
+  get lastMonthSummary(): DashboardPeriodSummary {
+    return this.summary?.lastMonthSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0 };
+  }
+
+  get lastQuarterSummary(): DashboardPeriodSummary {
+    return this.summary?.lastQuarterSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0 };
+  }
+
+  get lastYearSummary(): DashboardPeriodSummary {
+    return this.summary?.lastYearSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0 };
   }
 
   get visibleCategoryTotals(): DashboardCategoryTotal[] {
@@ -104,6 +129,18 @@ export class DashboardPageComponent implements OnInit {
     return `${this.formatDate(start)} - ${this.formatDate(today)}`;
   }
 
+  get samePeriodLastMonthDateRange(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth();
+    const previousMonthDate = new Date(year, month - 1, 1);
+    const previousMonthStart = new Date(previousMonthDate.getFullYear(), previousMonthDate.getMonth(), 1);
+    const previousMonthLastDay = new Date(previousMonthDate.getFullYear(), previousMonthDate.getMonth() + 1, 0).getDate();
+    const endDay = Math.min(today.getDate(), previousMonthLastDay);
+    const previousMonthEnd = new Date(previousMonthDate.getFullYear(), previousMonthDate.getMonth(), endDay);
+    return `${this.formatDate(previousMonthStart)} - ${this.formatDate(previousMonthEnd)}`;
+  }
+
   get lastMonthDateRange(): string {
     const today = new Date();
     const lastMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1);
@@ -131,6 +168,10 @@ export class DashboardPageComponent implements OnInit {
 
   get last30DaysLabel(): string {
     return `Last 30 Days (${this.last30DaysDateRange})`;
+  }
+
+  get samePeriodLastMonthLabel(): string {
+    return `Same Period Last Month (${this.samePeriodLastMonthDateRange})`;
   }
 
   get lastMonthLabel(): string {
@@ -165,6 +206,10 @@ export class DashboardPageComponent implements OnInit {
 
   netBarClass(netAmount: number): string {
     return netAmount >= 0 ? 'net-positive' : 'net-negative';
+  }
+
+  netAmountClass(netAmount: number): string {
+    return netAmount >= 0 ? 'kpi-net-positive' : 'kpi-net-negative';
   }
 
   topTrendLinePoints(monthlyTrend: DashboardMonthlyTotal[]): string {

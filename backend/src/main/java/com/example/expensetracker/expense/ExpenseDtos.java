@@ -42,6 +42,12 @@ public final class ExpenseDtos {
             BigDecimal lastMonthTotal,
             BigDecimal lastQuarterTotal,
             BigDecimal lastYearTotal,
+            PeriodSummaryPoint currentMonthSummary,
+            PeriodSummaryPoint samePeriodLastMonthSummary,
+            PeriodSummaryPoint last30DaysSummary,
+            PeriodSummaryPoint lastMonthSummary,
+            PeriodSummaryPoint lastQuarterSummary,
+            PeriodSummaryPoint lastYearSummary,
             List<MonthlyTotalPoint> monthlyTotals,
             List<MonthlyIncomeExpensePoint> monthlyIncomeExpensePoints,
             List<CategoryTotalPoint> currentMonthCategoryTotals,
@@ -75,6 +81,13 @@ public final class ExpenseDtos {
             String categoryName,
             BigDecimal yearTotal,
             List<MonthlyTotalPoint> monthlyTrend
+    ) {
+    }
+
+    public record PeriodSummaryPoint(
+            BigDecimal expenseTotal,
+            BigDecimal incomeTotal,
+            BigDecimal netAmount
     ) {
     }
 

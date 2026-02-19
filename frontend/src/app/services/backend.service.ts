@@ -62,6 +62,12 @@ export interface DashboardMonthlyIncomeExpense {
   netAmount: number;
 }
 
+export interface DashboardPeriodSummary {
+  expenseTotal: number;
+  incomeTotal: number;
+  netAmount: number;
+}
+
 export interface DashboardCategoryTotal {
   categoryName: string;
   total: number;
@@ -80,6 +86,12 @@ export interface DashboardSummaryResponse {
   lastMonthTotal: number;
   lastQuarterTotal: number;
   lastYearTotal: number;
+  currentMonthSummary: DashboardPeriodSummary;
+  samePeriodLastMonthSummary: DashboardPeriodSummary;
+  last30DaysSummary: DashboardPeriodSummary;
+  lastMonthSummary: DashboardPeriodSummary;
+  lastQuarterSummary: DashboardPeriodSummary;
+  lastYearSummary: DashboardPeriodSummary;
   monthlyTotals: DashboardMonthlyTotal[];
   monthlyIncomeExpensePoints: DashboardMonthlyIncomeExpense[];
   currentMonthCategoryTotals: DashboardCategoryTotal[];

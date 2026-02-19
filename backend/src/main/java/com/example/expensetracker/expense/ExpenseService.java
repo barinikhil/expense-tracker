@@ -174,21 +174,37 @@ public class ExpenseService {
                 .toList();
 
         List<Expense> currentMonthExpenses = byMonth.getOrDefault(currentMonth, List.of());
-        BigDecimal currentMonthTotal = sumAmounts(currentMonthExpenses);
+        BigDecimal currentMonthTotal = sumAmountsByType(currentMonthExpenses, TransactionType.EXPENSE);
+        ExpenseDtos.PeriodSummaryPoint currentMonthSummary = toPeriodSummary(currentMonthExpenses);
 
         LocalDate today = LocalDate.now();
+        YearMonth previousMonthForPeriod = currentMonth.minusMonths(1);
+        LocalDate samePeriodLastMonthStart = previousMonthForPeriod.atDay(1);
+        int samePeriodDay = Math.min(today.getDayOfMonth(), previousMonthForPeriod.lengthOfMonth());
+        LocalDate samePeriodLastMonthEnd = previousMonthForPeriod.atDay(samePeriodDay);
+        ExpenseDtos.PeriodSummaryPoint samePeriodLastMonthSummary = toPeriodSummaryInRange(
+                expenses,
+                samePeriodLastMonthStart,
+                samePeriodLastMonthEnd
+        );
+
         LocalDate last30DaysStart = today.minusDays(29);
-        BigDecimal last30DaysTotal = sumAmountsInRange(expenses, last30DaysStart, today);
+        BigDecimal last30DaysTotal = sumAmountsInRangeByType(expenses, last30DaysStart, today, TransactionType.EXPENSE);
+        ExpenseDtos.PeriodSummaryPoint last30DaysSummary = toPeriodSummaryInRange(expenses, last30DaysStart, today);
 
         YearMonth previousMonth = currentMonth.minusMonths(1);
-        BigDecimal lastMonthTotal = sumAmounts(byMonth.getOrDefault(previousMonth, List.of()));
+        List<Expense> lastMonthExpenses = byMonth.getOrDefault(previousMonth, List.of());
+        BigDecimal lastMonthTotal = sumAmountsByType(lastMonthExpenses, TransactionType.EXPENSE);
+        ExpenseDtos.PeriodSummaryPoint lastMonthSummary = toPeriodSummary(lastMonthExpenses);
 
         LocalDate lastQuarterStart = currentMonth.minusMonths(3).atDay(1);
         LocalDate lastQuarterEnd = currentMonth.minusMonths(1).atEndOfMonth();
-        BigDecimal lastQuarterTotal = sumAmountsInRange(expenses, lastQuarterStart, lastQuarterEnd);
+        BigDecimal lastQuarterTotal = sumAmountsInRangeByType(expenses, lastQuarterStart, lastQuarterEnd, TransactionType.EXPENSE);
+        ExpenseDtos.PeriodSummaryPoint lastQuarterSummary = toPeriodSummaryInRange(expenses, lastQuarterStart, lastQuarterEnd);
 
         LocalDate lastYearStart = today.minusDays(364);
-        BigDecimal lastYearTotal = sumAmountsInRange(expenses, lastYearStart, today);
+        BigDecimal lastYearTotal = sumAmountsInRangeByType(expenses, lastYearStart, today, TransactionType.EXPENSE);
+        ExpenseDtos.PeriodSummaryPoint lastYearSummary = toPeriodSummaryInRange(expenses, lastYearStart, today);
 
         Map<String, List<Expense>> byCategory = new LinkedHashMap<>();
         for (Expense expense : currentMonthExpenses) {
@@ -242,6 +258,12 @@ public class ExpenseService {
                 lastMonthTotal,
                 lastQuarterTotal,
                 lastYearTotal,
+                currentMonthSummary,
+                samePeriodLastMonthSummary,
+                last30DaysSummary,
+                lastMonthSummary,
+                lastQuarterSummary,
+                lastYearSummary,
                 monthlyTotals,
                 monthlyIncomeExpensePoints,
                 categoryTotals,
@@ -318,5 +340,37 @@ public class ExpenseService {
                 .map(Expense::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private BigDecimal sumAmountsInRangeByType(
+            List<Expense> expenses,
+            LocalDate startDate,
+            LocalDate endDate,
+            TransactionType type
+    ) {
+        return expenses.stream()
+                .filter(expense -> !expense.getExpenseDate().isBefore(startDate) && !expense.getExpenseDate().isAfter(endDate))
+                .filter(expense -> expense.getTransactionType() == type)
+                .map(Expense::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private ExpenseDtos.PeriodSummaryPoint toPeriodSummary(List<Expense> expenses) {
+        BigDecimal expenseTotal = sumAmountsByType(expenses, TransactionType.EXPENSE);
+        BigDecimal incomeTotal = sumAmountsByType(expenses, TransactionType.INCOME);
+        BigDecimal netAmount = incomeTotal.subtract(expenseTotal).setScale(2, RoundingMode.HALF_UP);
+        return new ExpenseDtos.PeriodSummaryPoint(expenseTotal, incomeTotal, netAmount);
+    }
+
+    private ExpenseDtos.PeriodSummaryPoint toPeriodSummaryInRange(
+            List<Expense> expenses,
+            LocalDate startDate,
+            LocalDate endDate
+    ) {
+        BigDecimal expenseTotal = sumAmountsInRangeByType(expenses, startDate, endDate, TransactionType.EXPENSE);
+        BigDecimal incomeTotal = sumAmountsInRangeByType(expenses, startDate, endDate, TransactionType.INCOME);
+        BigDecimal netAmount = incomeTotal.subtract(expenseTotal).setScale(2, RoundingMode.HALF_UP);
+        return new ExpenseDtos.PeriodSummaryPoint(expenseTotal, incomeTotal, netAmount);
     }
 }
