@@ -1,7 +1,7 @@
 <mat-card class="taxonomy-panel">
   <mat-card-header>
     <mat-card-title>Categories</mat-card-title>
-    <mat-card-subtitle>Manage your expense groups.</mat-card-subtitle>
+    <mat-card-subtitle>Manage your transaction groups.</mat-card-subtitle>
   </mat-card-header>
 
   <mat-card-content>
@@ -39,7 +39,12 @@
           Category description is required.
         </mat-error>
       </mat-form-field>
-      <mat-checkbox name="categoryIsSaving" [(ngModel)]="newCategory.isSaving">Saving Category</mat-checkbox>
+      <mat-form-field appearance="outline">
+        <mat-label>Type</mat-label>
+        <mat-select name="categoryType" [(ngModel)]="newCategory.type">
+          <mat-option *ngFor="let type of categoryTypes" [value]="type.value">{{ type.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
       <button mat-flat-button type="submit" class="primary-button">Add Category</button>
     </form>
 
@@ -49,7 +54,7 @@
           <tr>
             <th>Name</th>
             <th>Description</th>
-            <th>Saving</th>
+            <th>Type</th>
             <th>Sub-categories</th>
             <th>Actions</th>
           </tr>
@@ -59,7 +64,7 @@
             <ng-container *ngIf="editingCategoryId !== category.id; else editCategoryRow">
               <td>{{ category.name }}</td>
               <td>{{ category.description }}</td>
-              <td>{{ category.isSaving ? 'Yes' : 'No' }}</td>
+              <td>{{ category.type }}</td>
               <td>{{ subCategoryNames(category) || '-' }}</td>
               <td class="taxonomy-actions-cell">
                 <button mat-stroked-button class="ghost-button" (click)="startEditCategory(category)">
@@ -80,7 +85,11 @@
                 </mat-form-field>
               </td>
               <td>
-                <mat-checkbox [(ngModel)]="editingCategory.isSaving">Saving</mat-checkbox>
+                <mat-form-field appearance="outline" class="taxonomy-inline-field">
+                  <mat-select [(ngModel)]="editingCategory.type">
+                    <mat-option *ngFor="let type of categoryTypes" [value]="type.value">{{ type.label }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
               </td>
               <td>-</td>
               <td class="taxonomy-actions-cell">

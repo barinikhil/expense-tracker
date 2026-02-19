@@ -14,3 +14,4 @@ frontend/dist/
 .DS_Store
 /frontend/.angular/
 /frontend/package-lock.json
+/build_helper/

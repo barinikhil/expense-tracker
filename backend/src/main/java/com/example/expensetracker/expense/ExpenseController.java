@@ -2,8 +2,11 @@ package com.example.expensetracker.expense;
 
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/api")
@@ -32,6 +36,40 @@ public class ExpenseController {
         return expenseService.listExpenses(startDate, endDate, page, size);
     }
 
+    @GetMapping("/transactions")
+    public ExpenseDtos.ExpensePageResponse listTransactions(
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) Long subCategoryId,
+            @RequestParam(required = false) BigDecimal minAmount,
+            @RequestParam(required = false) BigDecimal maxAmount,
+            @RequestParam(defaultValue = "EXPENSE") TransactionType type,
+            @RequestParam(defaultValue = "expenseDate") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return expenseService.listTransactions(
+                startDate,
+                endDate,
+                categoryId,
+                subCategoryId,
+                minAmount,
+                maxAmount,
+                type,
+                sortBy,
+                sortDir,
+                page,
+                size
+        );
+    }
+
+    @GetMapping("/transactions/{id}")
+    public ExpenseDtos.ExpenseResponse getTransaction(@PathVariable Long id) {
+        return expenseService.getTransaction(id);
+    }
+
     @GetMapping("/dashboard/summary")
     public ExpenseDtos.DashboardSummaryResponse getDashboardSummary(
             @RequestParam(defaultValue = "5") int topN
@@ -43,5 +81,31 @@ public class ExpenseController {
     @ResponseStatus(HttpStatus.CREATED)
     public ExpenseDtos.ExpenseResponse createExpense(@Valid @RequestBody ExpenseDtos.CreateExpenseRequest request) {
         return expenseService.createExpense(request);
+    }
+
+    @PostMapping("/transactions")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ExpenseDtos.ExpenseResponse createTransaction(@Valid @RequestBody ExpenseDtos.CreateExpenseRequest request) {
+        return expenseService.createExpense(request);
+    }
+
+    @PutMapping("/transactions/{id}")
+    public ExpenseDtos.ExpenseResponse updateTransaction(
+            @PathVariable Long id,
+            @Valid @RequestBody ExpenseDtos.CreateExpenseRequest request
+    ) {
+        return expenseService.updateExpense(id, request);
+    }
+
+    @DeleteMapping("/transactions/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteTransaction(@PathVariable Long id) {
+        expenseService.deleteTransaction(id);
+    }
+
+    @DeleteMapping("/expenses/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteExpense(@PathVariable Long id) {
+        expenseService.deleteTransaction(id);
     }
 }

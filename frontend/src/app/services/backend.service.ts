@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 interface HealthResponse {
   status: string;
@@ -15,7 +16,7 @@ export interface Category {
   id: number;
   name: string;
   description: string;
-  isSaving: boolean;
+  type: CategoryType;
   subCategories: SubCategory[];
 }
 
@@ -26,11 +27,15 @@ export interface SubCategory {
   categoryName: string;
 }
 
+export type TransactionType = 'EXPENSE' | 'INCOME';
+export type CategoryType = 'EXPENSE' | 'INCOME' | 'SAVING';
+
 export interface Expense {
   id: number;
   amount: number;
   description: string;
   expenseDate: string;
+  type: TransactionType;
   categoryId: number;
   categoryName: string;
   subCategoryId: number;
@@ -51,6 +56,26 @@ export interface DashboardMonthlyTotal {
   count: number;
 }
 
+export interface DashboardMonthlyIncomeExpense {
+  yearMonth: string;
+  incomeTotal: number;
+  expenseTotal: number;
+  netAmount: number;
+}
+
+export interface DashboardMonthlySavingRate {
+  yearMonth: string;
+  savingAmount: number;
+  incomeTotal: number;
+  savingRatePercent: number;
+}
+
+export interface DashboardPeriodSummary {
+  expenseTotal: number;
+  incomeTotal: number;
+  netAmount: number;
+}
+
 export interface DashboardCategoryTotal {
   categoryName: string;
   total: number;
@@ -69,7 +94,15 @@ export interface DashboardSummaryResponse {
   lastMonthTotal: number;
   lastQuarterTotal: number;
   lastYearTotal: number;
+  currentMonthSummary: DashboardPeriodSummary;
+  samePeriodLastMonthSummary: DashboardPeriodSummary;
+  last30DaysSummary: DashboardPeriodSummary;
+  lastMonthSummary: DashboardPeriodSummary;
+  lastQuarterSummary: DashboardPeriodSummary;
+  lastYearSummary: DashboardPeriodSummary;
   monthlyTotals: DashboardMonthlyTotal[];
+  monthlyIncomeExpensePoints: DashboardMonthlyIncomeExpense[];
+  monthlySavingRatePoints: DashboardMonthlySavingRate[];
   currentMonthCategoryTotals: DashboardCategoryTotal[];
   topYearlyCategoryTrends: DashboardCategoryYearTrend[];
 }
@@ -78,8 +111,7 @@ export interface DashboardSummaryResponse {
   providedIn: 'root'
 })
 export class BackendService {
-//   private readonly apiBaseUrl = 'http://192.168.6.35:9081/api';
-  private readonly apiBaseUrl = 'http://192.168.1.18:9081/api';
+  private readonly apiBaseUrl = environment.apiBaseUrl;
 
   constructor(private readonly http: HttpClient) {}
 
@@ -95,11 +127,11 @@ export class BackendService {
     return this.http.get<Category[]>(`${this.apiBaseUrl}/categories`);
   }
 
-  addCategory(payload: { name: string; description: string; isSaving: boolean }): Observable<Category> {
+  addCategory(payload: { name: string; description: string; type: CategoryType }): Observable<Category> {
     return this.http.post<Category>(`${this.apiBaseUrl}/categories`, payload);
   }
 
-  updateCategory(id: number, payload: { name: string; description: string; isSaving: boolean }): Observable<Category> {
+  updateCategory(id: number, payload: { name: string; description: string; type: CategoryType }): Observable<Category> {
     return this.http.put<Category>(`${this.apiBaseUrl}/categories/${id}`, payload);
   }
 
@@ -113,6 +145,80 @@ export class BackendService {
 
   updateSubCategory(id: number, payload: { name: string; categoryId: number }): Observable<SubCategory> {
     return this.http.put<SubCategory>(`${this.apiBaseUrl}/sub-categories/${id}`, payload);
+  }
+
+  listTransactions(
+    type: TransactionType,
+    page = 0,
+    size = 10,
+    startDate?: string,
+    endDate?: string,
+    categoryId?: number | null,
+    subCategoryId?: number | null,
+    minAmount?: number | null,
+    maxAmount?: number | null,
+    sortBy?: 'expenseDate' | 'amount' | 'category' | 'subCategory',
+    sortDir?: 'asc' | 'desc'
+  ): Observable<ExpensePageResponse> {
+    let params = new HttpParams();
+    params = params.set('page', page);
+    params = params.set('size', size);
+    params = params.set('type', type);
+    if (startDate) {
+      params = params.set('startDate', startDate);
+    }
+    if (endDate) {
+      params = params.set('endDate', endDate);
+    }
+    if (categoryId !== null && categoryId !== undefined) {
+      params = params.set('categoryId', categoryId);
+    }
+    if (subCategoryId !== null && subCategoryId !== undefined) {
+      params = params.set('subCategoryId', subCategoryId);
+    }
+    if (minAmount !== null && minAmount !== undefined) {
+      params = params.set('minAmount', minAmount);
+    }
+    if (maxAmount !== null && maxAmount !== undefined) {
+      params = params.set('maxAmount', maxAmount);
+    }
+    if (sortBy) {
+      params = params.set('sortBy', sortBy);
+    }
+    if (sortDir) {
+      params = params.set('sortDir', sortDir);
+    }
+    return this.http.get<ExpensePageResponse>(`${this.apiBaseUrl}/transactions`, { params });
+  }
+
+  addTransaction(payload: {
+    amount: number;
+    description: string;
+    expenseDate: string;
+    type: TransactionType;
+    categoryId: number;
+    subCategoryId: number;
+  }): Observable<Expense> {
+    return this.http.post<Expense>(`${this.apiBaseUrl}/transactions`, payload);
+  }
+
+  getTransaction(id: number): Observable<Expense> {
+    return this.http.get<Expense>(`${this.apiBaseUrl}/transactions/${id}`);
+  }
+
+  updateTransaction(id: number, payload: {
+    amount: number;
+    description: string;
+    expenseDate: string;
+    type: TransactionType;
+    categoryId: number;
+    subCategoryId: number;
+  }): Observable<Expense> {
+    return this.http.put<Expense>(`${this.apiBaseUrl}/transactions/${id}`, payload);
+  }
+
+  deleteTransaction(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiBaseUrl}/transactions/${id}`);
   }
 
   listExpenses(page = 0, size = 10, startDate?: string, endDate?: string): Observable<ExpensePageResponse> {

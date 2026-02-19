@@ -36,6 +36,7 @@ export class AppComponent implements OnInit, OnDestroy {
   status = 'Checking backend status...';
   isBackendUp = false;
   isSidebarCollapsed = false;
+  isTransactionsExpanded = true;
   isClassificationExpanded = true;
   isMobileView = false;
   retryCountdownSeconds = 0;
@@ -122,6 +123,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
   toggleClassificationMenu(): void {
     this.isClassificationExpanded = !this.isClassificationExpanded;
+  }
+
+  toggleTransactionsMenu(): void {
+    this.isTransactionsExpanded = !this.isTransactionsExpanded;
   }
 
   onNavItemClick(): void {

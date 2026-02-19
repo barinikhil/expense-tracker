@@ -1,7 +1,7 @@
 <mat-card class="taxonomy-panel">
   <mat-card-header>
     <mat-card-title>Dashboard</mat-card-title>
-    <mat-card-subtitle>Spending overview for the last 12 months.</mat-card-subtitle>
+    <mat-card-subtitle>Income and spending overview for the last 12 months.</mat-card-subtitle>
   </mat-card-header>
 
   <mat-card-content>
@@ -16,23 +16,105 @@
       <div class="dashboard-kpis">
         <div class="dashboard-kpi">
           <span class="kpi-label">{{ currentMonthLabel }}</span>
-          <strong>{{ summary.currentMonthTotal | number:'1.2-2' }}</strong>
+          <div class="kpi-values">
+            <div class="kpi-value-item">
+              <span class="kpi-value-caption">Expense</span>
+              <strong>{{ currentMonthSummary.expenseTotal | number:'1.2-2' }}</strong>
+            </div>
+            <div class="kpi-value-item">
+              <span class="kpi-value-caption">Income</span>
+              <strong>{{ currentMonthSummary.incomeTotal | number:'1.2-2' }}</strong>
+            </div>
+            <div class="kpi-value-item kpi-value-item-net">
+              <span class="kpi-value-caption">Income - Expense</span>
+              <strong [ngClass]="netAmountClass(currentMonthSummary.netAmount)">{{ currentMonthSummary.netAmount | number:'1.2-2' }}</strong>
+            </div>
+          </div>
+        </div>
+        <div class="dashboard-kpi">
+          <span class="kpi-label">{{ samePeriodLastMonthLabel }}</span>
+          <div class="kpi-values">
+            <div class="kpi-value-item">
+              <span class="kpi-value-caption">Expense</span>
+              <strong>{{ samePeriodLastMonthSummary.expenseTotal | number:'1.2-2' }}</strong>
+            </div>
+            <div class="kpi-value-item">
+              <span class="kpi-value-caption">Income</span>
+              <strong>{{ samePeriodLastMonthSummary.incomeTotal | number:'1.2-2' }}</strong>
+            </div>
+            <div class="kpi-value-item kpi-value-item-net">
+              <span class="kpi-value-caption">Income - Expense</span>
+              <strong [ngClass]="netAmountClass(samePeriodLastMonthSummary.netAmount)">{{ samePeriodLastMonthSummary.netAmount | number:'1.2-2' }}</strong>
+            </div>
+          </div>
         </div>
         <div class="dashboard-kpi">
           <span class="kpi-label">{{ last30DaysLabel }}</span>
-          <strong>{{ summary.last30DaysTotal | number:'1.2-2' }}</strong>
+          <div class="kpi-values">
+            <div class="kpi-value-item">
+              <span class="kpi-value-caption">Expense</span>
+              <strong>{{ last30DaysSummary.expenseTotal | number:'1.2-2' }}</strong>
+            </div>
+            <div class="kpi-value-item">
+              <span class="kpi-value-caption">Income</span>
+              <strong>{{ last30DaysSummary.incomeTotal | number:'1.2-2' }}</strong>
+            </div>
+            <div class="kpi-value-item kpi-value-item-net">
+              <span class="kpi-value-caption">Income - Expense</span>
+              <strong [ngClass]="netAmountClass(last30DaysSummary.netAmount)">{{ last30DaysSummary.netAmount | number:'1.2-2' }}</strong>
+            </div>
+          </div>
         </div>
         <div class="dashboard-kpi">
           <span class="kpi-label">{{ lastMonthLabel }}</span>
-          <strong>{{ summary.lastMonthTotal | number:'1.2-2' }}</strong>
+          <div class="kpi-values">
+            <div class="kpi-value-item">
+              <span class="kpi-value-caption">Expense</span>
+              <strong>{{ lastMonthSummary.expenseTotal | number:'1.2-2' }}</strong>
+            </div>
+            <div class="kpi-value-item">
+              <span class="kpi-value-caption">Income</span>
+              <strong>{{ lastMonthSummary.incomeTotal | number:'1.2-2' }}</strong>
+            </div>
+            <div class="kpi-value-item kpi-value-item-net">
+              <span class="kpi-value-caption">Income - Expense</span>
+              <strong [ngClass]="netAmountClass(lastMonthSummary.netAmount)">{{ lastMonthSummary.netAmount | number:'1.2-2' }}</strong>
+            </div>
+          </div>
         </div>
         <div class="dashboard-kpi">
           <span class="kpi-label">{{ lastQuarterLabel }}</span>
-          <strong>{{ summary.lastQuarterTotal | number:'1.2-2' }}</strong>
+          <div class="kpi-values">
+            <div class="kpi-value-item">
+              <span class="kpi-value-caption">Expense</span>
+              <strong>{{ lastQuarterSummary.expenseTotal | number:'1.2-2' }}</strong>
+            </div>
+            <div class="kpi-value-item">
+              <span class="kpi-value-caption">Income</span>
+              <strong>{{ lastQuarterSummary.incomeTotal | number:'1.2-2' }}</strong>
+            </div>
+            <div class="kpi-value-item kpi-value-item-net">
+              <span class="kpi-value-caption">Income - Expense</span>
+              <strong [ngClass]="netAmountClass(lastQuarterSummary.netAmount)">{{ lastQuarterSummary.netAmount | number:'1.2-2' }}</strong>
+            </div>
+          </div>
         </div>
         <div class="dashboard-kpi">
           <span class="kpi-label">{{ lastYearLabel }}</span>
-          <strong>{{ summary.lastYearTotal | number:'1.2-2' }}</strong>
+          <div class="kpi-values">
+            <div class="kpi-value-item">
+              <span class="kpi-value-caption">Expense</span>
+              <strong>{{ lastYearSummary.expenseTotal | number:'1.2-2' }}</strong>
+            </div>
+            <div class="kpi-value-item">
+              <span class="kpi-value-caption">Income</span>
+              <strong>{{ lastYearSummary.incomeTotal | number:'1.2-2' }}</strong>
+            </div>
+            <div class="kpi-value-item kpi-value-item-net">
+              <span class="kpi-value-caption">Income - Expense</span>
+              <strong [ngClass]="netAmountClass(lastYearSummary.netAmount)">{{ lastYearSummary.netAmount | number:'1.2-2' }}</strong>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -46,6 +128,41 @@
               <span class="bar-label">{{ monthLabel(item.yearMonth) }}</span>
             </div>
           </div>
+        </mat-card>
+
+        <mat-card class="dashboard-card">
+          <h3>Monthly Net (Income - Expense)</h3>
+          <div class="net-chart" *ngIf="monthlyIncomeExpensePoints.length; else noNetData">
+            <div class="net-bar" *ngFor="let item of monthlyIncomeExpensePoints">
+              <span class="net-value">{{ item.netAmount | number:'1.0-0' }}</span>
+              <div class="net-bar-wrap">
+                <div class="net-midline"></div>
+                <div
+                  class="net-fill"
+                  [ngClass]="netBarClass(item.netAmount)"
+                  [style.height.px]="netBarHeight(item.netAmount)"
+                ></div>
+              </div>
+              <span class="bar-label">{{ monthLabel(item.yearMonth) }}</span>
+            </div>
+          </div>
+          <ng-template #noNetData>
+            <p class="dashboard-empty">No monthly net data available.</p>
+          </ng-template>
+        </mat-card>
+
+        <mat-card class="dashboard-card">
+          <h3>Monthly Saving %</h3>
+          <div class="saving-rate-chart" *ngIf="monthlySavingRatePoints.length; else noSavingRateData">
+            <div class="saving-rate-bar" *ngFor="let item of monthlySavingRatePoints">
+              <span class="saving-rate-value">{{ item.savingRatePercent | number:'1.1-2' }}%</span>
+              <div class="saving-rate-fill" [style.height.px]="savingRateHeight(item.savingRatePercent)"></div>
+              <span class="bar-label">{{ monthLabel(item.yearMonth) }}</span>
+            </div>
+          </div>
+          <ng-template #noSavingRateData>
+            <p class="dashboard-empty">No monthly saving rate data available.</p>
+          </ng-template>
         </mat-card>
 
         <mat-card class="dashboard-card">

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -9,7 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { BackendService, Category, SubCategory } from '../../services/backend.service';
+import { BackendService, Category, SubCategory, TransactionType } from '../../services/backend.service';
 
 @Component({
   selector: 'app-add-expense-page',
@@ -32,6 +32,9 @@ export class AddExpensePageComponent implements OnInit {
   error = '';
   categories: Category[] = [];
   returnHereForAnother = false;
+  transactionType: TransactionType = 'EXPENSE';
+  isEditMode = false;
+  transactionId: number | null = null;
 
   newExpense: {
     amount: number | null;
@@ -47,10 +50,21 @@ export class AddExpensePageComponent implements OnInit {
       subCategoryId: null
     };
 
-  constructor(private readonly backendService: BackendService, private readonly router: Router) {}
+  constructor(
+    private readonly backendService: BackendService,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
+    this.transactionType = (this.route.snapshot.data['transactionType'] as TransactionType) ?? 'EXPENSE';
+    this.isEditMode = Boolean(this.route.snapshot.data['isEdit']);
+    const rawId = this.route.snapshot.paramMap.get('id');
+    this.transactionId = rawId ? Number(rawId) : null;
     this.loadCategories();
+    if (this.isEditMode && this.transactionId !== null) {
+      this.loadTransaction(this.transactionId);
+    }
   }
 
   loadCategories(): void {
@@ -71,10 +85,10 @@ export class AddExpensePageComponent implements OnInit {
   }
 
   cancel(): void {
-    this.router.navigate(['/expenses']);
+    this.router.navigate([this.listRoute]);
   }
 
-  addExpense(): void {
+  saveTransaction(): void {
     if (
       this.newExpense.amount === null ||
       this.newExpense.amount <= 0 ||
@@ -90,22 +104,31 @@ export class AddExpensePageComponent implements OnInit {
       amount: this.newExpense.amount,
       description: this.newExpense.description.trim(),
       expenseDate: this.newExpense.expenseDate,
+      type: this.transactionType,
       categoryId: this.newExpense.categoryId,
       subCategoryId: this.newExpense.subCategoryId
     };
 
-    this.backendService.addExpense(payload).subscribe({
+    const request$ = this.isEditMode && this.transactionId !== null
+      ? this.backendService.updateTransaction(this.transactionId, payload)
+      : this.backendService.addTransaction(payload);
+
+    request$.subscribe({
       next: () => {
+        if (this.isEditMode) {
+          this.router.navigate([this.listRoute]);
+          return;
+        }
         if (this.returnHereForAnother) {
           this.resetForm();
           this.returnHereForAnother = false;
           return;
         }
 
-        this.router.navigate(['/expenses']);
+        this.router.navigate([this.listRoute]);
       },
       error: (err) => {
-        this.error = err?.error?.message ?? 'Unable to add expense.';
+        this.error = err?.error?.message ?? (this.isEditMode ? 'Unable to update transaction.' : 'Unable to add expense.');
       }
     });
   }
@@ -118,6 +141,44 @@ export class AddExpensePageComponent implements OnInit {
     return this.categories.find((category) => category.id === this.newExpense.categoryId)?.subCategories ?? [];
   }
 
+  get filteredCategories(): Category[] {
+    if (this.transactionType === 'INCOME') {
+      return this.categories.filter((category) => category.type === 'INCOME');
+    }
+    return this.categories.filter(
+      (category) => category.type === 'EXPENSE' || category.type === 'SAVING'
+    );
+  }
+
+  get pageTitle(): string {
+    if (this.isEditMode) {
+      return this.transactionType === 'INCOME' ? 'Edit Income' : 'Edit Expense';
+    }
+    return this.transactionType === 'INCOME' ? 'Add Income' : 'Add Expense';
+  }
+
+  get pageSubtitle(): string {
+    if (this.isEditMode) {
+      return this.transactionType === 'INCOME'
+        ? 'Update an existing income entry.'
+        : 'Update an existing expense entry.';
+    }
+    return this.transactionType === 'INCOME'
+      ? 'Create a new income entry.'
+      : 'Create a new expense entry.';
+  }
+
+  get submitLabel(): string {
+    if (this.isEditMode) {
+      return this.transactionType === 'INCOME' ? 'Update Income' : 'Update Expense';
+    }
+    return this.transactionType === 'INCOME' ? 'Add Income' : 'Add Expense';
+  }
+
+  get listRoute(): string {
+    return this.transactionType === 'INCOME' ? '/transactions/income' : '/transactions/expense';
+  }
+
   private resetForm(): void {
     this.newExpense = {
       amount: null,
@@ -126,5 +187,23 @@ export class AddExpensePageComponent implements OnInit {
       categoryId: null,
       subCategoryId: null
     };
+  }
+
+  private loadTransaction(id: number): void {
+    this.error = '';
+    this.backendService.getTransaction(id).subscribe({
+      next: (transaction) => {
+        this.newExpense = {
+          amount: transaction.amount,
+          description: transaction.description,
+          expenseDate: transaction.expenseDate,
+          categoryId: transaction.categoryId,
+          subCategoryId: transaction.subCategoryId
+        };
+      },
+      error: (err) => {
+        this.error = err?.error?.message ?? 'Failed to load transaction.';
+      }
+    });
   }
 }

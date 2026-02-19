@@ -1,0 +1,47 @@
+services:
+  backend-build:
+    image: maven:3.9.9-eclipse-temurin-17
+    profiles:
+      - build1
+    working_dir: /workspace
+    command: mvn -B clean package -DskipTests
+    volumes:
+      - ./backend:/workspace
+      - ${USERPROFILE}/.m2:/root/.m2
+
+  ui-build:
+    image: node:20-alpine
+    profiles:
+      - build
+    working_dir: /workspace
+    command: sh -c "npm ci && npm run build"
+    volumes:
+      - ./frontend:/workspace
+      - ./build_helper/node_modules:/workspace/node_modules
+
+  backend:
+    image: eclipse-temurin:17-jre-alpine
+    profiles:
+      - run1
+    container_name: expense-tracker-backend
+    working_dir: /app
+    command: ["java", "-jar", "/app/app.jar"]
+    volumes:
+      - ./backend/target/expense-tracker-backend-0.0.1-SNAPSHOT.jar:/app/app.jar:ro
+    ports:
+      - "10081:9081"
+    restart: unless-stopped
+
+  ui:
+    image: nginx:1.27-alpine
+    profiles:
+      - run
+    container_name: expense-tracker-ui
+#    depends_on:
+#      - backend
+    volumes:
+      - ./frontend/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./frontend/dist/expense-tracker-frontend/browser:/usr/share/nginx/html:ro
+    ports:
+      - "18080:80"
+    restart: unless-stopped

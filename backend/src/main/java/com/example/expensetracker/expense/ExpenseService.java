@@ -2,6 +2,7 @@ package com.example.expensetracker.expense;
 
 import com.example.expensetracker.category.Category;
 import com.example.expensetracker.category.CategoryRepository;
+import com.example.expensetracker.category.CategoryType;
 import com.example.expensetracker.category.SubCategory;
 import com.example.expensetracker.category.SubCategoryRepository;
 import org.springframework.data.domain.Page;
@@ -75,6 +76,76 @@ public class ExpenseService {
     }
 
     @Transactional(readOnly = true)
+    public ExpenseDtos.ExpensePageResponse listTransactions(
+            LocalDate startDate,
+            LocalDate endDate,
+            Long categoryId,
+            Long subCategoryId,
+            BigDecimal minAmount,
+            BigDecimal maxAmount,
+            TransactionType type,
+            String sortBy,
+            String sortDir,
+            int page,
+            int size
+    ) {
+        if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "startDate cannot be after endDate");
+        }
+        if (page < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "page must be 0 or greater");
+        }
+        if (size <= 0 || size > 200) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "size must be between 1 and 200");
+        }
+        if (minAmount != null && minAmount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "minAmount must be 0 or greater");
+        }
+        if (maxAmount != null && maxAmount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "maxAmount must be 0 or greater");
+        }
+        if (minAmount != null && maxAmount != null && minAmount.compareTo(maxAmount) > 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "minAmount cannot be greater than maxAmount");
+        }
+
+        TransactionType resolvedType = type == null ? TransactionType.EXPENSE : type;
+        Pageable pageable = PageRequest.of(page, size, resolveTransactionSort(sortBy, sortDir));
+        Page<Expense> expensePage = expenseRepository.findTransactionsWithFilters(
+                resolvedType,
+                startDate,
+                endDate,
+                categoryId,
+                subCategoryId,
+                minAmount,
+                maxAmount,
+                pageable
+        );
+
+        return new ExpenseDtos.ExpensePageResponse(
+                expensePage.stream().map(this::toResponse).toList(),
+                expensePage.getNumber(),
+                expensePage.getSize(),
+                expensePage.getTotalElements(),
+                expensePage.getTotalPages()
+        );
+    }
+
+    private Sort resolveTransactionSort(String sortBy, String sortDir) {
+        Sort.Direction direction = "asc".equalsIgnoreCase(sortDir) ? Sort.Direction.ASC : Sort.Direction.DESC;
+        String normalized = sortBy == null ? "expenseDate" : sortBy.trim();
+        return switch (normalized) {
+            case "amount" -> Sort.by(direction, "amount").and(Sort.by(Sort.Direction.DESC, "expenseDate", "id"));
+            case "category" -> Sort.by(direction, "category.name").and(Sort.by(Sort.Direction.DESC, "expenseDate", "id"));
+            case "subCategory" -> Sort.by(direction, "subCategory.name").and(Sort.by(Sort.Direction.DESC, "expenseDate", "id"));
+            case "expenseDate" -> Sort.by(direction, "expenseDate", "id");
+            default -> throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "sortBy must be one of: expenseDate, amount, category, subCategory"
+            );
+        };
+    }
+
+    @Transactional(readOnly = true)
     public ExpenseDtos.DashboardSummaryResponse getDashboardSummary(int topN) {
         if (topN < 1 || topN > 10) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "topN must be between 1 and 10");
@@ -106,25 +177,74 @@ public class ExpenseService {
                 })
                 .toList();
 
+        List<ExpenseDtos.MonthlyIncomeExpensePoint> monthlyIncomeExpensePoints = byMonth.entrySet().stream()
+                .map(entry -> {
+                    BigDecimal incomeTotal = sumAmountsByType(entry.getValue(), TransactionType.INCOME);
+                    BigDecimal expenseTotal = sumAmountsByType(entry.getValue(), TransactionType.EXPENSE);
+                    return new ExpenseDtos.MonthlyIncomeExpensePoint(
+                            entry.getKey().toString(),
+                            incomeTotal,
+                            expenseTotal,
+                            incomeTotal.subtract(expenseTotal).setScale(2, RoundingMode.HALF_UP)
+                    );
+                })
+                .toList();
+
+        List<ExpenseDtos.MonthlySavingRatePoint> monthlySavingRatePoints = byMonth.entrySet().stream()
+                .map(entry -> {
+                    BigDecimal savingAmount = sumSavingAmounts(entry.getValue());
+                    BigDecimal incomeTotal = sumAmountsByType(entry.getValue(), TransactionType.INCOME);
+                    BigDecimal savingRatePercent = incomeTotal.compareTo(BigDecimal.ZERO) == 0
+                            ? BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP)
+                            : savingAmount.multiply(BigDecimal.valueOf(100))
+                            .divide(incomeTotal, 2, RoundingMode.HALF_UP);
+                    return new ExpenseDtos.MonthlySavingRatePoint(
+                            entry.getKey().toString(),
+                            savingAmount,
+                            incomeTotal,
+                            savingRatePercent
+                    );
+                })
+                .toList();
+
         List<Expense> currentMonthExpenses = byMonth.getOrDefault(currentMonth, List.of());
-        BigDecimal currentMonthTotal = sumAmounts(currentMonthExpenses);
+        BigDecimal currentMonthTotal = sumAmountsByType(currentMonthExpenses, TransactionType.EXPENSE);
+        ExpenseDtos.PeriodSummaryPoint currentMonthSummary = toPeriodSummary(currentMonthExpenses);
 
         LocalDate today = LocalDate.now();
+        YearMonth previousMonthForPeriod = currentMonth.minusMonths(1);
+        LocalDate samePeriodLastMonthStart = previousMonthForPeriod.atDay(1);
+        int samePeriodDay = Math.min(today.getDayOfMonth(), previousMonthForPeriod.lengthOfMonth());
+        LocalDate samePeriodLastMonthEnd = previousMonthForPeriod.atDay(samePeriodDay);
+        ExpenseDtos.PeriodSummaryPoint samePeriodLastMonthSummary = toPeriodSummaryInRange(
+                expenses,
+                samePeriodLastMonthStart,
+                samePeriodLastMonthEnd
+        );
+
         LocalDate last30DaysStart = today.minusDays(29);
-        BigDecimal last30DaysTotal = sumAmountsInRange(expenses, last30DaysStart, today);
+        BigDecimal last30DaysTotal = sumAmountsInRangeByType(expenses, last30DaysStart, today, TransactionType.EXPENSE);
+        ExpenseDtos.PeriodSummaryPoint last30DaysSummary = toPeriodSummaryInRange(expenses, last30DaysStart, today);
 
         YearMonth previousMonth = currentMonth.minusMonths(1);
-        BigDecimal lastMonthTotal = sumAmounts(byMonth.getOrDefault(previousMonth, List.of()));
+        List<Expense> lastMonthExpenses = byMonth.getOrDefault(previousMonth, List.of());
+        BigDecimal lastMonthTotal = sumAmountsByType(lastMonthExpenses, TransactionType.EXPENSE);
+        ExpenseDtos.PeriodSummaryPoint lastMonthSummary = toPeriodSummary(lastMonthExpenses);
 
         LocalDate lastQuarterStart = currentMonth.minusMonths(3).atDay(1);
         LocalDate lastQuarterEnd = currentMonth.minusMonths(1).atEndOfMonth();
-        BigDecimal lastQuarterTotal = sumAmountsInRange(expenses, lastQuarterStart, lastQuarterEnd);
+        BigDecimal lastQuarterTotal = sumAmountsInRangeByType(expenses, lastQuarterStart, lastQuarterEnd, TransactionType.EXPENSE);
+        ExpenseDtos.PeriodSummaryPoint lastQuarterSummary = toPeriodSummaryInRange(expenses, lastQuarterStart, lastQuarterEnd);
 
         LocalDate lastYearStart = today.minusDays(364);
-        BigDecimal lastYearTotal = sumAmountsInRange(expenses, lastYearStart, today);
+        BigDecimal lastYearTotal = sumAmountsInRangeByType(expenses, lastYearStart, today, TransactionType.EXPENSE);
+        ExpenseDtos.PeriodSummaryPoint lastYearSummary = toPeriodSummaryInRange(expenses, lastYearStart, today);
 
         Map<String, List<Expense>> byCategory = new LinkedHashMap<>();
         for (Expense expense : currentMonthExpenses) {
+            if (expense.getTransactionType() != TransactionType.EXPENSE) {
+                continue;
+            }
             byCategory.computeIfAbsent(expense.getCategory().getName(), key -> new ArrayList<>()).add(expense);
         }
 
@@ -139,6 +259,9 @@ public class ExpenseService {
 
         Map<String, List<Expense>> byYearCategory = new LinkedHashMap<>();
         for (Expense expense : expenses) {
+            if (expense.getTransactionType() != TransactionType.EXPENSE) {
+                continue;
+            }
             byYearCategory.computeIfAbsent(expense.getCategory().getName(), key -> new ArrayList<>()).add(expense);
         }
 
@@ -169,13 +292,48 @@ public class ExpenseService {
                 lastMonthTotal,
                 lastQuarterTotal,
                 lastYearTotal,
+                currentMonthSummary,
+                samePeriodLastMonthSummary,
+                last30DaysSummary,
+                lastMonthSummary,
+                lastQuarterSummary,
+                lastYearSummary,
                 monthlyTotals,
+                monthlyIncomeExpensePoints,
+                monthlySavingRatePoints,
                 categoryTotals,
                 topYearlyCategoryTrends
         );
     }
 
     public ExpenseDtos.ExpenseResponse createExpense(ExpenseDtos.CreateExpenseRequest request) {
+        return saveExpense(null, request);
+    }
+
+    public ExpenseDtos.ExpenseResponse updateExpense(Long id, ExpenseDtos.CreateExpenseRequest request) {
+        return saveExpense(id, request);
+    }
+
+    @Transactional(readOnly = true)
+    public ExpenseDtos.ExpenseResponse getTransaction(Long id) {
+        Expense expense = expenseRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transaction not found"));
+        return toResponse(expense);
+    }
+
+    public void deleteTransaction(Long id) {
+        Expense expense = expenseRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transaction not found"));
+        expenseRepository.delete(expense);
+    }
+
+    private ExpenseDtos.ExpenseResponse saveExpense(Long id, ExpenseDtos.CreateExpenseRequest request) {
+        Expense existingExpense = null;
+        if (id != null) {
+            existingExpense = expenseRepository.findById(id)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transaction not found"));
+        }
+
         Category category = categoryRepository.findById(request.categoryId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
 
@@ -189,12 +347,31 @@ public class ExpenseService {
             );
         }
 
-        Expense expense = new Expense();
+        TransactionType resolvedType = request.type() == null ? TransactionType.EXPENSE : request.type();
+        if (resolvedType == TransactionType.INCOME && category.getType() != CategoryType.INCOME) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Category type must be INCOME for income transactions");
+        }
+        if (resolvedType == TransactionType.EXPENSE
+                && category.getType() != CategoryType.EXPENSE
+                && category.getType() != CategoryType.SAVING) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Category type must be EXPENSE or SAVING for expense transactions");
+        }
+        if (existingExpense != null && existingExpense.getTransactionType() != resolvedType) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Changing transaction type is not allowed for updates");
+        }
+
+        Expense expense;
+        if (id == null) {
+            expense = new Expense();
+        } else {
+            expense = existingExpense;
+        }
         expense.setAmount(request.amount());
         expense.setDescription(request.description().trim());
         expense.setExpenseDate(request.expenseDate());
         expense.setCategory(category);
         expense.setSubCategory(subCategory);
+        expense.setTransactionType(resolvedType);
 
         return toResponse(expenseRepository.save(expense));
     }
@@ -205,6 +382,7 @@ public class ExpenseService {
                 expense.getAmount(),
                 expense.getDescription(),
                 expense.getExpenseDate(),
+                expense.getTransactionType(),
                 expense.getCategory().getId(),
                 expense.getCategory().getName(),
                 expense.getSubCategory().getId(),
@@ -225,5 +403,53 @@ public class ExpenseService {
                 .map(Expense::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private BigDecimal sumAmountsByType(List<Expense> expenses, TransactionType type) {
+        return expenses.stream()
+                .filter(expense -> expense.getTransactionType() == type)
+                .map(Expense::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private BigDecimal sumAmountsInRangeByType(
+            List<Expense> expenses,
+            LocalDate startDate,
+            LocalDate endDate,
+            TransactionType type
+    ) {
+        return expenses.stream()
+                .filter(expense -> !expense.getExpenseDate().isBefore(startDate) && !expense.getExpenseDate().isAfter(endDate))
+                .filter(expense -> expense.getTransactionType() == type)
+                .map(Expense::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private BigDecimal sumSavingAmounts(List<Expense> expenses) {
+        return expenses.stream()
+                .filter(expense -> expense.getCategory().getType() == CategoryType.SAVING)
+                .map(Expense::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private ExpenseDtos.PeriodSummaryPoint toPeriodSummary(List<Expense> expenses) {
+        BigDecimal expenseTotal = sumAmountsByType(expenses, TransactionType.EXPENSE);
+        BigDecimal incomeTotal = sumAmountsByType(expenses, TransactionType.INCOME);
+        BigDecimal netAmount = incomeTotal.subtract(expenseTotal).setScale(2, RoundingMode.HALF_UP);
+        return new ExpenseDtos.PeriodSummaryPoint(expenseTotal, incomeTotal, netAmount);
+    }
+
+    private ExpenseDtos.PeriodSummaryPoint toPeriodSummaryInRange(
+            List<Expense> expenses,
+            LocalDate startDate,
+            LocalDate endDate
+    ) {
+        BigDecimal expenseTotal = sumAmountsInRangeByType(expenses, startDate, endDate, TransactionType.EXPENSE);
+        BigDecimal incomeTotal = sumAmountsInRangeByType(expenses, startDate, endDate, TransactionType.INCOME);
+        BigDecimal netAmount = incomeTotal.subtract(expenseTotal).setScale(2, RoundingMode.HALF_UP);
+        return new ExpenseDtos.PeriodSummaryPoint(expenseTotal, incomeTotal, netAmount);
     }
 }

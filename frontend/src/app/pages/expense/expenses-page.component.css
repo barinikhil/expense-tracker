@@ -5,10 +5,10 @@
 }
 
 .expense-filter-bar {
-  display: flex;
-  align-items: flex-end;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  align-items: end;
   gap: 0.9rem;
-  flex-wrap: wrap;
   margin-bottom: 1rem;
 }
 
@@ -34,10 +34,27 @@
   font: inherit;
 }
 
+.expense-date-field input[type="number"],
+.expense-date-field select {
+  height: 2.5rem;
+  min-width: 170px;
+  border-radius: 10px;
+  border: 1px solid var(--outline);
+  background: var(--surface);
+  padding: 0.45rem 0.65rem;
+  font: inherit;
+}
+
+.expense-date-field select:disabled {
+  background: #f3f4f6;
+  color: var(--muted);
+}
+
 .expense-filter-actions {
   display: flex;
   gap: 0.45rem;
   align-items: center;
+  justify-content: flex-end;
 }
 
 .expense-pagination {
@@ -81,6 +98,26 @@
   text-align: center;
 }
 
+.expense-sort-btn {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: inherit;
+  font: inherit;
+}
+
+.expense-row-actions {
+  white-space: nowrap;
+}
+
+.expense-action-icon {
+  width: 2rem;
+  height: 2rem;
+  line-height: 2rem;
+}
+
 @media (max-width: 700px) {
   .expense-top-actions {
     justify-content: stretch;
@@ -92,6 +129,7 @@
   }
 
   .expense-filter-bar {
+    grid-template-columns: 1fr;
     align-items: stretch;
   }
 
@@ -104,6 +142,12 @@
     min-width: 0;
   }
 
+  .expense-date-field input[type="number"],
+  .expense-date-field select {
+    width: 100%;
+    min-width: 0;
+  }
+
   .expense-pagination {
     flex-direction: column;
     align-items: stretch;
@@ -111,5 +155,21 @@
 
   .expense-pagination-actions {
     justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .expense-filter-actions {
+    justify-content: stretch;
+    flex-direction: column;
+  }
+
+  .expense-filter-actions button {
+    width: 100%;
+    min-height: 2.7rem;
+  }
+
+  .expense-row-actions {
+    display: flex;
+    gap: 0.25rem;
   }
 }

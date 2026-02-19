@@ -1,7 +1,7 @@
 <mat-card class="taxonomy-panel">
   <mat-card-header>
-    <mat-card-title>Add Expense</mat-card-title>
-    <mat-card-subtitle>Create a new expense entry.</mat-card-subtitle>
+    <mat-card-title>{{ pageTitle }}</mat-card-title>
+    <mat-card-subtitle>{{ pageSubtitle }}</mat-card-subtitle>
   </mat-card-header>
 
   <mat-card-content>
@@ -10,7 +10,7 @@
       <span>{{ error }}</span>
     </div>
 
-    <form #expenseForm="ngForm" class="expense-form-horizontal" (ngSubmit)="addExpense()">
+    <form #expenseForm="ngForm" class="expense-form-horizontal" (ngSubmit)="saveTransaction()">
       <mat-form-field appearance="outline">
         <mat-label>Amount</mat-label>
         <input
@@ -37,7 +37,7 @@
           required
           #descriptionModel="ngModel"
           [(ngModel)]="newExpense.description"
-          placeholder="Expense description"
+          [placeholder]="transactionType === 'INCOME' ? 'Income description' : 'Expense description'"
         />
         <mat-error *ngIf="(expenseForm.submitted || descriptionModel.touched) && descriptionModel.invalid">
           Description is required.
@@ -69,7 +69,7 @@
           (selectionChange)="onCategoryChange()"
         >
           <mat-option [value]="null">Select category</mat-option>
-          <mat-option *ngFor="let category of categories" [value]="category.id">{{ category.name }}</mat-option>
+          <mat-option *ngFor="let category of filteredCategories" [value]="category.id">{{ category.name }}</mat-option>
         </mat-select>
         <mat-error *ngIf="(expenseForm.submitted || categoryModel.touched) && categoryModel.invalid">
           Category is required.
@@ -95,13 +95,17 @@
         </mat-error>
       </mat-form-field>
 
-      <mat-checkbox [(ngModel)]="returnHereForAnother" name="returnHereForAnother" class="expense-repeat-check">
+      <mat-checkbox *ngIf="!isEditMode" [(ngModel)]="returnHereForAnother" name="returnHereForAnother" class="expense-repeat-check">
         After storing, return here to create another one.
       </mat-checkbox>
 
       <div class="expense-form-actions">
-        <button mat-flat-button type="submit" class="primary-button">Add Expense</button>
-        <button mat-stroked-button type="button" class="ghost-button" (click)="cancel()">Back to List</button>
+        <button mat-flat-button type="submit" class="primary-button">
+          {{ submitLabel }}
+        </button>
+        <button mat-stroked-button type="button" class="ghost-button" (click)="cancel()">
+          Back to {{ transactionType === 'INCOME' ? 'Income' : 'Expense' }} List
+        </button>
       </div>
     </form>
   </mat-card-content>

@@ -20,6 +20,7 @@ public final class ExpenseDtos {
             BigDecimal amount,
             String description,
             LocalDate expenseDate,
+            TransactionType type,
             Long categoryId,
             String categoryName,
             Long subCategoryId,
@@ -42,7 +43,15 @@ public final class ExpenseDtos {
             BigDecimal lastMonthTotal,
             BigDecimal lastQuarterTotal,
             BigDecimal lastYearTotal,
+            PeriodSummaryPoint currentMonthSummary,
+            PeriodSummaryPoint samePeriodLastMonthSummary,
+            PeriodSummaryPoint last30DaysSummary,
+            PeriodSummaryPoint lastMonthSummary,
+            PeriodSummaryPoint lastQuarterSummary,
+            PeriodSummaryPoint lastYearSummary,
             List<MonthlyTotalPoint> monthlyTotals,
+            List<MonthlyIncomeExpensePoint> monthlyIncomeExpensePoints,
+            List<MonthlySavingRatePoint> monthlySavingRatePoints,
             List<CategoryTotalPoint> currentMonthCategoryTotals,
             List<CategoryYearTrendPoint> topYearlyCategoryTrends
     ) {
@@ -52,6 +61,22 @@ public final class ExpenseDtos {
             String yearMonth,
             BigDecimal total,
             long count
+    ) {
+    }
+
+    public record MonthlyIncomeExpensePoint(
+            String yearMonth,
+            BigDecimal incomeTotal,
+            BigDecimal expenseTotal,
+            BigDecimal netAmount
+    ) {
+    }
+
+    public record MonthlySavingRatePoint(
+            String yearMonth,
+            BigDecimal savingAmount,
+            BigDecimal incomeTotal,
+            BigDecimal savingRatePercent
     ) {
     }
 
@@ -69,10 +94,18 @@ public final class ExpenseDtos {
     ) {
     }
 
+    public record PeriodSummaryPoint(
+            BigDecimal expenseTotal,
+            BigDecimal incomeTotal,
+            BigDecimal netAmount
+    ) {
+    }
+
     public record CreateExpenseRequest(
             @NotNull @DecimalMin(value = "0.01") @Digits(integer = 12, fraction = 2) BigDecimal amount,
             @NotBlank @Size(max = 300) String description,
             @NotNull LocalDate expenseDate,
+            TransactionType type,
             @NotNull Long categoryId,
             @NotNull Long subCategoryId
     ) {

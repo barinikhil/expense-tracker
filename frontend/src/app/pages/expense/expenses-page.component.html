@@ -1,7 +1,7 @@
 <mat-card class="taxonomy-panel">
   <mat-card-header>
-    <mat-card-title>Expenses</mat-card-title>
-    <mat-card-subtitle>Track your spending entries.</mat-card-subtitle>
+    <mat-card-title>{{ pageTitle }}</mat-card-title>
+    <mat-card-subtitle>{{ pageSubtitle }}</mat-card-subtitle>
   </mat-card-header>
 
   <mat-card-content>
@@ -11,7 +11,9 @@
     </div>
 
     <div class="expense-top-actions">
-      <a mat-flat-button class="primary-button" routerLink="/expenses/add">Add Expense</a>
+      <a mat-flat-button class="primary-button" [routerLink]="addRoute">
+        Add {{ transactionType === 'INCOME' ? 'Income' : 'Expense' }}
+      </a>
     </div>
 
     <div class="expense-filter-bar">
@@ -22,6 +24,28 @@
       <div class="expense-date-field">
         <label for="endDate">To</label>
         <input id="endDate" type="date" [(ngModel)]="endDate">
+      </div>
+      <div class="expense-date-field">
+        <label for="category">Category</label>
+        <select id="category" [(ngModel)]="categoryId" (ngModelChange)="onCategoryChange()">
+          <option [ngValue]="null">All</option>
+          <option *ngFor="let category of filteredCategories" [ngValue]="category.id">{{ category.name }}</option>
+        </select>
+      </div>
+      <div class="expense-date-field">
+        <label for="subCategory">Sub-category</label>
+        <select id="subCategory" [(ngModel)]="subCategoryId" [disabled]="!categoryId">
+          <option [ngValue]="null">All</option>
+          <option *ngFor="let subCategory of filteredSubCategories" [ngValue]="subCategory.id">{{ subCategory.name }}</option>
+        </select>
+      </div>
+      <div class="expense-date-field">
+        <label for="minAmount">Min Amount</label>
+        <input id="minAmount" type="number" min="0" step="0.01" [(ngModel)]="minAmount">
+      </div>
+      <div class="expense-date-field">
+        <label for="maxAmount">Max Amount</label>
+        <input id="maxAmount" type="number" min="0" step="0.01" [(ngModel)]="maxAmount">
       </div>
       <div class="expense-filter-actions">
         <button mat-flat-button class="primary-button" type="button" (click)="applyFilters()">Apply</button>
@@ -35,9 +59,22 @@
           <tr>
             <th>Date</th>
             <th>Description</th>
-            <th>Amount</th>
-            <th>Category</th>
-            <th>Sub-category</th>
+            <th>
+              <button type="button" class="expense-sort-btn" (click)="toggleSort('amount')">
+                Amount <span>{{ sortIndicator('amount') }}</span>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="expense-sort-btn" (click)="toggleSort('category')">
+                Category <span>{{ sortIndicator('category') }}</span>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="expense-sort-btn" (click)="toggleSort('subCategory')">
+                Sub-category <span>{{ sortIndicator('subCategory') }}</span>
+              </button>
+            </th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -47,9 +84,34 @@
             <td>{{ expense.amount | number:'1.2-2' }}</td>
             <td>{{ expense.categoryName }}</td>
             <td>{{ expense.subCategoryName }}</td>
+            <td class="expense-row-actions">
+              <a
+                mat-icon-button
+                class="expense-action-icon"
+                [routerLink]="editRoute(expense.id)"
+                aria-label="Edit transaction"
+                title="Edit"
+              >
+                <mat-icon>edit</mat-icon>
+              </a>
+              <button
+                mat-icon-button
+                color="warn"
+                type="button"
+                class="expense-action-icon"
+                [disabled]="deletingTransactionId !== null"
+                (click)="deleteTransaction(expense)"
+                aria-label="Delete transaction"
+                title="Delete"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
           </tr>
           <tr *ngIf="!expenses.length">
-            <td colspan="5" class="taxonomy-empty-cell">No expenses found.</td>
+            <td colspan="6" class="taxonomy-empty-cell">
+              No {{ transactionType === 'INCOME' ? 'income' : 'expense' }} records found.
+            </td>
           </tr>
         </tbody>
       </table>

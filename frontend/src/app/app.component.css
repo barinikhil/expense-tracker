@@ -75,6 +75,10 @@
   background: var(--surface-alt);
   color: var(--muted);
   font-size: 0.85rem;
+  max-width: 220px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .user-pill {
@@ -342,6 +346,7 @@
   .status-pill {
     padding: 0.3rem 0.55rem;
     font-size: 0.78rem;
+    max-width: 145px;
   }
 
   .user-pill {
@@ -366,6 +371,26 @@
 
   .mobile-backdrop.visible {
     inset: 4rem 0 0 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .topbar {
+    gap: 0.35rem;
+  }
+
+  .status-pill {
+    max-width: 40px;
+    padding: 0.3rem 0.4rem;
+    justify-content: center;
+  }
+
+  .status-pill span:last-child {
+    display: none;
+  }
+
+  .user-pill {
+    padding: 0.25rem 0.35rem;
   }
 }
 

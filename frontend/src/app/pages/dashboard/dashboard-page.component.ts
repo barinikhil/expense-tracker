@@ -7,7 +7,10 @@ import {
   BackendService,
   DashboardCategoryTotal,
   DashboardCategoryYearTrend,
+  DashboardMonthlyIncomeExpense,
+  DashboardMonthlySavingRate,
   DashboardMonthlyTotal,
+  DashboardPeriodSummary,
   DashboardSummaryResponse
 } from '../../services/backend.service';
 
@@ -43,6 +46,38 @@ export class DashboardPageComponent implements OnInit {
     return this.summary?.currentMonthCategoryTotals ?? [];
   }
 
+  get monthlyIncomeExpensePoints(): DashboardMonthlyIncomeExpense[] {
+    return this.summary?.monthlyIncomeExpensePoints ?? [];
+  }
+
+  get monthlySavingRatePoints(): DashboardMonthlySavingRate[] {
+    return this.summary?.monthlySavingRatePoints ?? [];
+  }
+
+  get currentMonthSummary(): DashboardPeriodSummary {
+    return this.summary?.currentMonthSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0 };
+  }
+
+  get samePeriodLastMonthSummary(): DashboardPeriodSummary {
+    return this.summary?.samePeriodLastMonthSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0 };
+  }
+
+  get last30DaysSummary(): DashboardPeriodSummary {
+    return this.summary?.last30DaysSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0 };
+  }
+
+  get lastMonthSummary(): DashboardPeriodSummary {
+    return this.summary?.lastMonthSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0 };
+  }
+
+  get lastQuarterSummary(): DashboardPeriodSummary {
+    return this.summary?.lastQuarterSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0 };
+  }
+
+  get lastYearSummary(): DashboardPeriodSummary {
+    return this.summary?.lastYearSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0 };
+  }
+
   get visibleCategoryTotals(): DashboardCategoryTotal[] {
     return this.categoryTotals.slice(0, this.selectedCategoryTopN);
   }
@@ -64,10 +99,20 @@ export class DashboardPageComponent implements OnInit {
     return this.categoryTotals.reduce((acc, item) => acc + item.total, 0);
   }
 
+  get maxNetMagnitude(): number {
+    const max = this.monthlyIncomeExpensePoints.reduce((acc, item) => Math.max(acc, Math.abs(item.netAmount)), 0);
+    return max > 0 ? max : 1;
+  }
+
   get maxTopYearlyTrendPointTotal(): number {
     const max = this.visibleTopYearlyCategoryTrends
       .flatMap((trend) => trend.monthlyTrend)
       .reduce((acc, item) => Math.max(acc, item.total), 0);
+    return max > 0 ? max : 1;
+  }
+
+  get maxSavingRatePercent(): number {
+    const max = this.monthlySavingRatePoints.reduce((acc, item) => Math.max(acc, item.savingRatePercent), 0);
     return max > 0 ? max : 1;
   }
 
@@ -92,6 +137,18 @@ export class DashboardPageComponent implements OnInit {
     const start = new Date(today);
     start.setDate(today.getDate() - 29);
     return `${this.formatDate(start)} - ${this.formatDate(today)}`;
+  }
+
+  get samePeriodLastMonthDateRange(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth();
+    const previousMonthDate = new Date(year, month - 1, 1);
+    const previousMonthStart = new Date(previousMonthDate.getFullYear(), previousMonthDate.getMonth(), 1);
+    const previousMonthLastDay = new Date(previousMonthDate.getFullYear(), previousMonthDate.getMonth() + 1, 0).getDate();
+    const endDay = Math.min(today.getDate(), previousMonthLastDay);
+    const previousMonthEnd = new Date(previousMonthDate.getFullYear(), previousMonthDate.getMonth(), endDay);
+    return `${this.formatDate(previousMonthStart)} - ${this.formatDate(previousMonthEnd)}`;
   }
 
   get lastMonthDateRange(): string {
@@ -123,6 +180,10 @@ export class DashboardPageComponent implements OnInit {
     return `Last 30 Days (${this.last30DaysDateRange})`;
   }
 
+  get samePeriodLastMonthLabel(): string {
+    return `Same Period Last Month (${this.samePeriodLastMonthDateRange})`;
+  }
+
   get lastMonthLabel(): string {
     return `Last Month (${this.lastMonthDateRange})`;
   }
@@ -146,6 +207,24 @@ export class DashboardPageComponent implements OnInit {
       return 0;
     }
     return Math.max(6, Math.round((total / totalSpend) * 100));
+  }
+
+  netBarHeight(netAmount: number): number {
+    const ratio = Math.abs(netAmount) / this.maxNetMagnitude;
+    return Math.max(6, Math.round(ratio * 84));
+  }
+
+  netBarClass(netAmount: number): string {
+    return netAmount >= 0 ? 'net-positive' : 'net-negative';
+  }
+
+  netAmountClass(netAmount: number): string {
+    return netAmount >= 0 ? 'kpi-net-positive' : 'kpi-net-negative';
+  }
+
+  savingRateHeight(ratePercent: number): number {
+    const ratio = ratePercent / this.maxSavingRatePercent;
+    return Math.max(6, Math.round(ratio * 150));
   }
 
   topTrendLinePoints(monthlyTrend: DashboardMonthlyTotal[]): string {
