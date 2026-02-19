@@ -74,6 +74,7 @@
                 Sub-category <span>{{ sortIndicator('subCategory') }}</span>
               </button>
             </th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -83,9 +84,14 @@
             <td>{{ expense.amount | number:'1.2-2' }}</td>
             <td>{{ expense.categoryName }}</td>
             <td>{{ expense.subCategoryName }}</td>
+            <td>
+              <a mat-stroked-button class="ghost-button" [routerLink]="editRoute(expense.id)">
+                Edit
+              </a>
+            </td>
           </tr>
           <tr *ngIf="!expenses.length">
-            <td colspan="5" class="taxonomy-empty-cell">
+            <td colspan="6" class="taxonomy-empty-cell">
               No {{ transactionType === 'INCOME' ? 'income' : 'expense' }} records found.
             </td>
           </tr>

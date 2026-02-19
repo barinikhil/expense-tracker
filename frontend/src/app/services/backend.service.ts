@@ -35,6 +35,7 @@ export interface Expense {
   amount: number;
   description: string;
   expenseDate: string;
+  type: TransactionType;
   categoryId: number;
   categoryName: string;
   subCategoryId: number;
@@ -199,6 +200,21 @@ export class BackendService {
     subCategoryId: number;
   }): Observable<Expense> {
     return this.http.post<Expense>(`${this.apiBaseUrl}/transactions`, payload);
+  }
+
+  getTransaction(id: number): Observable<Expense> {
+    return this.http.get<Expense>(`${this.apiBaseUrl}/transactions/${id}`);
+  }
+
+  updateTransaction(id: number, payload: {
+    amount: number;
+    description: string;
+    expenseDate: string;
+    type: TransactionType;
+    categoryId: number;
+    subCategoryId: number;
+  }): Observable<Expense> {
+    return this.http.put<Expense>(`${this.apiBaseUrl}/transactions/${id}`, payload);
   }
 
   listExpenses(page = 0, size = 10, startDate?: string, endDate?: string): Observable<ExpensePageResponse> {

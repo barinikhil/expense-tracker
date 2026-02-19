@@ -92,6 +92,12 @@ export class ExpensesPageComponent implements OnInit {
     return this.transactionType === 'INCOME' ? '/transactions/income/add' : '/transactions/expense/add';
   }
 
+  editRoute(id: number): string {
+    return this.transactionType === 'INCOME'
+      ? `/transactions/income/edit/${id}`
+      : `/transactions/expense/edit/${id}`;
+  }
+
   get filteredCategories(): Category[] {
     if (this.transactionType === 'INCOME') {
       return this.categories.filter((category) => category.type === 'INCOME');

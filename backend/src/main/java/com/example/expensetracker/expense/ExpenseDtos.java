@@ -20,6 +20,7 @@ public final class ExpenseDtos {
             BigDecimal amount,
             String description,
             LocalDate expenseDate,
+            TransactionType type,
             Long categoryId,
             String categoryName,
             Long subCategoryId,

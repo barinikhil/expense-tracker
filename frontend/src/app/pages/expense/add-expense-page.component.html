@@ -10,7 +10,7 @@
       <span>{{ error }}</span>
     </div>
 
-    <form #expenseForm="ngForm" class="expense-form-horizontal" (ngSubmit)="addExpense()">
+    <form #expenseForm="ngForm" class="expense-form-horizontal" (ngSubmit)="saveTransaction()">
       <mat-form-field appearance="outline">
         <mat-label>Amount</mat-label>
         <input
@@ -95,13 +95,13 @@
         </mat-error>
       </mat-form-field>
 
-      <mat-checkbox [(ngModel)]="returnHereForAnother" name="returnHereForAnother" class="expense-repeat-check">
+      <mat-checkbox *ngIf="!isEditMode" [(ngModel)]="returnHereForAnother" name="returnHereForAnother" class="expense-repeat-check">
         After storing, return here to create another one.
       </mat-checkbox>
 
       <div class="expense-form-actions">
         <button mat-flat-button type="submit" class="primary-button">
-          Add {{ transactionType === 'INCOME' ? 'Income' : 'Expense' }}
+          {{ submitLabel }}
         </button>
         <button mat-stroked-button type="button" class="ghost-button" (click)="cancel()">
           Back to {{ transactionType === 'INCOME' ? 'Income' : 'Expense' }} List

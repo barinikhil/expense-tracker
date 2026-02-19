@@ -3,7 +3,9 @@ package com.example.expensetracker.expense;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -62,6 +64,11 @@ public class ExpenseController {
         );
     }
 
+    @GetMapping("/transactions/{id}")
+    public ExpenseDtos.ExpenseResponse getTransaction(@PathVariable Long id) {
+        return expenseService.getTransaction(id);
+    }
+
     @GetMapping("/dashboard/summary")
     public ExpenseDtos.DashboardSummaryResponse getDashboardSummary(
             @RequestParam(defaultValue = "5") int topN
@@ -79,5 +86,13 @@ public class ExpenseController {
     @ResponseStatus(HttpStatus.CREATED)
     public ExpenseDtos.ExpenseResponse createTransaction(@Valid @RequestBody ExpenseDtos.CreateExpenseRequest request) {
         return expenseService.createExpense(request);
+    }
+
+    @PutMapping("/transactions/{id}")
+    public ExpenseDtos.ExpenseResponse updateTransaction(
+            @PathVariable Long id,
+            @Valid @RequestBody ExpenseDtos.CreateExpenseRequest request
+    ) {
+        return expenseService.updateExpense(id, request);
     }
 }

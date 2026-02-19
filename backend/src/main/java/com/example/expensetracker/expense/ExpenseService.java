@@ -307,6 +307,21 @@ public class ExpenseService {
     }
 
     public ExpenseDtos.ExpenseResponse createExpense(ExpenseDtos.CreateExpenseRequest request) {
+        return saveExpense(null, request);
+    }
+
+    public ExpenseDtos.ExpenseResponse updateExpense(Long id, ExpenseDtos.CreateExpenseRequest request) {
+        return saveExpense(id, request);
+    }
+
+    @Transactional(readOnly = true)
+    public ExpenseDtos.ExpenseResponse getTransaction(Long id) {
+        Expense expense = expenseRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transaction not found"));
+        return toResponse(expense);
+    }
+
+    private ExpenseDtos.ExpenseResponse saveExpense(Long id, ExpenseDtos.CreateExpenseRequest request) {
         Category category = categoryRepository.findById(request.categoryId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
 
@@ -330,7 +345,13 @@ public class ExpenseService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Category type must be EXPENSE or SAVING for expense transactions");
         }
 
-        Expense expense = new Expense();
+        Expense expense;
+        if (id == null) {
+            expense = new Expense();
+        } else {
+            expense = expenseRepository.findById(id)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transaction not found"));
+        }
         expense.setAmount(request.amount());
         expense.setDescription(request.description().trim());
         expense.setExpenseDate(request.expenseDate());
@@ -347,6 +368,7 @@ public class ExpenseService {
                 expense.getAmount(),
                 expense.getDescription(),
                 expense.getExpenseDate(),
+                expense.getTransactionType(),
                 expense.getCategory().getId(),
                 expense.getCategory().getName(),
                 expense.getSubCategory().getId(),
