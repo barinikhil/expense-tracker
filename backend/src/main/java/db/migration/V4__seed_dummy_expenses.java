@@ -49,7 +49,7 @@ public class V4__seed_dummy_expenses extends BaseJavaMigration {
             for (int i = 0; i < missingCount; i++) {
                 CategoryBundle bundle = bundles.get(random.nextInt(bundles.size()));
                 Long subCategoryId = bundle.subCategoryIds().get(random.nextInt(bundle.subCategoryIds().size()));
-                insertExpense(connection, month, bundle, subCategoryId, random);
+                insertExpense(connection, month, LocalDate.now(), bundle, subCategoryId, random);
             }
         }
 
@@ -58,7 +58,7 @@ public class V4__seed_dummy_expenses extends BaseJavaMigration {
         for (int i = 0; i < missingTotal; i++) {
             CategoryBundle bundle = bundles.get(random.nextInt(bundles.size()));
             Long subCategoryId = bundle.subCategoryIds().get(random.nextInt(bundle.subCategoryIds().size()));
-            insertExpense(connection, currentMonth, bundle, subCategoryId, random);
+            insertExpense(connection, currentMonth, LocalDate.now(), bundle, subCategoryId, random);
         }
 
         for (CategoryBundle bundle : bundles) {
@@ -66,7 +66,7 @@ public class V4__seed_dummy_expenses extends BaseJavaMigration {
             long missingForCategory = Math.max(0, MIN_CURRENT_MONTH_RECORDS_PER_CATEGORY - categoryMonthCount);
             for (int i = 0; i < missingForCategory; i++) {
                 Long subCategoryId = bundle.subCategoryIds().get(random.nextInt(bundle.subCategoryIds().size()));
-                insertExpense(connection, currentMonth, bundle, subCategoryId, random);
+                insertExpense(connection, currentMonth, LocalDate.now(), bundle, subCategoryId, random);
             }
         }
     }
@@ -150,7 +150,14 @@ public class V4__seed_dummy_expenses extends BaseJavaMigration {
         }
     }
 
-    private void insertExpense(Connection connection, YearMonth month, CategoryBundle bundle, Long subCategoryId, Random random) throws Exception {
+    private void insertExpense(
+            Connection connection,
+            YearMonth month,
+            LocalDate today,
+            CategoryBundle bundle,
+            Long subCategoryId,
+            Random random
+    ) throws Exception {
         String sql = """
                 INSERT INTO expenses (amount, description, expense_date, category_id, sub_category_id, created_by, created_on)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -158,7 +165,7 @@ public class V4__seed_dummy_expenses extends BaseJavaMigration {
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setBigDecimal(1, randomAmountFor(bundle.categoryName(), random));
             stmt.setString(2, DUMMY_PREFIX + "Seeded");
-            stmt.setObject(3, randomDateInMonth(month, random));
+            stmt.setObject(3, randomDateInMonth(month, today, random));
             stmt.setLong(4, bundle.categoryId());
             stmt.setLong(5, subCategoryId);
             stmt.setString(6, "system");
@@ -167,8 +174,10 @@ public class V4__seed_dummy_expenses extends BaseJavaMigration {
         }
     }
 
-    private LocalDate randomDateInMonth(YearMonth month, Random random) {
-        int day = 1 + random.nextInt(month.lengthOfMonth());
+    private LocalDate randomDateInMonth(YearMonth month, LocalDate today, Random random) {
+        boolean isCurrentMonth = today.getYear() == month.getYear() && today.getMonth() == month.getMonth();
+        int maxDay = isCurrentMonth ? today.getDayOfMonth() : month.lengthOfMonth();
+        int day = 1 + random.nextInt(Math.max(1, maxDay));
         return month.atDay(day);
     }
 

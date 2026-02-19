@@ -28,6 +28,7 @@ public class V9__seed_dummy_income extends BaseJavaMigration {
 
         Random random = new Random(20260218L);
         YearMonth currentMonth = YearMonth.now();
+        LocalDate today = LocalDate.now();
         YearMonth startMonth = currentMonth.minusMonths(MONTHS_TO_SEED - 1);
         long preCount = countDummyIncomeInRange(connection, startMonth, currentMonth);
 
@@ -36,7 +37,7 @@ public class V9__seed_dummy_income extends BaseJavaMigration {
             if (countDummyIncomeForMonth(connection, month) > 0) {
                 continue;
             }
-            insertIncome(connection, month, incomeCategory, random);
+            insertIncome(connection, month, today, incomeCategory, random);
         }
 
         long postCount = countDummyIncomeInRange(connection, startMonth, currentMonth);
@@ -102,7 +103,13 @@ public class V9__seed_dummy_income extends BaseJavaMigration {
         }
     }
 
-    private void insertIncome(Connection connection, YearMonth month, CategoryBundle categoryBundle, Random random) throws Exception {
+    private void insertIncome(
+            Connection connection,
+            YearMonth month,
+            LocalDate today,
+            CategoryBundle categoryBundle,
+            Random random
+    ) throws Exception {
         String sql = """
                 INSERT INTO expenses (
                     amount, description, expense_date, category_id, sub_category_id, transaction_type, created_by, created_on
@@ -112,7 +119,7 @@ public class V9__seed_dummy_income extends BaseJavaMigration {
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setBigDecimal(1, randomIncomeAmount(random));
             stmt.setString(2, DUMMY_PREFIX + "Salary Seeded");
-            stmt.setObject(3, randomDateInMonth(month, random));
+            stmt.setObject(3, randomDateInMonth(month, today, random));
             stmt.setLong(4, categoryBundle.categoryId());
             stmt.setLong(5, categoryBundle.subCategoryId());
             stmt.setString(6, "system");
@@ -121,8 +128,10 @@ public class V9__seed_dummy_income extends BaseJavaMigration {
         }
     }
 
-    private LocalDate randomDateInMonth(YearMonth month, Random random) {
-        int day = 1 + random.nextInt(month.lengthOfMonth());
+    private LocalDate randomDateInMonth(YearMonth month, LocalDate today, Random random) {
+        boolean isCurrentMonth = today.getYear() == month.getYear() && today.getMonth() == month.getMonth();
+        int maxDay = isCurrentMonth ? today.getDayOfMonth() : month.lengthOfMonth();
+        int day = 1 + random.nextInt(Math.max(1, maxDay));
         return month.atDay(day);
     }
 
