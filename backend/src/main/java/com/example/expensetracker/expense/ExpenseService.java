@@ -160,6 +160,19 @@ public class ExpenseService {
                 })
                 .toList();
 
+        List<ExpenseDtos.MonthlyIncomeExpensePoint> monthlyIncomeExpensePoints = byMonth.entrySet().stream()
+                .map(entry -> {
+                    BigDecimal incomeTotal = sumAmountsByType(entry.getValue(), TransactionType.INCOME);
+                    BigDecimal expenseTotal = sumAmountsByType(entry.getValue(), TransactionType.EXPENSE);
+                    return new ExpenseDtos.MonthlyIncomeExpensePoint(
+                            entry.getKey().toString(),
+                            incomeTotal,
+                            expenseTotal,
+                            incomeTotal.subtract(expenseTotal).setScale(2, RoundingMode.HALF_UP)
+                    );
+                })
+                .toList();
+
         List<Expense> currentMonthExpenses = byMonth.getOrDefault(currentMonth, List.of());
         BigDecimal currentMonthTotal = sumAmounts(currentMonthExpenses);
 
@@ -179,6 +192,9 @@ public class ExpenseService {
 
         Map<String, List<Expense>> byCategory = new LinkedHashMap<>();
         for (Expense expense : currentMonthExpenses) {
+            if (expense.getTransactionType() != TransactionType.EXPENSE) {
+                continue;
+            }
             byCategory.computeIfAbsent(expense.getCategory().getName(), key -> new ArrayList<>()).add(expense);
         }
 
@@ -193,6 +209,9 @@ public class ExpenseService {
 
         Map<String, List<Expense>> byYearCategory = new LinkedHashMap<>();
         for (Expense expense : expenses) {
+            if (expense.getTransactionType() != TransactionType.EXPENSE) {
+                continue;
+            }
             byYearCategory.computeIfAbsent(expense.getCategory().getName(), key -> new ArrayList<>()).add(expense);
         }
 
@@ -224,6 +243,7 @@ public class ExpenseService {
                 lastQuarterTotal,
                 lastYearTotal,
                 monthlyTotals,
+                monthlyIncomeExpensePoints,
                 categoryTotals,
                 topYearlyCategoryTrends
         );
@@ -287,6 +307,14 @@ public class ExpenseService {
     private BigDecimal sumAmountsInRange(List<Expense> expenses, LocalDate startDate, LocalDate endDate) {
         return expenses.stream()
                 .filter(expense -> !expense.getExpenseDate().isBefore(startDate) && !expense.getExpenseDate().isAfter(endDate))
+                .map(Expense::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private BigDecimal sumAmountsByType(List<Expense> expenses, TransactionType type) {
+        return expenses.stream()
+                .filter(expense -> expense.getTransactionType() == type)
                 .map(Expense::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .setScale(2, RoundingMode.HALF_UP);

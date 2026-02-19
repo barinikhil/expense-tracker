@@ -55,6 +55,13 @@ export interface DashboardMonthlyTotal {
   count: number;
 }
 
+export interface DashboardMonthlyIncomeExpense {
+  yearMonth: string;
+  incomeTotal: number;
+  expenseTotal: number;
+  netAmount: number;
+}
+
 export interface DashboardCategoryTotal {
   categoryName: string;
   total: number;
@@ -74,6 +81,7 @@ export interface DashboardSummaryResponse {
   lastQuarterTotal: number;
   lastYearTotal: number;
   monthlyTotals: DashboardMonthlyTotal[];
+  monthlyIncomeExpensePoints: DashboardMonthlyIncomeExpense[];
   currentMonthCategoryTotals: DashboardCategoryTotal[];
   topYearlyCategoryTrends: DashboardCategoryYearTrend[];
 }

@@ -7,6 +7,7 @@ import {
   BackendService,
   DashboardCategoryTotal,
   DashboardCategoryYearTrend,
+  DashboardMonthlyIncomeExpense,
   DashboardMonthlyTotal,
   DashboardSummaryResponse
 } from '../../services/backend.service';
@@ -43,6 +44,10 @@ export class DashboardPageComponent implements OnInit {
     return this.summary?.currentMonthCategoryTotals ?? [];
   }
 
+  get monthlyIncomeExpensePoints(): DashboardMonthlyIncomeExpense[] {
+    return this.summary?.monthlyIncomeExpensePoints ?? [];
+  }
+
   get visibleCategoryTotals(): DashboardCategoryTotal[] {
     return this.categoryTotals.slice(0, this.selectedCategoryTopN);
   }
@@ -62,6 +67,11 @@ export class DashboardPageComponent implements OnInit {
 
   get totalCategorySpend(): number {
     return this.categoryTotals.reduce((acc, item) => acc + item.total, 0);
+  }
+
+  get maxNetMagnitude(): number {
+    const max = this.monthlyIncomeExpensePoints.reduce((acc, item) => Math.max(acc, Math.abs(item.netAmount)), 0);
+    return max > 0 ? max : 1;
   }
 
   get maxTopYearlyTrendPointTotal(): number {
@@ -146,6 +156,15 @@ export class DashboardPageComponent implements OnInit {
       return 0;
     }
     return Math.max(6, Math.round((total / totalSpend) * 100));
+  }
+
+  netBarHeight(netAmount: number): number {
+    const ratio = Math.abs(netAmount) / this.maxNetMagnitude;
+    return Math.max(6, Math.round(ratio * 84));
+  }
+
+  netBarClass(netAmount: number): string {
+    return netAmount >= 0 ? 'net-positive' : 'net-negative';
   }
 
   topTrendLinePoints(monthlyTrend: DashboardMonthlyTotal[]): string {

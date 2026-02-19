@@ -43,6 +43,7 @@ public final class ExpenseDtos {
             BigDecimal lastQuarterTotal,
             BigDecimal lastYearTotal,
             List<MonthlyTotalPoint> monthlyTotals,
+            List<MonthlyIncomeExpensePoint> monthlyIncomeExpensePoints,
             List<CategoryTotalPoint> currentMonthCategoryTotals,
             List<CategoryYearTrendPoint> topYearlyCategoryTrends
     ) {
@@ -52,6 +53,14 @@ public final class ExpenseDtos {
             String yearMonth,
             BigDecimal total,
             long count
+    ) {
+    }
+
+    public record MonthlyIncomeExpensePoint(
+            String yearMonth,
+            BigDecimal incomeTotal,
+            BigDecimal expenseTotal,
+            BigDecimal netAmount
     ) {
     }
 

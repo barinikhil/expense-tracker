@@ -1,7 +1,7 @@
 <mat-card class="taxonomy-panel">
   <mat-card-header>
     <mat-card-title>Dashboard</mat-card-title>
-    <mat-card-subtitle>Spending overview for the last 12 months.</mat-card-subtitle>
+    <mat-card-subtitle>Income and spending overview for the last 12 months.</mat-card-subtitle>
   </mat-card-header>
 
   <mat-card-content>
@@ -46,6 +46,27 @@
               <span class="bar-label">{{ monthLabel(item.yearMonth) }}</span>
             </div>
           </div>
+        </mat-card>
+
+        <mat-card class="dashboard-card">
+          <h3>Monthly Net (Income - Expense)</h3>
+          <div class="net-chart" *ngIf="monthlyIncomeExpensePoints.length; else noNetData">
+            <div class="net-bar" *ngFor="let item of monthlyIncomeExpensePoints">
+              <span class="net-value">{{ item.netAmount | number:'1.0-0' }}</span>
+              <div class="net-bar-wrap">
+                <div class="net-midline"></div>
+                <div
+                  class="net-fill"
+                  [ngClass]="netBarClass(item.netAmount)"
+                  [style.height.px]="netBarHeight(item.netAmount)"
+                ></div>
+              </div>
+              <span class="bar-label">{{ monthLabel(item.yearMonth) }}</span>
+            </div>
+          </div>
+          <ng-template #noNetData>
+            <p class="dashboard-empty">No monthly net data available.</p>
+          </ng-template>
         </mat-card>
 
         <mat-card class="dashboard-card">
