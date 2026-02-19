@@ -1,4 +1,4 @@
 export const environment = {
-  apiBaseUrl: '/api',
+  apiBaseUrl: 'http://expense-data-api.infinityfreeapp.com/api',
   healthCheckIntervalMs: 30000
 };
