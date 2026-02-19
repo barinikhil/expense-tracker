@@ -321,7 +321,19 @@ public class ExpenseService {
         return toResponse(expense);
     }
 
+    public void deleteTransaction(Long id) {
+        Expense expense = expenseRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transaction not found"));
+        expenseRepository.delete(expense);
+    }
+
     private ExpenseDtos.ExpenseResponse saveExpense(Long id, ExpenseDtos.CreateExpenseRequest request) {
+        Expense existingExpense = null;
+        if (id != null) {
+            existingExpense = expenseRepository.findById(id)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transaction not found"));
+        }
+
         Category category = categoryRepository.findById(request.categoryId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
 
@@ -344,13 +356,15 @@ public class ExpenseService {
                 && category.getType() != CategoryType.SAVING) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Category type must be EXPENSE or SAVING for expense transactions");
         }
+        if (existingExpense != null && existingExpense.getTransactionType() != resolvedType) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Changing transaction type is not allowed for updates");
+        }
 
         Expense expense;
         if (id == null) {
             expense = new Expense();
         } else {
-            expense = expenseRepository.findById(id)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transaction not found"));
+            expense = existingExpense;
         }
         expense.setAmount(request.amount());
         expense.setDescription(request.description().trim());

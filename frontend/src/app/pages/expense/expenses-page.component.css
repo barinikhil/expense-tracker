@@ -108,6 +108,10 @@
   font: inherit;
 }
 
+.expense-delete-btn {
+  margin-left: 0.4rem;
+}
+
 @media (max-width: 700px) {
   .expense-top-actions {
     justify-content: stretch;
@@ -156,5 +160,10 @@
   .expense-filter-actions button {
     width: 100%;
     min-height: 2.7rem;
+  }
+
+  .expense-delete-btn {
+    margin-left: 0;
+    margin-top: 0.35rem;
   }
 }

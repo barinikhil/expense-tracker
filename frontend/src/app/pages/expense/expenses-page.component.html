@@ -88,6 +88,16 @@
               <a mat-stroked-button class="ghost-button" [routerLink]="editRoute(expense.id)">
                 Edit
               </a>
+              <button
+                mat-stroked-button
+                color="warn"
+                type="button"
+                class="expense-delete-btn"
+                [disabled]="deletingTransactionId !== null"
+                (click)="deleteTransaction(expense)"
+              >
+                Delete
+              </button>
             </td>
           </tr>
           <tr *ngIf="!expenses.length">

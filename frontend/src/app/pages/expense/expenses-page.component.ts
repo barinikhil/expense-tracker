@@ -33,6 +33,7 @@ export class ExpensesPageComponent implements OnInit {
   currentPage = 1;
   totalPages = 1;
   totalElements = 0;
+  deletingTransactionId: number | null = null;
 
   constructor(
     private readonly backendService: BackendService,
@@ -184,6 +185,30 @@ export class ExpensesPageComponent implements OnInit {
       return '';
     }
     return this.sortDir === 'asc' ? '▲' : '▼';
+  }
+
+  deleteTransaction(expense: Expense): void {
+    const label = this.transactionType === 'INCOME' ? 'income' : 'expense';
+    const confirmed = window.confirm(`Delete this ${label} entry?`);
+    if (!confirmed || this.deletingTransactionId !== null) {
+      return;
+    }
+
+    this.error = '';
+    this.deletingTransactionId = expense.id;
+    this.backendService.deleteTransaction(expense.id).subscribe({
+      next: () => {
+        if (this.expenses.length === 1 && this.currentPage > 1) {
+          this.currentPage -= 1;
+        }
+        this.deletingTransactionId = null;
+        this.loadExpenses();
+      },
+      error: () => {
+        this.deletingTransactionId = null;
+        this.error = `Failed to delete ${label}.`;
+      }
+    });
   }
 
   private loadCategories(): void {

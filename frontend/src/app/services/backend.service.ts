@@ -217,6 +217,10 @@ export class BackendService {
     return this.http.put<Expense>(`${this.apiBaseUrl}/transactions/${id}`, payload);
   }
 
+  deleteTransaction(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiBaseUrl}/transactions/${id}`);
+  }
+
   listExpenses(page = 0, size = 10, startDate?: string, endDate?: string): Observable<ExpensePageResponse> {
     let params = new HttpParams();
     params = params.set('page', page);
