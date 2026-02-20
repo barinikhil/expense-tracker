@@ -74,6 +74,8 @@ export interface DashboardPeriodSummary {
   expenseTotal: number;
   incomeTotal: number;
   netAmount: number;
+  savingAmount: number;
+  savingRatePercent: number;
 }
 
 export interface DashboardCategoryTotal {

@@ -55,27 +55,27 @@ export class DashboardPageComponent implements OnInit {
   }
 
   get currentMonthSummary(): DashboardPeriodSummary {
-    return this.summary?.currentMonthSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0 };
+    return this.summary?.currentMonthSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0, savingAmount: 0, savingRatePercent: 0 };
   }
 
   get samePeriodLastMonthSummary(): DashboardPeriodSummary {
-    return this.summary?.samePeriodLastMonthSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0 };
+    return this.summary?.samePeriodLastMonthSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0, savingAmount: 0, savingRatePercent: 0 };
   }
 
   get last30DaysSummary(): DashboardPeriodSummary {
-    return this.summary?.last30DaysSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0 };
+    return this.summary?.last30DaysSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0, savingAmount: 0, savingRatePercent: 0 };
   }
 
   get lastMonthSummary(): DashboardPeriodSummary {
-    return this.summary?.lastMonthSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0 };
+    return this.summary?.lastMonthSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0, savingAmount: 0, savingRatePercent: 0 };
   }
 
   get lastQuarterSummary(): DashboardPeriodSummary {
-    return this.summary?.lastQuarterSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0 };
+    return this.summary?.lastQuarterSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0, savingAmount: 0, savingRatePercent: 0 };
   }
 
   get lastYearSummary(): DashboardPeriodSummary {
-    return this.summary?.lastYearSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0 };
+    return this.summary?.lastYearSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0, savingAmount: 0, savingRatePercent: 0 };
   }
 
   get visibleCategoryTotals(): DashboardCategoryTotal[] {
@@ -220,6 +220,10 @@ export class DashboardPageComponent implements OnInit {
 
   netAmountClass(netAmount: number): string {
     return netAmount >= 0 ? 'kpi-net-positive' : 'kpi-net-negative';
+  }
+
+  savingRatePercent(summary: DashboardPeriodSummary): number {
+    return summary.savingRatePercent;
   }
 
   savingRateHeight(ratePercent: number): number {

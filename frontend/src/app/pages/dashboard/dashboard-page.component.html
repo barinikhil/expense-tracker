@@ -29,6 +29,10 @@
               <span class="kpi-value-caption">Income - Expense</span>
               <strong [ngClass]="netAmountClass(currentMonthSummary.netAmount)">{{ currentMonthSummary.netAmount | number:'1.2-2' }}</strong>
             </div>
+            <div class="kpi-value-item kpi-value-item-net">
+              <span class="kpi-value-caption">Saving %</span>
+              <strong [ngClass]="netAmountClass(savingRatePercent(currentMonthSummary))">{{ savingRatePercent(currentMonthSummary) | number:'1.1-2' }}%</strong>
+            </div>
           </div>
         </div>
         <div class="dashboard-kpi">
@@ -45,6 +49,10 @@
             <div class="kpi-value-item kpi-value-item-net">
               <span class="kpi-value-caption">Income - Expense</span>
               <strong [ngClass]="netAmountClass(samePeriodLastMonthSummary.netAmount)">{{ samePeriodLastMonthSummary.netAmount | number:'1.2-2' }}</strong>
+            </div>
+            <div class="kpi-value-item kpi-value-item-net">
+              <span class="kpi-value-caption">Saving %</span>
+              <strong [ngClass]="netAmountClass(savingRatePercent(samePeriodLastMonthSummary))">{{ savingRatePercent(samePeriodLastMonthSummary) | number:'1.1-2' }}%</strong>
             </div>
           </div>
         </div>
@@ -63,6 +71,10 @@
               <span class="kpi-value-caption">Income - Expense</span>
               <strong [ngClass]="netAmountClass(last30DaysSummary.netAmount)">{{ last30DaysSummary.netAmount | number:'1.2-2' }}</strong>
             </div>
+            <div class="kpi-value-item kpi-value-item-net">
+              <span class="kpi-value-caption">Saving %</span>
+              <strong [ngClass]="netAmountClass(savingRatePercent(last30DaysSummary))">{{ savingRatePercent(last30DaysSummary) | number:'1.1-2' }}%</strong>
+            </div>
           </div>
         </div>
         <div class="dashboard-kpi">
@@ -79,6 +91,10 @@
             <div class="kpi-value-item kpi-value-item-net">
               <span class="kpi-value-caption">Income - Expense</span>
               <strong [ngClass]="netAmountClass(lastMonthSummary.netAmount)">{{ lastMonthSummary.netAmount | number:'1.2-2' }}</strong>
+            </div>
+            <div class="kpi-value-item kpi-value-item-net">
+              <span class="kpi-value-caption">Saving %</span>
+              <strong [ngClass]="netAmountClass(savingRatePercent(lastMonthSummary))">{{ savingRatePercent(lastMonthSummary) | number:'1.1-2' }}%</strong>
             </div>
           </div>
         </div>
@@ -97,6 +113,10 @@
               <span class="kpi-value-caption">Income - Expense</span>
               <strong [ngClass]="netAmountClass(lastQuarterSummary.netAmount)">{{ lastQuarterSummary.netAmount | number:'1.2-2' }}</strong>
             </div>
+            <div class="kpi-value-item kpi-value-item-net">
+              <span class="kpi-value-caption">Saving %</span>
+              <strong [ngClass]="netAmountClass(savingRatePercent(lastQuarterSummary))">{{ savingRatePercent(lastQuarterSummary) | number:'1.1-2' }}%</strong>
+            </div>
           </div>
         </div>
         <div class="dashboard-kpi">
@@ -113,6 +133,10 @@
             <div class="kpi-value-item kpi-value-item-net">
               <span class="kpi-value-caption">Income - Expense</span>
               <strong [ngClass]="netAmountClass(lastYearSummary.netAmount)">{{ lastYearSummary.netAmount | number:'1.2-2' }}</strong>
+            </div>
+            <div class="kpi-value-item kpi-value-item-net">
+              <span class="kpi-value-caption">Saving %</span>
+              <strong [ngClass]="netAmountClass(savingRatePercent(lastYearSummary))">{{ savingRatePercent(lastYearSummary) | number:'1.1-2' }}%</strong>
             </div>
           </div>
         </div>

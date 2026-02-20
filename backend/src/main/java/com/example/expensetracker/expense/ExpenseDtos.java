@@ -97,7 +97,9 @@ public final class ExpenseDtos {
     public record PeriodSummaryPoint(
             BigDecimal expenseTotal,
             BigDecimal incomeTotal,
-            BigDecimal netAmount
+            BigDecimal netAmount,
+            BigDecimal savingAmount,
+            BigDecimal savingRatePercent
     ) {
     }
 

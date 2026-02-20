@@ -439,7 +439,11 @@ public class ExpenseService {
         BigDecimal expenseTotal = sumAmountsByType(expenses, TransactionType.EXPENSE);
         BigDecimal incomeTotal = sumAmountsByType(expenses, TransactionType.INCOME);
         BigDecimal netAmount = incomeTotal.subtract(expenseTotal).setScale(2, RoundingMode.HALF_UP);
-        return new ExpenseDtos.PeriodSummaryPoint(expenseTotal, incomeTotal, netAmount);
+        BigDecimal savingAmount = sumSavingAmounts(expenses);
+        BigDecimal savingRatePercent = incomeTotal.compareTo(BigDecimal.ZERO) == 0
+                ? BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP)
+                : savingAmount.multiply(BigDecimal.valueOf(100)).divide(incomeTotal, 2, RoundingMode.HALF_UP);
+        return new ExpenseDtos.PeriodSummaryPoint(expenseTotal, incomeTotal, netAmount, savingAmount, savingRatePercent);
     }
 
     private ExpenseDtos.PeriodSummaryPoint toPeriodSummaryInRange(
@@ -450,6 +454,19 @@ public class ExpenseService {
         BigDecimal expenseTotal = sumAmountsInRangeByType(expenses, startDate, endDate, TransactionType.EXPENSE);
         BigDecimal incomeTotal = sumAmountsInRangeByType(expenses, startDate, endDate, TransactionType.INCOME);
         BigDecimal netAmount = incomeTotal.subtract(expenseTotal).setScale(2, RoundingMode.HALF_UP);
-        return new ExpenseDtos.PeriodSummaryPoint(expenseTotal, incomeTotal, netAmount);
+        BigDecimal savingAmount = sumSavingAmountsInRange(expenses, startDate, endDate);
+        BigDecimal savingRatePercent = incomeTotal.compareTo(BigDecimal.ZERO) == 0
+                ? BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP)
+                : savingAmount.multiply(BigDecimal.valueOf(100)).divide(incomeTotal, 2, RoundingMode.HALF_UP);
+        return new ExpenseDtos.PeriodSummaryPoint(expenseTotal, incomeTotal, netAmount, savingAmount, savingRatePercent);
+    }
+
+    private BigDecimal sumSavingAmountsInRange(List<Expense> expenses, LocalDate startDate, LocalDate endDate) {
+        return expenses.stream()
+                .filter(expense -> !expense.getExpenseDate().isBefore(startDate) && !expense.getExpenseDate().isAfter(endDate))
+                .filter(expense -> expense.getCategory().getType() == CategoryType.SAVING)
+                .map(Expense::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
     }
 }
