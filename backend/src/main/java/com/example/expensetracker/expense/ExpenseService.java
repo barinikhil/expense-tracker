@@ -13,6 +13,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -50,6 +52,7 @@ public class ExpenseService {
 
     @Transactional(readOnly = true)
     public ExpenseDtos.ExpensePageResponse listExpenses(LocalDate startDate, LocalDate endDate, int page, int size) {
+        String username = currentUsername();
         if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "startDate cannot be after endDate");
         }
@@ -61,16 +64,7 @@ public class ExpenseService {
         }
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "expenseDate", "id"));
-        Page<Expense> expensePage;
-        if (startDate != null && endDate != null) {
-            expensePage = expenseRepository.findAllByExpenseDateBetween(startDate, endDate, pageable);
-        } else if (startDate != null) {
-            expensePage = expenseRepository.findAllByExpenseDateGreaterThanEqual(startDate, pageable);
-        } else if (endDate != null) {
-            expensePage = expenseRepository.findAllByExpenseDateLessThanEqual(endDate, pageable);
-        } else {
-            expensePage = expenseRepository.findAll(pageable);
-        }
+        Page<Expense> expensePage = expenseRepository.findExpensesWithDateFilters(username, startDate, endDate, pageable);
 
         return new ExpenseDtos.ExpensePageResponse(
                 expensePage.stream().map(this::toResponse).toList(),
@@ -95,6 +89,7 @@ public class ExpenseService {
             int page,
             int size
     ) {
+        String username = currentUsername();
         if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "startDate cannot be after endDate");
         }
@@ -117,6 +112,7 @@ public class ExpenseService {
         TransactionType resolvedType = type == null ? TransactionType.EXPENSE : type;
         Pageable pageable = PageRequest.of(page, size, resolveTransactionSort(sortBy, sortDir));
         Page<Expense> expensePage = expenseRepository.findTransactionsWithFilters(
+                username,
                 resolvedType,
                 startDate,
                 endDate,
@@ -153,6 +149,7 @@ public class ExpenseService {
 
     @Transactional(readOnly = true)
     public ExpenseDtos.DashboardSummaryResponse getDashboardSummary(int topN) {
+        String username = currentUsername();
         if (topN < 1 || topN > 10) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "topN must be between 1 and 10");
         }
@@ -162,7 +159,11 @@ public class ExpenseService {
         LocalDate fromDate = startMonth.atDay(1);
         LocalDate toDate = currentMonth.atEndOfMonth();
 
-        List<Expense> expenses = expenseRepository.findAllByExpenseDateBetweenOrderByExpenseDateDescIdDesc(fromDate, toDate);
+        List<Expense> expenses = expenseRepository.findAllByCreatedByAndExpenseDateBetweenOrderByExpenseDateDescIdDesc(
+                username,
+                fromDate,
+                toDate
+        );
         Map<YearMonth, List<Expense>> byMonth = new LinkedHashMap<>();
         for (int i = 0; i < 12; i++) {
             YearMonth month = startMonth.plusMonths(i);
@@ -213,8 +214,9 @@ public class ExpenseService {
                 })
                 .toList();
 
-        List<ExpenseDtos.BudgetUtilizationPoint> budgetUtilizationPoints = budgetRepository.findAll().stream()
-                .map(this::toBudgetUtilizationPoint)
+        List<ExpenseDtos.BudgetUtilizationPoint> budgetUtilizationPoints = budgetRepository
+                .findAllByCreatedByIgnoreCaseOrderByNameAsc(username).stream()
+                .map(budget -> toBudgetUtilizationPoint(budget, username))
                 .sorted(Comparator.comparing(ExpenseDtos.BudgetUtilizationPoint::utilizationPercent).reversed())
                 .toList();
 
@@ -328,28 +330,31 @@ public class ExpenseService {
 
     @Transactional(readOnly = true)
     public ExpenseDtos.ExpenseResponse getTransaction(Long id) {
-        Expense expense = expenseRepository.findById(id)
+        String username = currentUsername();
+        Expense expense = expenseRepository.findByIdAndCreatedByIgnoreCase(id, username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transaction not found"));
         return toResponse(expense);
     }
 
     public void deleteTransaction(Long id) {
-        Expense expense = expenseRepository.findById(id)
+        String username = currentUsername();
+        Expense expense = expenseRepository.findByIdAndCreatedByIgnoreCase(id, username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transaction not found"));
         expenseRepository.delete(expense);
     }
 
     private ExpenseDtos.ExpenseResponse saveExpense(Long id, ExpenseDtos.CreateExpenseRequest request) {
+        String username = currentUsername();
         Expense existingExpense = null;
         if (id != null) {
-            existingExpense = expenseRepository.findById(id)
+            existingExpense = expenseRepository.findByIdAndCreatedByIgnoreCase(id, username)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transaction not found"));
         }
 
-        Category category = categoryRepository.findById(request.categoryId())
+        Category category = categoryRepository.findByIdAndCreatedByIgnoreCase(request.categoryId(), username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
 
-        SubCategory subCategory = subCategoryRepository.findById(request.subCategoryId())
+        SubCategory subCategory = subCategoryRepository.findByIdAndCreatedByIgnoreCase(request.subCategoryId(), username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Sub-category not found"));
 
         if (!subCategory.getCategory().getId().equals(category.getId())) {
@@ -372,7 +377,7 @@ public class ExpenseService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Changing transaction type is not allowed for updates");
         }
 
-        Budget budget = resolveBudget(request.budgetId());
+        Budget budget = resolveBudget(request.budgetId(), username);
 
         Expense expense;
         if (id == null) {
@@ -407,16 +412,16 @@ public class ExpenseService {
         );
     }
 
-    private Budget resolveBudget(Long budgetId) {
+    private Budget resolveBudget(Long budgetId, String username) {
         if (budgetId != null) {
-            return budgetRepository.findById(budgetId)
+            return budgetRepository.findByIdAndCreatedByIgnoreCase(budgetId, username)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Budget not found"));
         }
-        return budgetRepository.findByDefaultBudgetTrue()
+        return budgetRepository.findByDefaultBudgetTrueAndCreatedByIgnoreCase(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Default budget not configured"));
     }
 
-    private ExpenseDtos.BudgetUtilizationPoint toBudgetUtilizationPoint(Budget budget) {
+    private ExpenseDtos.BudgetUtilizationPoint toBudgetUtilizationPoint(Budget budget, String username) {
         LocalDate today = LocalDate.now();
         LocalDate startDate;
         LocalDate endDate;
@@ -436,6 +441,7 @@ public class ExpenseService {
 
         BigDecimal spentAmount = expenseRepository.sumAmountByBudgetAndTypeAndDateRange(
                 budget.getId(),
+                username,
                 TransactionType.EXPENSE,
                 startDate,
                 endDate
@@ -534,5 +540,17 @@ public class ExpenseService {
                 .map(Expense::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private String currentUsername() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        }
+        String username = authentication.getName();
+        if (username == null || username.isBlank() || "anonymousUser".equalsIgnoreCase(username)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        }
+        return username;
     }
 }

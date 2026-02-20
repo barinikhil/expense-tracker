@@ -7,6 +7,8 @@ import com.example.expensetracker.category.CategoryType;
 import com.example.expensetracker.category.SubCategory;
 import com.example.expensetracker.category.SubCategoryRepository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
@@ -17,6 +19,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
@@ -51,10 +55,23 @@ class ExpenseServiceTest {
     @InjectMocks
     private ExpenseService expenseService;
 
+    @BeforeEach
+    void setUp() {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken("u001", null, List.of())
+        );
+    }
+
+    @AfterEach
+    void tearDown() {
+        SecurityContextHolder.clearContext();
+    }
+
     @Test
     void listTransactions_shouldApplyAmountSortAscending() {
         Pageable expectedPageable = PageRequest.of(0, 10);
         when(expenseRepository.findTransactionsWithFilters(
+                eq("u001"),
                 eq(TransactionType.EXPENSE),
                 eq(null),
                 eq(null),
@@ -81,6 +98,7 @@ class ExpenseServiceTest {
 
         ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
         verify(expenseRepository).findTransactionsWithFilters(
+                eq("u001"),
                 eq(TransactionType.EXPENSE),
                 eq(null),
                 eq(null),
@@ -134,6 +152,7 @@ class ExpenseServiceTest {
                 any(),
                 any(),
                 any(),
+                any(),
                 any()
         );
     }
@@ -171,9 +190,9 @@ class ExpenseServiceTest {
                 null
         );
 
-        when(expenseRepository.findById(100L)).thenReturn(Optional.of(existingExpense));
-        when(categoryRepository.findById(incomeCategory.getId())).thenReturn(Optional.of(incomeCategory));
-        when(subCategoryRepository.findById(incomeSubCategory.getId())).thenReturn(Optional.of(incomeSubCategory));
+        when(expenseRepository.findByIdAndCreatedByIgnoreCase(100L, "u001")).thenReturn(Optional.of(existingExpense));
+        when(categoryRepository.findByIdAndCreatedByIgnoreCase(incomeCategory.getId(), "u001")).thenReturn(Optional.of(incomeCategory));
+        when(subCategoryRepository.findByIdAndCreatedByIgnoreCase(incomeSubCategory.getId(), "u001")).thenReturn(Optional.of(incomeSubCategory));
 
         assertThatThrownBy(() -> expenseService.updateExpense(100L, request))
                 .isInstanceOf(ResponseStatusException.class)
@@ -190,7 +209,7 @@ class ExpenseServiceTest {
     void deleteTransaction_shouldDeleteWhenIdExists() {
         Expense existingExpense = new Expense();
         existingExpense.setId(42L);
-        when(expenseRepository.findById(42L)).thenReturn(Optional.of(existingExpense));
+        when(expenseRepository.findByIdAndCreatedByIgnoreCase(42L, "u001")).thenReturn(Optional.of(existingExpense));
 
         expenseService.deleteTransaction(42L);
 
@@ -199,7 +218,7 @@ class ExpenseServiceTest {
 
     @Test
     void deleteTransaction_shouldReturnNotFoundWhenMissing() {
-        when(expenseRepository.findById(404L)).thenReturn(Optional.empty());
+        when(expenseRepository.findByIdAndCreatedByIgnoreCase(404L, "u001")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> expenseService.deleteTransaction(404L))
                 .isInstanceOf(ResponseStatusException.class)

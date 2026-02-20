@@ -25,7 +25,8 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     @Query("""
             SELECT e
             FROM Expense e
-            WHERE e.transactionType = :type
+            WHERE e.createdBy = :createdBy
+              AND e.transactionType = :type
               AND (:startDate IS NULL OR e.expenseDate >= :startDate)
               AND (:endDate IS NULL OR e.expenseDate <= :endDate)
               AND (:categoryId IS NULL OR e.category.id = :categoryId)
@@ -34,6 +35,7 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
               AND (:maxAmount IS NULL OR e.amount <= :maxAmount)
             """)
     Page<Expense> findTransactionsWithFilters(
+            @Param("createdBy") String createdBy,
             @Param("type") TransactionType type,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
@@ -53,13 +55,44 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
             SELECT COALESCE(SUM(e.amount), 0)
             FROM Expense e
             WHERE e.budget.id = :budgetId
+              AND e.createdBy = :createdBy
               AND e.transactionType = :type
               AND e.expenseDate BETWEEN :startDate AND :endDate
             """)
     BigDecimal sumAmountByBudgetAndTypeAndDateRange(
             @Param("budgetId") Long budgetId,
+            @Param("createdBy") String createdBy,
             @Param("type") TransactionType type,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
+
+    @Query("""
+            SELECT e
+            FROM Expense e
+            WHERE e.createdBy = :createdBy
+              AND (:startDate IS NULL OR e.expenseDate >= :startDate)
+              AND (:endDate IS NULL OR e.expenseDate <= :endDate)
+            """)
+    Page<Expense> findExpensesWithDateFilters(
+            @Param("createdBy") String createdBy,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            Pageable pageable
+    );
+
+    @Query("""
+            SELECT e
+            FROM Expense e
+            WHERE e.createdBy = :createdBy
+              AND e.expenseDate BETWEEN :startDate AND :endDate
+            ORDER BY e.expenseDate DESC, e.id DESC
+            """)
+    List<Expense> findAllByCreatedByAndExpenseDateBetweenOrderByExpenseDateDescIdDesc(
+            @Param("createdBy") String createdBy,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
+
+    java.util.Optional<Expense> findByIdAndCreatedByIgnoreCase(Long id, String createdBy);
 }

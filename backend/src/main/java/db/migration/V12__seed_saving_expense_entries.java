@@ -46,7 +46,7 @@ public class V12__seed_saving_expense_entries extends BaseJavaMigration {
     }
 
     private List<CategoryBundle> loadSavingCategoryBundles(Connection connection) throws Exception {
-        String categoriesSql = "SELECT id FROM categories WHERE category_type = 'SAVING' ORDER BY id";
+        String categoriesSql = "SELECT id FROM categories WHERE category_type = 'SAVING' AND created_by = 'u001' ORDER BY id";
         List<CategoryBundle> bundles = new ArrayList<>();
         try (PreparedStatement categoryStmt = connection.prepareStatement(categoriesSql);
              ResultSet categories = categoryStmt.executeQuery()) {
@@ -80,7 +80,8 @@ public class V12__seed_saving_expense_entries extends BaseJavaMigration {
                 SELECT COUNT(*)
                 FROM expenses e
                 JOIN categories c ON c.id = e.category_id
-                WHERE c.category_type = 'SAVING'
+                WHERE e.created_by = 'u001'
+                  AND c.category_type = 'SAVING'
                   AND e.transaction_type = 'EXPENSE'
                   AND e.description LIKE ?
                   AND e.expense_date BETWEEN ? AND ?
@@ -116,7 +117,7 @@ public class V12__seed_saving_expense_entries extends BaseJavaMigration {
             stmt.setObject(3, randomDateInMonth(month, today, random));
             stmt.setLong(4, categoryId);
             stmt.setLong(5, subCategoryId);
-            stmt.setString(6, "system");
+            stmt.setString(6, "u001");
             stmt.setObject(7, LocalDateTime.now());
             stmt.executeUpdate();
         }
