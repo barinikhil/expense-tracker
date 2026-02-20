@@ -9,7 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { BackendService, Category, SubCategory, TransactionType } from '../../services/backend.service';
+import { BackendService, Budget, Category, SubCategory, TransactionType } from '../../services/backend.service';
 
 @Component({
   selector: 'app-add-expense-page',
@@ -31,6 +31,7 @@ import { BackendService, Category, SubCategory, TransactionType } from '../../se
 export class AddExpensePageComponent implements OnInit {
   error = '';
   categories: Category[] = [];
+  budgets: Budget[] = [];
   returnHereForAnother = false;
   transactionType: TransactionType = 'EXPENSE';
   isEditMode = false;
@@ -42,12 +43,14 @@ export class AddExpensePageComponent implements OnInit {
     expenseDate: string;
     categoryId: number | null;
     subCategoryId: number | null;
+    budgetId: number | null;
   } = {
       amount: null,
       description: '',
       expenseDate: '',
       categoryId: null,
-      subCategoryId: null
+      subCategoryId: null,
+      budgetId: null
     };
 
   constructor(
@@ -62,6 +65,7 @@ export class AddExpensePageComponent implements OnInit {
     const rawId = this.route.snapshot.paramMap.get('id');
     this.transactionId = rawId ? Number(rawId) : null;
     this.loadCategories();
+    this.loadBudgets();
     if (this.isEditMode && this.transactionId !== null) {
       this.loadTransaction(this.transactionId);
     }
@@ -76,6 +80,17 @@ export class AddExpensePageComponent implements OnInit {
       },
       error: () => {
         this.error = 'Failed to load categories.';
+      }
+    });
+  }
+
+  loadBudgets(): void {
+    this.backendService.listBudgets().subscribe({
+      next: (budgets) => {
+        this.budgets = budgets;
+      },
+      error: () => {
+        this.error = 'Failed to load budgets.';
       }
     });
   }
@@ -106,7 +121,8 @@ export class AddExpensePageComponent implements OnInit {
       expenseDate: this.newExpense.expenseDate,
       type: this.transactionType,
       categoryId: this.newExpense.categoryId,
-      subCategoryId: this.newExpense.subCategoryId
+      subCategoryId: this.newExpense.subCategoryId,
+      budgetId: this.newExpense.budgetId
     };
 
     const request$ = this.isEditMode && this.transactionId !== null
@@ -185,7 +201,8 @@ export class AddExpensePageComponent implements OnInit {
       description: '',
       expenseDate: '',
       categoryId: null,
-      subCategoryId: null
+      subCategoryId: null,
+      budgetId: null
     };
   }
 
@@ -198,7 +215,8 @@ export class AddExpensePageComponent implements OnInit {
           description: transaction.description,
           expenseDate: transaction.expenseDate,
           categoryId: transaction.categoryId,
-          subCategoryId: transaction.subCategoryId
+          subCategoryId: transaction.subCategoryId,
+          budgetId: transaction.budgetId
         };
       },
       error: (err) => {

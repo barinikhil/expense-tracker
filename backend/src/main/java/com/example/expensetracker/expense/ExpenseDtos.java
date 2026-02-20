@@ -24,7 +24,9 @@ public final class ExpenseDtos {
             Long categoryId,
             String categoryName,
             Long subCategoryId,
-            String subCategoryName
+            String subCategoryName,
+            Long budgetId,
+            String budgetName
     ) {
     }
 
@@ -52,6 +54,7 @@ public final class ExpenseDtos {
             List<MonthlyTotalPoint> monthlyTotals,
             List<MonthlyIncomeExpensePoint> monthlyIncomeExpensePoints,
             List<MonthlySavingRatePoint> monthlySavingRatePoints,
+            List<BudgetUtilizationPoint> budgetUtilizationPoints,
             List<CategoryTotalPoint> currentMonthCategoryTotals,
             List<CategoryYearTrendPoint> topYearlyCategoryTrends
     ) {
@@ -80,6 +83,17 @@ public final class ExpenseDtos {
     ) {
     }
 
+    public record BudgetUtilizationPoint(
+            Long budgetId,
+            String budgetName,
+            String period,
+            BigDecimal budgetAmount,
+            BigDecimal spentAmount,
+            BigDecimal remainingAmount,
+            BigDecimal utilizationPercent
+    ) {
+    }
+
     public record CategoryTotalPoint(
             String categoryName,
             BigDecimal total,
@@ -97,7 +111,9 @@ public final class ExpenseDtos {
     public record PeriodSummaryPoint(
             BigDecimal expenseTotal,
             BigDecimal incomeTotal,
-            BigDecimal netAmount
+            BigDecimal netAmount,
+            BigDecimal savingAmount,
+            BigDecimal savingRatePercent
     ) {
     }
 
@@ -107,7 +123,8 @@ public final class ExpenseDtos {
             @NotNull LocalDate expenseDate,
             TransactionType type,
             @NotNull Long categoryId,
-            @NotNull Long subCategoryId
+            @NotNull Long subCategoryId,
+            Long budgetId
     ) {
     }
 }

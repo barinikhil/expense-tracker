@@ -5,6 +5,9 @@ import com.example.expensetracker.category.CategoryRepository;
 import com.example.expensetracker.category.CategoryType;
 import com.example.expensetracker.category.SubCategory;
 import com.example.expensetracker.category.SubCategoryRepository;
+import com.example.expensetracker.budget.Budget;
+import com.example.expensetracker.budget.BudgetPeriod;
+import com.example.expensetracker.budget.BudgetRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,15 +34,18 @@ public class ExpenseService {
     private final ExpenseRepository expenseRepository;
     private final CategoryRepository categoryRepository;
     private final SubCategoryRepository subCategoryRepository;
+    private final BudgetRepository budgetRepository;
 
     public ExpenseService(
             ExpenseRepository expenseRepository,
             CategoryRepository categoryRepository,
-            SubCategoryRepository subCategoryRepository
+            SubCategoryRepository subCategoryRepository,
+            BudgetRepository budgetRepository
     ) {
         this.expenseRepository = expenseRepository;
         this.categoryRepository = categoryRepository;
         this.subCategoryRepository = subCategoryRepository;
+        this.budgetRepository = budgetRepository;
     }
 
     @Transactional(readOnly = true)
@@ -207,6 +213,11 @@ public class ExpenseService {
                 })
                 .toList();
 
+        List<ExpenseDtos.BudgetUtilizationPoint> budgetUtilizationPoints = budgetRepository.findAll().stream()
+                .map(this::toBudgetUtilizationPoint)
+                .sorted(Comparator.comparing(ExpenseDtos.BudgetUtilizationPoint::utilizationPercent).reversed())
+                .toList();
+
         List<Expense> currentMonthExpenses = byMonth.getOrDefault(currentMonth, List.of());
         BigDecimal currentMonthTotal = sumAmountsByType(currentMonthExpenses, TransactionType.EXPENSE);
         ExpenseDtos.PeriodSummaryPoint currentMonthSummary = toPeriodSummary(currentMonthExpenses);
@@ -301,6 +312,7 @@ public class ExpenseService {
                 monthlyTotals,
                 monthlyIncomeExpensePoints,
                 monthlySavingRatePoints,
+                budgetUtilizationPoints,
                 categoryTotals,
                 topYearlyCategoryTrends
         );
@@ -360,6 +372,8 @@ public class ExpenseService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Changing transaction type is not allowed for updates");
         }
 
+        Budget budget = resolveBudget(request.budgetId());
+
         Expense expense;
         if (id == null) {
             expense = new Expense();
@@ -371,6 +385,7 @@ public class ExpenseService {
         expense.setExpenseDate(request.expenseDate());
         expense.setCategory(category);
         expense.setSubCategory(subCategory);
+        expense.setBudget(budget);
         expense.setTransactionType(resolvedType);
 
         return toResponse(expenseRepository.save(expense));
@@ -386,7 +401,58 @@ public class ExpenseService {
                 expense.getCategory().getId(),
                 expense.getCategory().getName(),
                 expense.getSubCategory().getId(),
-                expense.getSubCategory().getName()
+                expense.getSubCategory().getName(),
+                expense.getBudget().getId(),
+                expense.getBudget().getName()
+        );
+    }
+
+    private Budget resolveBudget(Long budgetId) {
+        if (budgetId != null) {
+            return budgetRepository.findById(budgetId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Budget not found"));
+        }
+        return budgetRepository.findByDefaultBudgetTrue()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Default budget not configured"));
+    }
+
+    private ExpenseDtos.BudgetUtilizationPoint toBudgetUtilizationPoint(Budget budget) {
+        LocalDate today = LocalDate.now();
+        LocalDate startDate;
+        LocalDate endDate;
+        if (budget.getPeriod() == BudgetPeriod.DAILY) {
+            startDate = today;
+            endDate = today;
+        } else if (budget.getPeriod() == BudgetPeriod.WEEKLY) {
+            startDate = today.minusDays(today.getDayOfWeek().getValue() - 1L);
+            endDate = startDate.plusDays(6);
+        } else if (budget.getPeriod() == BudgetPeriod.YEARLY) {
+            startDate = today.withDayOfYear(1);
+            endDate = today.withDayOfYear(today.lengthOfYear());
+        } else {
+            startDate = today.withDayOfMonth(1);
+            endDate = today.withDayOfMonth(today.lengthOfMonth());
+        }
+
+        BigDecimal spentAmount = expenseRepository.sumAmountByBudgetAndTypeAndDateRange(
+                budget.getId(),
+                TransactionType.EXPENSE,
+                startDate,
+                endDate
+        ).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal remainingAmount = budget.getAmount().subtract(spentAmount).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal utilizationPercent = budget.getAmount().compareTo(BigDecimal.ZERO) == 0
+                ? BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP)
+                : spentAmount.multiply(BigDecimal.valueOf(100)).divide(budget.getAmount(), 2, RoundingMode.HALF_UP);
+
+        return new ExpenseDtos.BudgetUtilizationPoint(
+                budget.getId(),
+                budget.getName(),
+                budget.getPeriod().name(),
+                budget.getAmount().setScale(2, RoundingMode.HALF_UP),
+                spentAmount,
+                remainingAmount,
+                utilizationPercent
         );
     }
 
@@ -439,7 +505,11 @@ public class ExpenseService {
         BigDecimal expenseTotal = sumAmountsByType(expenses, TransactionType.EXPENSE);
         BigDecimal incomeTotal = sumAmountsByType(expenses, TransactionType.INCOME);
         BigDecimal netAmount = incomeTotal.subtract(expenseTotal).setScale(2, RoundingMode.HALF_UP);
-        return new ExpenseDtos.PeriodSummaryPoint(expenseTotal, incomeTotal, netAmount);
+        BigDecimal savingAmount = sumSavingAmounts(expenses);
+        BigDecimal savingRatePercent = incomeTotal.compareTo(BigDecimal.ZERO) == 0
+                ? BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP)
+                : savingAmount.multiply(BigDecimal.valueOf(100)).divide(incomeTotal, 2, RoundingMode.HALF_UP);
+        return new ExpenseDtos.PeriodSummaryPoint(expenseTotal, incomeTotal, netAmount, savingAmount, savingRatePercent);
     }
 
     private ExpenseDtos.PeriodSummaryPoint toPeriodSummaryInRange(
@@ -450,6 +520,19 @@ public class ExpenseService {
         BigDecimal expenseTotal = sumAmountsInRangeByType(expenses, startDate, endDate, TransactionType.EXPENSE);
         BigDecimal incomeTotal = sumAmountsInRangeByType(expenses, startDate, endDate, TransactionType.INCOME);
         BigDecimal netAmount = incomeTotal.subtract(expenseTotal).setScale(2, RoundingMode.HALF_UP);
-        return new ExpenseDtos.PeriodSummaryPoint(expenseTotal, incomeTotal, netAmount);
+        BigDecimal savingAmount = sumSavingAmountsInRange(expenses, startDate, endDate);
+        BigDecimal savingRatePercent = incomeTotal.compareTo(BigDecimal.ZERO) == 0
+                ? BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP)
+                : savingAmount.multiply(BigDecimal.valueOf(100)).divide(incomeTotal, 2, RoundingMode.HALF_UP);
+        return new ExpenseDtos.PeriodSummaryPoint(expenseTotal, incomeTotal, netAmount, savingAmount, savingRatePercent);
+    }
+
+    private BigDecimal sumSavingAmountsInRange(List<Expense> expenses, LocalDate startDate, LocalDate endDate) {
+        return expenses.stream()
+                .filter(expense -> !expense.getExpenseDate().isBefore(startDate) && !expense.getExpenseDate().isAfter(endDate))
+                .filter(expense -> expense.getCategory().getType() == CategoryType.SAVING)
+                .map(Expense::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
     }
 }

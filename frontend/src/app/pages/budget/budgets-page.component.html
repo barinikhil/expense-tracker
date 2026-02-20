@@ -1,0 +1,95 @@
+<mat-card class="taxonomy-panel">
+  <mat-card-header>
+    <mat-card-title>Budgets</mat-card-title>
+    <mat-card-subtitle>Define spending budgets by period.</mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div *ngIf="error" class="taxonomy-error">
+      <mat-icon>error</mat-icon>
+      <span>{{ error }}</span>
+    </div>
+
+    <form #budgetForm="ngForm" class="taxonomy-form-row" (ngSubmit)="addBudget()">
+      <mat-form-field appearance="outline">
+        <mat-label>Name</mat-label>
+        <input matInput name="budgetName" required #budgetNameModel="ngModel" [(ngModel)]="newBudget.name" placeholder="Budget name" />
+        <mat-error *ngIf="(budgetNameModel.touched || budgetForm.submitted) && budgetNameModel.invalid">
+          Budget name is required.
+        </mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Amount</mat-label>
+        <input matInput type="number" min="0.01" step="0.01" name="budgetAmount" required #budgetAmountModel="ngModel" [(ngModel)]="newBudget.amount" placeholder="0.00" />
+        <mat-error *ngIf="(budgetAmountModel.touched || budgetForm.submitted) && budgetAmountModel.invalid">
+          Budget amount is required.
+        </mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Period</mat-label>
+        <mat-select name="budgetPeriod" [(ngModel)]="newBudget.period">
+          <mat-option *ngFor="let period of budgetPeriods" [value]="period">{{ period }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button mat-flat-button type="submit" class="primary-button">Add Budget</button>
+    </form>
+
+    <div class="taxonomy-table-wrap">
+      <table class="taxonomy-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Amount</th>
+            <th>Period</th>
+            <th>Default</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let budget of budgets">
+            <ng-container *ngIf="editingBudgetId !== budget.id; else editBudgetRow">
+              <td>{{ budget.name }}</td>
+              <td>{{ budget.amount | number:'1.2-2' }}</td>
+              <td>{{ budget.period }}</td>
+              <td>{{ budget.defaultBudget ? 'Yes' : 'No' }}</td>
+              <td class="taxonomy-actions-cell">
+                <button mat-stroked-button class="ghost-button" (click)="startEditBudget(budget)" [disabled]="budget.defaultBudget">
+                  <mat-icon>edit</mat-icon>
+                  <span>Edit</span>
+                </button>
+              </td>
+            </ng-container>
+            <ng-template #editBudgetRow>
+              <td>
+                <mat-form-field appearance="outline" class="taxonomy-inline-field">
+                  <input matInput [(ngModel)]="editingBudget.name" />
+                </mat-form-field>
+              </td>
+              <td>
+                <mat-form-field appearance="outline" class="taxonomy-inline-field">
+                  <input matInput type="number" min="0.01" step="0.01" [(ngModel)]="editingBudget.amount" />
+                </mat-form-field>
+              </td>
+              <td>
+                <mat-form-field appearance="outline" class="taxonomy-inline-field">
+                  <mat-select [(ngModel)]="editingBudget.period">
+                    <mat-option *ngFor="let period of budgetPeriods" [value]="period">{{ period }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </td>
+              <td>{{ budget.defaultBudget ? 'Yes' : 'No' }}</td>
+              <td class="taxonomy-actions-cell">
+                <button mat-flat-button class="primary-button" (click)="saveBudgetEdit()">Save</button>
+                <button mat-stroked-button class="ghost-button" (click)="cancelBudgetEdit()">Cancel</button>
+              </td>
+            </ng-template>
+          </tr>
+          <tr *ngIf="!budgets.length">
+            <td colspan="5" class="taxonomy-empty-cell">No budgets found.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </mat-card-content>
+</mat-card>
+

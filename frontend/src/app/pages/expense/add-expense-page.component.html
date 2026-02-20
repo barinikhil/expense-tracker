@@ -95,6 +95,19 @@
         </mat-error>
       </mat-form-field>
 
+      <mat-form-field appearance="outline">
+        <mat-label>Budget (Optional)</mat-label>
+        <mat-select
+          name="budget"
+          [(ngModel)]="newExpense.budgetId"
+        >
+          <mat-option [value]="null">Default Budget</mat-option>
+          <mat-option *ngFor="let budget of budgets" [value]="budget.id">
+            {{ budget.name }} ({{ budget.period }})
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
       <mat-checkbox *ngIf="!isEditMode" [(ngModel)]="returnHereForAnother" name="returnHereForAnother" class="expense-repeat-check">
         After storing, return here to create another one.
       </mat-checkbox>

@@ -5,6 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import {
   BackendService,
+  DashboardBudgetUtilization,
   DashboardCategoryTotal,
   DashboardCategoryYearTrend,
   DashboardMonthlyIncomeExpense,
@@ -54,28 +55,32 @@ export class DashboardPageComponent implements OnInit {
     return this.summary?.monthlySavingRatePoints ?? [];
   }
 
+  get budgetUtilizationPoints(): DashboardBudgetUtilization[] {
+    return this.summary?.budgetUtilizationPoints ?? [];
+  }
+
   get currentMonthSummary(): DashboardPeriodSummary {
-    return this.summary?.currentMonthSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0 };
+    return this.summary?.currentMonthSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0, savingAmount: 0, savingRatePercent: 0 };
   }
 
   get samePeriodLastMonthSummary(): DashboardPeriodSummary {
-    return this.summary?.samePeriodLastMonthSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0 };
+    return this.summary?.samePeriodLastMonthSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0, savingAmount: 0, savingRatePercent: 0 };
   }
 
   get last30DaysSummary(): DashboardPeriodSummary {
-    return this.summary?.last30DaysSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0 };
+    return this.summary?.last30DaysSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0, savingAmount: 0, savingRatePercent: 0 };
   }
 
   get lastMonthSummary(): DashboardPeriodSummary {
-    return this.summary?.lastMonthSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0 };
+    return this.summary?.lastMonthSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0, savingAmount: 0, savingRatePercent: 0 };
   }
 
   get lastQuarterSummary(): DashboardPeriodSummary {
-    return this.summary?.lastQuarterSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0 };
+    return this.summary?.lastQuarterSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0, savingAmount: 0, savingRatePercent: 0 };
   }
 
   get lastYearSummary(): DashboardPeriodSummary {
-    return this.summary?.lastYearSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0 };
+    return this.summary?.lastYearSummary ?? { expenseTotal: 0, incomeTotal: 0, netAmount: 0, savingAmount: 0, savingRatePercent: 0 };
   }
 
   get visibleCategoryTotals(): DashboardCategoryTotal[] {
@@ -222,9 +227,17 @@ export class DashboardPageComponent implements OnInit {
     return netAmount >= 0 ? 'kpi-net-positive' : 'kpi-net-negative';
   }
 
+  savingRatePercent(summary: DashboardPeriodSummary): number {
+    return summary.savingRatePercent;
+  }
+
   savingRateHeight(ratePercent: number): number {
     const ratio = ratePercent / this.maxSavingRatePercent;
     return Math.max(6, Math.round(ratio * 150));
+  }
+
+  budgetUtilizationWidth(utilizationPercent: number): number {
+    return Math.max(0, Math.min(100, utilizationPercent));
   }
 
   topTrendLinePoints(monthlyTrend: DashboardMonthlyTotal[]): string {

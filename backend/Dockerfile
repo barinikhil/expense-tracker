@@ -1,16 +1,24 @@
-# syntax=docker/dockerfile:1
-
-FROM maven:3.9.9-eclipse-temurin-17 AS build
+# -------- Build Stage --------
+FROM maven:3.9.6-eclipse-temurin-21 AS builder
 WORKDIR /app
 
-COPY pom.xml ./
+COPY pom.xml .
+RUN mvn dependency:go-offline
+
 COPY src ./src
-RUN mvn -B clean package -DskipTests
+RUN mvn clean package -DskipTests
 
-FROM eclipse-temurin:17-jre-alpine
+# -------- Extract Layers --------
+RUN java -Djarmode=layertools \
+    -jar target/*.jar extract
+
+# -------- Runtime Image --------
+FROM eclipse-temurin:21-jdk
 WORKDIR /app
 
-COPY --from=build /app/target/expense-tracker-backend-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=builder /app/dependencies/ ./
+COPY --from=builder /app/spring-boot-loader/ ./
+COPY --from=builder /app/snapshot-dependencies/ ./
+COPY --from=builder /app/application/ ./
 
-EXPOSE 9081
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]

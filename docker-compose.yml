@@ -2,7 +2,7 @@ services:
   backend-build:
     image: maven:3.9.9-eclipse-temurin-17
     profiles:
-      - build1
+      - build
     working_dir: /workspace
     command: mvn -B clean package -DskipTests
     volumes:
@@ -22,7 +22,7 @@ services:
   backend:
     image: eclipse-temurin:17-jre-alpine
     profiles:
-      - run1
+      - run
     container_name: expense-tracker-backend
     working_dir: /app
     command: ["java", "-jar", "/app/app.jar"]

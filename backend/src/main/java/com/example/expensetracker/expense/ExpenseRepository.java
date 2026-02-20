@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -47,4 +48,18 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     long countByExpenseDateBetweenAndCategory_Id(LocalDate startDate, LocalDate endDate, Long categoryId);
     boolean existsByDescriptionStartingWith(String prefix);
     long countByDescriptionStartingWithAndExpenseDateBetween(String prefix, LocalDate startDate, LocalDate endDate);
+
+    @Query("""
+            SELECT COALESCE(SUM(e.amount), 0)
+            FROM Expense e
+            WHERE e.budget.id = :budgetId
+              AND e.transactionType = :type
+              AND e.expenseDate BETWEEN :startDate AND :endDate
+            """)
+    BigDecimal sumAmountByBudgetAndTypeAndDateRange(
+            @Param("budgetId") Long budgetId,
+            @Param("type") TransactionType type,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
 }
