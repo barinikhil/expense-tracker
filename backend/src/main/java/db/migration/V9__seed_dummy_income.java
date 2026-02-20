@@ -50,6 +50,8 @@ public class V9__seed_dummy_income extends BaseJavaMigration {
                 FROM categories c
                 JOIN sub_categories sc ON sc.category_id = c.id
                 WHERE c.category_type = 'INCOME'
+                  AND c.created_by = 'u001'
+                  AND sc.created_by = 'u001'
                 ORDER BY
                     CASE WHEN LOWER(c.name) = 'salary' THEN 0 ELSE 1 END,
                     c.id,
@@ -69,7 +71,8 @@ public class V9__seed_dummy_income extends BaseJavaMigration {
         String sql = """
                 SELECT COUNT(*)
                 FROM expenses
-                WHERE transaction_type = 'INCOME'
+                WHERE created_by = 'u001'
+                  AND transaction_type = 'INCOME'
                   AND description LIKE ?
                   AND expense_date BETWEEN ? AND ?
                 """;
@@ -88,7 +91,8 @@ public class V9__seed_dummy_income extends BaseJavaMigration {
         String sql = """
                 SELECT COUNT(*)
                 FROM expenses
-                WHERE transaction_type = 'INCOME'
+                WHERE created_by = 'u001'
+                  AND transaction_type = 'INCOME'
                   AND description LIKE ?
                   AND expense_date BETWEEN ? AND ?
                 """;
@@ -122,7 +126,7 @@ public class V9__seed_dummy_income extends BaseJavaMigration {
             stmt.setObject(3, randomDateInMonth(month, today, random));
             stmt.setLong(4, categoryBundle.categoryId());
             stmt.setLong(5, categoryBundle.subCategoryId());
-            stmt.setString(6, "system");
+            stmt.setString(6, "u001");
             stmt.setObject(7, LocalDateTime.now());
             stmt.executeUpdate();
         }

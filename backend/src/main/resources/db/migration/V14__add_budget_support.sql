@@ -17,7 +17,7 @@ SET @budget_default_exists = (
     WHERE is_default = TRUE
 );
 INSERT INTO budgets (name, amount, budget_period, is_default, created_by, created_on)
-SELECT 'Default Budget', 999999999.99, 'MONTHLY', TRUE, 'system', CURRENT_TIMESTAMP(6)
+SELECT 'Default Budget', 999999999.99, 'MONTHLY', TRUE, 'u001', CURRENT_TIMESTAMP(6)
 WHERE @budget_default_exists = 0;
 
 SET @budget_col_exists = (
@@ -80,4 +80,3 @@ SET @budget_col_notnull_sql = IF(
 PREPARE stmt FROM @budget_col_notnull_sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
-

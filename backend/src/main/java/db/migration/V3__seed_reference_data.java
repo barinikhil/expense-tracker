@@ -47,7 +47,7 @@ public class V3__seed_reference_data extends BaseJavaMigration {
             insert.setString(1, username);
             insert.setString(2, passwordHash);
             insert.setBoolean(3, true);
-            insert.setString(4, "system");
+            insert.setString(4, "u001");
             insert.setObject(5, LocalDateTime.now());
             insert.executeUpdate();
         }
@@ -89,7 +89,7 @@ public class V3__seed_reference_data extends BaseJavaMigration {
         try (PreparedStatement insert = connection.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
             insert.setString(1, name);
             insert.setString(2, name + " expenses");
-            insert.setString(3, "system");
+            insert.setString(3, "u001");
             insert.setObject(4, LocalDateTime.now());
             insert.executeUpdate();
             try (ResultSet keys = insert.getGeneratedKeys()) {
@@ -126,7 +126,7 @@ public class V3__seed_reference_data extends BaseJavaMigration {
         try (PreparedStatement insert = connection.prepareStatement(insertSql)) {
             insert.setString(1, name);
             insert.setLong(2, categoryId);
-            insert.setString(3, "system");
+            insert.setString(3, "u001");
             insert.setObject(4, LocalDateTime.now());
             insert.executeUpdate();
         }

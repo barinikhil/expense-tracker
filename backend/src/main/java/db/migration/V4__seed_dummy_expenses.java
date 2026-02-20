@@ -72,7 +72,7 @@ public class V4__seed_dummy_expenses extends BaseJavaMigration {
     }
 
     private List<CategoryBundle> loadCategoryBundles(Connection connection) throws Exception {
-        String categoriesSql = "SELECT id, name FROM categories";
+        String categoriesSql = "SELECT id, name FROM categories WHERE created_by = 'u001'";
         List<CategoryBundle> bundles = new ArrayList<>();
         try (PreparedStatement categoryStmt = connection.prepareStatement(categoriesSql);
              ResultSet categories = categoryStmt.executeQuery()) {
@@ -106,7 +106,8 @@ public class V4__seed_dummy_expenses extends BaseJavaMigration {
         String sql = """
                 SELECT COUNT(*)
                 FROM expenses
-                WHERE description LIKE ?
+                WHERE created_by = 'u001'
+                  AND description LIKE ?
                   AND expense_date BETWEEN ? AND ?
                 """;
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -121,7 +122,7 @@ public class V4__seed_dummy_expenses extends BaseJavaMigration {
     }
 
     private long countExpensesForMonth(Connection connection, YearMonth month) throws Exception {
-        String sql = "SELECT COUNT(*) FROM expenses WHERE expense_date BETWEEN ? AND ?";
+        String sql = "SELECT COUNT(*) FROM expenses WHERE created_by = 'u001' AND expense_date BETWEEN ? AND ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setObject(1, month.atDay(1));
             stmt.setObject(2, month.atEndOfMonth());
@@ -136,7 +137,8 @@ public class V4__seed_dummy_expenses extends BaseJavaMigration {
         String sql = """
                 SELECT COUNT(*)
                 FROM expenses
-                WHERE expense_date BETWEEN ? AND ?
+                WHERE created_by = 'u001'
+                  AND expense_date BETWEEN ? AND ?
                   AND category_id = ?
                 """;
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -168,7 +170,7 @@ public class V4__seed_dummy_expenses extends BaseJavaMigration {
             stmt.setObject(3, randomDateInMonth(month, today, random));
             stmt.setLong(4, bundle.categoryId());
             stmt.setLong(5, subCategoryId);
-            stmt.setString(6, "system");
+            stmt.setString(6, "u001");
             stmt.setObject(7, LocalDateTime.now());
             stmt.executeUpdate();
         }
