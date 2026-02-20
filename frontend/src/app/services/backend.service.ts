@@ -27,6 +27,16 @@ export interface SubCategory {
   categoryName: string;
 }
 
+export type BudgetPeriod = 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+
+export interface Budget {
+  id: number;
+  name: string;
+  amount: number;
+  period: BudgetPeriod;
+  defaultBudget: boolean;
+}
+
 export type TransactionType = 'EXPENSE' | 'INCOME';
 export type CategoryType = 'EXPENSE' | 'INCOME' | 'SAVING';
 
@@ -40,6 +50,8 @@ export interface Expense {
   categoryName: string;
   subCategoryId: number;
   subCategoryName: string;
+  budgetId: number;
+  budgetName: string;
 }
 
 export interface ExpensePageResponse {
@@ -90,6 +102,16 @@ export interface DashboardCategoryYearTrend {
   monthlyTrend: DashboardMonthlyTotal[];
 }
 
+export interface DashboardBudgetUtilization {
+  budgetId: number;
+  budgetName: string;
+  period: BudgetPeriod;
+  budgetAmount: number;
+  spentAmount: number;
+  remainingAmount: number;
+  utilizationPercent: number;
+}
+
 export interface DashboardSummaryResponse {
   currentMonthTotal: number;
   last30DaysTotal: number;
@@ -105,6 +127,7 @@ export interface DashboardSummaryResponse {
   monthlyTotals: DashboardMonthlyTotal[];
   monthlyIncomeExpensePoints: DashboardMonthlyIncomeExpense[];
   monthlySavingRatePoints: DashboardMonthlySavingRate[];
+  budgetUtilizationPoints: DashboardBudgetUtilization[];
   currentMonthCategoryTotals: DashboardCategoryTotal[];
   topYearlyCategoryTrends: DashboardCategoryYearTrend[];
 }
@@ -139,6 +162,18 @@ export class BackendService {
 
   listSubCategories(): Observable<SubCategory[]> {
     return this.http.get<SubCategory[]>(`${this.apiBaseUrl}/sub-categories`);
+  }
+
+  listBudgets(): Observable<Budget[]> {
+    return this.http.get<Budget[]>(`${this.apiBaseUrl}/budgets`);
+  }
+
+  addBudget(payload: { name: string; amount: number; period: BudgetPeriod }): Observable<Budget> {
+    return this.http.post<Budget>(`${this.apiBaseUrl}/budgets`, payload);
+  }
+
+  updateBudget(id: number, payload: { name: string; amount: number; period: BudgetPeriod }): Observable<Budget> {
+    return this.http.put<Budget>(`${this.apiBaseUrl}/budgets/${id}`, payload);
   }
 
   addSubCategory(payload: { name: string; categoryId: number }): Observable<SubCategory> {
@@ -200,6 +235,7 @@ export class BackendService {
     type: TransactionType;
     categoryId: number;
     subCategoryId: number;
+    budgetId?: number | null;
   }): Observable<Expense> {
     return this.http.post<Expense>(`${this.apiBaseUrl}/transactions`, payload);
   }
@@ -215,6 +251,7 @@ export class BackendService {
     type: TransactionType;
     categoryId: number;
     subCategoryId: number;
+    budgetId?: number | null;
   }): Observable<Expense> {
     return this.http.put<Expense>(`${this.apiBaseUrl}/transactions/${id}`, payload);
   }

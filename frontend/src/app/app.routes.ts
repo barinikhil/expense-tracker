@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { CategoriesPageComponent } from './pages/category/categories-page.component';
+import { BudgetsPageComponent } from './pages/budget/budgets-page.component';
 import { AddExpensePageComponent } from './pages/expense/add-expense-page.component';
 import { ExpensesPageComponent } from './pages/expense/expenses-page.component';
 import { DashboardPageComponent } from './pages/dashboard/dashboard-page.component';
@@ -20,6 +21,7 @@ export const appRoutes: Routes = [
   { path: 'expenses', redirectTo: 'transactions/expense', pathMatch: 'full' },
   { path: 'expenses/add', redirectTo: 'transactions/expense/add', pathMatch: 'full' },
   { path: 'categories', component: CategoriesPageComponent, canActivate: [authGuard] },
+  { path: 'budgets', component: BudgetsPageComponent, canActivate: [authGuard] },
   { path: 'sub-categories', component: SubCategoriesPageComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: 'dashboard' }
 ];

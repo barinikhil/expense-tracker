@@ -5,6 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import {
   BackendService,
+  DashboardBudgetUtilization,
   DashboardCategoryTotal,
   DashboardCategoryYearTrend,
   DashboardMonthlyIncomeExpense,
@@ -52,6 +53,10 @@ export class DashboardPageComponent implements OnInit {
 
   get monthlySavingRatePoints(): DashboardMonthlySavingRate[] {
     return this.summary?.monthlySavingRatePoints ?? [];
+  }
+
+  get budgetUtilizationPoints(): DashboardBudgetUtilization[] {
+    return this.summary?.budgetUtilizationPoints ?? [];
   }
 
   get currentMonthSummary(): DashboardPeriodSummary {
@@ -229,6 +234,10 @@ export class DashboardPageComponent implements OnInit {
   savingRateHeight(ratePercent: number): number {
     const ratio = ratePercent / this.maxSavingRatePercent;
     return Math.max(6, Math.round(ratio * 150));
+  }
+
+  budgetUtilizationWidth(utilizationPercent: number): number {
+    return Math.max(0, Math.min(100, utilizationPercent));
   }
 
   topTrendLinePoints(monthlyTrend: DashboardMonthlyTotal[]): string {

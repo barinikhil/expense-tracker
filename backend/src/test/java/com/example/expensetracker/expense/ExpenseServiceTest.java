@@ -1,5 +1,6 @@
 package com.example.expensetracker.expense;
 
+import com.example.expensetracker.budget.BudgetRepository;
 import com.example.expensetracker.category.Category;
 import com.example.expensetracker.category.CategoryRepository;
 import com.example.expensetracker.category.CategoryType;
@@ -43,6 +44,9 @@ class ExpenseServiceTest {
 
     @Mock
     private SubCategoryRepository subCategoryRepository;
+
+    @Mock
+    private BudgetRepository budgetRepository;
 
     @InjectMocks
     private ExpenseService expenseService;
@@ -163,7 +167,8 @@ class ExpenseServiceTest {
                 LocalDate.now(),
                 TransactionType.INCOME,
                 incomeCategory.getId(),
-                incomeSubCategory.getId()
+                incomeSubCategory.getId(),
+                null
         );
 
         when(expenseRepository.findById(100L)).thenReturn(Optional.of(existingExpense));

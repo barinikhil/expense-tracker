@@ -116,6 +116,17 @@
         <a
           mat-list-item
           class="menu-child menu-nested-child"
+          routerLink="/budgets"
+          routerLinkActive="active"
+          matTooltipPosition="right"
+          (click)="onNavItemClick()"
+        >
+          <mat-icon>savings</mat-icon>
+          <span>Budget</span>
+        </a>
+        <a
+          mat-list-item
+          class="menu-child menu-nested-child"
           routerLink="/sub-categories"
           routerLinkActive="active"
           matTooltipPosition="right"

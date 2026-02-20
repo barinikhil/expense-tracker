@@ -190,6 +190,26 @@
         </mat-card>
 
         <mat-card class="dashboard-card">
+          <h3>Budget Utilization (Current Period)</h3>
+          <div class="category-chart" *ngIf="budgetUtilizationPoints.length; else noBudgetUtilizationData">
+            <div class="category-row" *ngFor="let item of budgetUtilizationPoints">
+              <div class="category-head">
+                <span>{{ item.budgetName }} ({{ item.period }})</span>
+                <strong>
+                  {{ item.spentAmount | number:'1.2-2' }} / {{ item.budgetAmount | number:'1.2-2' }}
+                </strong>
+              </div>
+              <div class="category-track">
+                <div class="category-fill" [style.width.%]="budgetUtilizationWidth(item.utilizationPercent)"></div>
+              </div>
+            </div>
+          </div>
+          <ng-template #noBudgetUtilizationData>
+            <p class="dashboard-empty">No budget utilization data available.</p>
+          </ng-template>
+        </mat-card>
+
+        <mat-card class="dashboard-card">
           <div class="category-card-head">
             <h3>Current Month by Category</h3>
             <div class="category-top-controls">

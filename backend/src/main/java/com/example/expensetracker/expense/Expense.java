@@ -1,6 +1,7 @@
 package com.example.expensetracker.expense;
 
 import com.example.expensetracker.audit.AuditableEntity;
+import com.example.expensetracker.budget.Budget;
 import com.example.expensetracker.category.Category;
 import com.example.expensetracker.category.SubCategory;
 import jakarta.persistence.Column;
@@ -50,4 +51,8 @@ public class Expense extends AuditableEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sub_category_id", nullable = false)
     private SubCategory subCategory;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "budget_id", nullable = false)
+    private Budget budget;
 }
